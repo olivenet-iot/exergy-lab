@@ -9,7 +9,14 @@ const api = axios.create({
 
 export const getCompressorTypes = async () => {
   const response = await api.get('/compressor-types');
-  return response.data.types;
+  return response.data.compressor_types.map(ct => ({
+    ...ct,
+    id: ct.type,
+    fields: ct.fields.map(f => ({
+      ...f,
+      id: f.name,
+    })),
+  }));
 };
 
 export const analyzeCompressor = async (compressorType, parameters) => {
