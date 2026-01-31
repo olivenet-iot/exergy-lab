@@ -42,7 +42,7 @@ const BenchmarkChart = ({ efficiency, rating, percentile }) => {
       {percentile != null && (
         <div className="text-center text-sm">
           <span className="text-gray-600">Sektor siralamasi: </span>
-          <span className="font-semibold">Ilk %{100 - percentile}</span>
+          <span className="font-semibold">Ilk %{Math.round(100 - percentile)}</span>
         </div>
       )}
     </div>

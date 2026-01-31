@@ -1,3 +1,5 @@
+import { formatCurrency, formatNumber } from '../../utils/formatters';
+
 const PriorityBadge = ({ priority }) => {
   const styles = {
     high: 'bg-red-100 text-red-700',
@@ -42,16 +44,16 @@ const SolutionsList = ({ solutions }) => {
 
           <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">Tasarruf Potansiyeli</span>
-              <p className="font-semibold text-green-600">{solution?.potential_savings_percent ?? '—'}%</p>
+              <span className="text-gray-500">Yillik Tasarruf</span>
+              <p className="font-semibold text-green-600">{formatCurrency(solution?.savings_eur_year)}</p>
             </div>
             <div>
               <span className="text-gray-500">Tahmini Yatirim</span>
-              <p className="font-semibold">{solution?.estimated_investment_eur ?? '—'}</p>
+              <p className="font-semibold">{formatCurrency(solution?.estimated_investment_eur)}</p>
             </div>
             <div>
               <span className="text-gray-500">Geri Odeme</span>
-              <p className="font-semibold">{solution?.estimated_roi_years ?? '—'} yil</p>
+              <p className="font-semibold">{formatNumber(solution?.estimated_roi_years, 1)} yil</p>
             </div>
           </div>
         </div>

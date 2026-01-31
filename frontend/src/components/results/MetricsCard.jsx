@@ -33,7 +33,7 @@ const MetricsCard = ({ title, value, unit, rating, icon }) => {
 
       <div className="flex items-baseline gap-1">
         <span className="text-2xl font-bold font-mono">
-          {typeof value === 'number' ? value.toFixed(1) : value}
+          {typeof value === 'number' ? value.toFixed(2) : value}
         </span>
         <span className="text-gray-500">{unit}</span>
       </div>

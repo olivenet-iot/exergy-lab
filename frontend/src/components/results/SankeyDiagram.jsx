@@ -16,14 +16,14 @@ const SankeyDiagram = ({ data }) => {
       pad: 20,
       thickness: 30,
       line: { color: 'white', width: 2 },
-      label: data.nodes.map(n => n.label),
-      color: data.nodes.map(n => n.color),
+      label: data.nodes.map(n => n.name),
+      color: ['#3b82f6', '#6366f1', '#10b981', '#f59e0b', '#ef4444'],
     },
     link: {
       source: data.links.map(l => l.source),
       target: data.links.map(l => l.target),
       value: data.links.map(l => l.value),
-      color: data.links.map(l => l.color),
+      color: ['rgba(59,130,246,0.4)', 'rgba(16,185,129,0.4)', 'rgba(245,158,11,0.4)', 'rgba(239,68,68,0.4)'],
     },
   }];
 

@@ -62,7 +62,7 @@ export const getSolutions = async (compressorType, params) => {
       title: r.title,
       description: r.description,
       priority: r.priority,
-      potential_savings_percent: r.savings_eur_year,
+      savings_eur_year: r.savings_eur_year,
       estimated_investment_eur: r.investment_eur,
       estimated_roi_years: r.payback_years,
     })) ?? [],
