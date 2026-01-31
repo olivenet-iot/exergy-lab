@@ -13,10 +13,12 @@ export const useAnalysis = () => {
 
     try {
       const analysisResult = await analyzeCompressor(compressorType, parameters);
-      setResult(analysisResult?.data ?? null);
+      console.log('[useAnalysis] raw API response:', analysisResult);
+      console.log('[useAnalysis] result state set to:', analysisResult);
+      setResult(analysisResult ?? null);
 
       const solutionsResult = await getSolutions(compressorType, {
-        efficiency: analysisResult?.data?.metrics?.exergy_efficiency_percent,
+        efficiency: analysisResult?.metrics?.exergy_efficiency_percent,
         specific_power: (parameters?.power_kW ?? 0) / (parameters?.flow_rate_m3_min || 1),
         operating_hours: parameters?.operating_hours || 4000,
       });

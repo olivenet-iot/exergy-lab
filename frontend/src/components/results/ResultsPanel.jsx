@@ -5,6 +5,7 @@ import SankeyDiagram from './SankeyDiagram';
 import BenchmarkChart from './BenchmarkChart';
 
 const ResultsPanel = ({ data }) => {
+  console.log('[ResultsPanel] rendering with data:', data);
   if (!data) return null;
 
   const { metrics = {}, heat_recovery = {}, benchmark = {}, sankey } = data;
