@@ -1,4 +1,6 @@
-# Vidalı Kompresör (Screw Compressor)
+# Vidalı Kompresör — Yağlı (Oil-Injected Screw Compressor)
+
+> Son güncelleme: 2026-01-31
 
 ## Genel Bilgiler
 - Tip: Pozitif deplasmanlı, döner
@@ -53,10 +55,46 @@ en yaygınıdır — yağ hem sızdırmazlık hem soğutma sağlar.
 | cosφ (güç faktörü) | 0.85 | Tipik motor değeri |
 | Spesifik güç | 6.5 kW/(m³/min) | Ortalama verimli kompresör |
 
+## Spesifik Güç Tüketimi (SPC)
+
+| Alt Tip | SPC @ 7 bar | Not |
+|---------|-------------|-----|
+| Sabit hızlı (tipik) | 6.0-7.5 kW/m³/min | Piyasa ortalaması |
+| Sabit hızlı (best-in-class) | ~5.5 kW/m³/min | Modern, IE4 motor |
+| VSD (tipik) | 5.5-7.0 kW/m³/min | Değişken yükte avantajlı |
+| VSD (best-in-class) | ~5.5 kW/m³/min | iPM motor, optimize airend |
+
+## Kısmi Yük Davranışı — Load/Unload Kontrol
+
+| Yük % | Güç % | Efektif SPC % |
+|--------|-------|--------------|
+| 100% | 100% | 100% |
+| 75% | ~83% | ~111% |
+| 50% | ~67% | ~134% |
+| 25% | ~50% | ~200% |
+| 0% (boşta) | 25-30% | ∞ |
+
+VSD ile kısmi yük performansı için bkz. `solutions/compressor_vsd.md`
+
 ## Dikkat Edilecekler
 
-1. **Yük/boşta çalışma**: Boşta bile %25-30 güç çeker
-2. **Basınç kaybı**: Her 1 bar düşüş ≈ %7 enerji tasarrufu
-3. **Sıcaklık**: Giriş havası her 5°C düşüşü ≈ %2 verim artışı
+1. **Yük/boşta çalışma**: Boşta bile %25-30 güç çeker — VSD veya uygun kontrol stratejisi değerlendirilmeli
+2. **Basınç kaybı**: Her 1 bar düşüş ≈ %6-7 enerji tasarrufu
+3. **Sıcaklık**: Giriş havası her 3°C düşüşü ≈ %1 verim artışı
 4. **Kaçaklar**: Tipik tesiste %20-30 hava kaçağı var
-5. **Filtre**: Tıkalı filtre basınç düşürür, enerji artar
+5. **Filtre**: Tıkalı filtre basınç düşürür, enerji artar — inlet filter her 2000-4000 saatte kontrol
+6. **Isı geri kazanımı**: Giren enerjinin ~%72'si yağ soğutucudan geri kazanılabilir — bkz. `solutions/compressor_heat_recovery.md`
+7. **Yaş etkisi**: 10+ yıllık kompresörlerde %10-20 verim kaybı beklenir — düzenli bakım ile azaltılabilir
+
+## İlgili Dosyalar
+- Yağsız tip: `equipment/compressor_screw_oilfree.md`
+- Benchmark verileri: `benchmarks/compressor_benchmarks.md`
+- VSD çözümü: `solutions/compressor_vsd.md`
+- Isı geri kazanımı: `solutions/compressor_heat_recovery.md`
+- Exergy hesaplamaları: `formulas/compressor_exergy.md`
+
+## Referanslar
+- Atlas Copco Compressed Air Manual, 9th Edition
+- CAGI Compressed Air & Gas Handbook, 7th Edition
+- DOE/AMO, "Improving Compressed Air System Performance: A Sourcebook for Industry"
+- Kaeser Compressors Technical Documentation
