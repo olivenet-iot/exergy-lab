@@ -8,47 +8,53 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = str(Path(__file__).resolve().parent.parent.parent)
 
-TIMEOUT_SECONDS = 120
+class ClaudeCodeClient:
+    """Singleton client for Claude Code CLI interactions."""
 
+    _instance: "ClaudeCodeClient | None" = None
 
-def _extract_json_string(text: str) -> str | None:
-    """Extract JSON from text, handling markdown fences and raw JSON."""
-    # Try markdown fence first
-    match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", text, re.DOTALL)
-    if match:
-        return match.group(1).strip()
+    def __init__(self) -> None:
+        self._project_root = Path(__file__).resolve().parent.parent.parent
+        self._timeout = 120
+        self._skill_content = self._load_skill_file()
 
-    # Try to find raw JSON object
-    match = re.search(r"\{[\s\S]*\}", text)
-    if match:
-        return match.group(0).strip()
+    @classmethod
+    def get_instance(cls) -> "ClaudeCodeClient":
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
-    return None
+    def _load_skill_file(self) -> str:
+        """Load the SKILL file content at startup."""
+        skill_path = self._project_root / "skills" / "SKILL_exergy_interpreter.md"
+        try:
+            return skill_path.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            logger.warning("SKILL file not found at %s", skill_path)
+            return ""
 
+    def _build_prompt(
+        self,
+        analysis_result: dict,
+        compressor_type: str,
+        parameters: dict,
+    ) -> str:
+        """Build the prompt sent to Claude Code CLI."""
+        metrics = analysis_result.get("metrics", {})
+        benchmark = analysis_result.get("benchmark", {})
+        heat_recovery = analysis_result.get("heat_recovery", {})
 
-def _build_interpretation_prompt(
-    analysis_result: dict,
-    compressor_type: str,
-    parameters: dict,
-) -> str:
-    """Build the prompt sent to Claude Code CLI."""
-    metrics = analysis_result.get("metrics", {})
-    benchmark = analysis_result.get("benchmark", {})
-    heat_recovery = analysis_result.get("heat_recovery", {})
+        # Handle dual field names from frontend
+        efficiency = metrics.get("exergy_efficiency_percent") or metrics.get(
+            "exergy_efficiency_pct"
+        )
 
-    # Handle dual field names from frontend
-    efficiency = metrics.get("exergy_efficiency_percent") or metrics.get(
-        "exergy_efficiency_pct"
-    )
+        return f"""Sen bir endüstriyel exergy analizi uzmanısın. Aşağıdaki kompresör analiz sonuçlarını yorumla.
 
-    return f"""Sen bir endüstriyel exergy analizi uzmanısın. Aşağıdaki kompresör analiz sonuçlarını yorumla.
+## Yorumlama Kuralları ve Şema
 
-Bilgi tabanı dosyalarını referans al:
-- /knowledge/benchmarks/compressor_benchmarks.md
-- /knowledge/equipment/compressor_{compressor_type}.md
-- /knowledge/solutions/ altındaki tüm çözüm dosyaları
+{self._skill_content}
 
 ## Analiz Verileri
 
@@ -80,7 +86,7 @@ Bilgi tabanı dosyalarını referans al:
 
 ## Görev
 
-Yukarıdaki verileri analiz et ve aşağıdaki JSON formatında yanıt ver. Markdown fence kullanma, saf JSON döndür.
+Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yanıt ver. Markdown fence kullanma, saf JSON döndür.
 
 {{
   "summary": "2-3 cümlelik genel özet",
@@ -111,19 +117,104 @@ Yukarıdaki verileri analiz et ve aşağıdaki JSON formatında yanıt ver. Mark
   "warnings": ["Uyarılar"]
 }}"""
 
+    @staticmethod
+    def _extract_json(text: str) -> dict | None:
+        """3-tier JSON parser: direct → markdown fence → regex extraction."""
+        # Tier 1: Try parsing entire output as JSON
+        try:
+            return json.loads(text)
+        except (json.JSONDecodeError, TypeError):
+            pass
 
-def _fallback_response() -> dict:
-    """Return a fallback response when AI is unavailable."""
-    return {
-        "ai_available": False,
-        "summary": "",
-        "detailed_analysis": "",
-        "key_insights": [],
-        "recommendations": [],
-        "not_recommended": [],
-        "action_plan": {"immediate": [], "short_term": [], "medium_term": []},
-        "warnings": [],
-    }
+        # Tier 2: Extract from markdown fences
+        match = re.search(r"```(?:json)?\s*\n?(.*?)\n?\s*```", text, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group(1).strip())
+            except json.JSONDecodeError:
+                pass
+
+        # Tier 3: Find raw JSON object via regex
+        match = re.search(r"\{[\s\S]*\}", text)
+        if match:
+            try:
+                return json.loads(match.group(0).strip())
+            except json.JSONDecodeError:
+                pass
+
+        return None
+
+    @staticmethod
+    def _fallback_response() -> dict:
+        """Return a fallback response when AI is unavailable."""
+        return {
+            "ai_available": False,
+            "summary": "",
+            "detailed_analysis": "",
+            "key_insights": [],
+            "recommendations": [],
+            "not_recommended": [],
+            "action_plan": {"immediate": [], "short_term": [], "medium_term": []},
+            "warnings": [],
+        }
+
+    async def interpret(
+        self,
+        analysis_result: dict,
+        compressor_type: str,
+        parameters: dict,
+    ) -> dict:
+        """Run Claude Code CLI to interpret exergy analysis results.
+
+        Returns a dict with ai_available=True and interpretation data on success,
+        or ai_available=False with empty fields on failure.
+        """
+        prompt = self._build_prompt(analysis_result, compressor_type, parameters)
+
+        try:
+            logger.info("Claude Code CLI called")
+            process = await asyncio.create_subprocess_exec(
+                "claude",
+                "-p",
+                prompt,
+                cwd=str(self._project_root),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=self._timeout
+            )
+
+            if process.returncode != 0:
+                logger.warning(
+                    "Claude CLI exited with code %d: %s",
+                    process.returncode,
+                    stderr.decode(errors="replace")[:500],
+                )
+                return self._fallback_response()
+
+            raw_output = stdout.decode(errors="replace")
+            logger.info("Claude Code response received, parsing")
+
+            # Single-layer parsing — no JSON envelope with -p flag
+            interpretation = self._extract_json(raw_output)
+            if interpretation is None:
+                logger.warning("Could not extract JSON from Claude response")
+                return self._fallback_response()
+
+            interpretation["ai_available"] = True
+            return interpretation
+
+        except asyncio.TimeoutError:
+            logger.warning("Claude CLI timed out after %ds", self._timeout)
+            return self._fallback_response()
+        except FileNotFoundError:
+            logger.warning("Claude CLI not found in PATH")
+            return self._fallback_response()
+        except Exception:
+            logger.exception("Unexpected error calling Claude CLI")
+            return self._fallback_response()
 
 
 async def interpret_with_claude_code(
@@ -131,73 +222,9 @@ async def interpret_with_claude_code(
     compressor_type: str,
     parameters: dict,
 ) -> dict:
-    """Run Claude Code CLI to interpret exergy analysis results.
+    """Module-level function preserving the existing import interface.
 
-    Returns a dict with ai_available=True and interpretation data on success,
-    or ai_available=False with empty fields on failure.
+    Delegates to the ClaudeCodeClient singleton.
     """
-    prompt = _build_interpretation_prompt(analysis_result, compressor_type, parameters)
-
-    try:
-        process = await asyncio.create_subprocess_exec(
-            "claude",
-            "-p",
-            prompt,
-            "--output-format",
-            "json",
-            cwd=PROJECT_ROOT,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-
-        stdout, stderr = await asyncio.wait_for(
-            process.communicate(), timeout=TIMEOUT_SECONDS
-        )
-
-        if process.returncode != 0:
-            logger.warning(
-                "Claude CLI exited with code %d: %s",
-                process.returncode,
-                stderr.decode(errors="replace")[:500],
-            )
-            return _fallback_response()
-
-        raw_output = stdout.decode(errors="replace")
-
-        # Layer 1: Parse the outer CLI JSON envelope
-        try:
-            cli_response = json.loads(raw_output)
-        except json.JSONDecodeError:
-            logger.warning("Failed to parse CLI JSON envelope")
-            return _fallback_response()
-
-        # Extract the inner result text
-        inner_text = cli_response.get("result", "")
-        if not inner_text:
-            logger.warning("CLI response has no 'result' field")
-            return _fallback_response()
-
-        # Layer 2: Parse the LLM's JSON from the result text
-        json_str = _extract_json_string(inner_text)
-        if not json_str:
-            logger.warning("Could not extract JSON from LLM result")
-            return _fallback_response()
-
-        try:
-            interpretation = json.loads(json_str)
-        except json.JSONDecodeError:
-            logger.warning("Failed to parse LLM JSON output")
-            return _fallback_response()
-
-        interpretation["ai_available"] = True
-        return interpretation
-
-    except asyncio.TimeoutError:
-        logger.warning("Claude CLI timed out after %ds", TIMEOUT_SECONDS)
-        return _fallback_response()
-    except FileNotFoundError:
-        logger.warning("Claude CLI not found in PATH")
-        return _fallback_response()
-    except Exception:
-        logger.exception("Unexpected error calling Claude CLI")
-        return _fallback_response()
+    client = ClaudeCodeClient.get_instance()
+    return await client.interpret(analysis_result, compressor_type, parameters)
