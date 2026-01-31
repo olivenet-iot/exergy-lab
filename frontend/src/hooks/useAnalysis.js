@@ -13,14 +13,14 @@ export const useAnalysis = () => {
 
     try {
       const analysisResult = await analyzeCompressor(compressorType, parameters);
-      setResult(analysisResult.data);
+      setResult(analysisResult?.data ?? null);
 
       const solutionsResult = await getSolutions(compressorType, {
-        efficiency: analysisResult.data.metrics.exergy_efficiency_percent,
-        specific_power: parameters.power_kW / parameters.flow_rate_m3_min,
-        operating_hours: parameters.operating_hours || 4000,
+        efficiency: analysisResult?.data?.metrics?.exergy_efficiency_percent,
+        specific_power: (parameters?.power_kW ?? 0) / (parameters?.flow_rate_m3_min || 1),
+        operating_hours: parameters?.operating_hours || 4000,
       });
-      setSolutions(solutionsResult.recommendations);
+      setSolutions(solutionsResult?.recommendations ?? []);
     } catch (err) {
       setError(err.response?.data?.detail || err.message);
     } finally {

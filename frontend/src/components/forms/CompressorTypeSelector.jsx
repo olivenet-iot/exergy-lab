@@ -10,7 +10,7 @@ const COMPRESSOR_ICONS = {
 const CompressorTypeSelector = ({ types, selected, onSelect }) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {types.map((type) => {
+      {types?.map((type) => {
         const Icon = COMPRESSOR_ICONS[type.id] || Settings;
         const isSelected = selected === type.id;
 

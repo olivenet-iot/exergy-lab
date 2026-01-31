@@ -16,7 +16,7 @@ function App() {
   const [selectedType, setSelectedType] = useState(null);
   const [formValues, setFormValues] = useState({});
 
-  const selectedTypeData = types.find(t => t.id === selectedType);
+  const selectedTypeData = types?.find(t => t.id === selectedType);
 
   const handleTypeSelect = (typeId) => {
     setSelectedType(typeId);

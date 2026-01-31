@@ -7,7 +7,7 @@ import BenchmarkChart from './BenchmarkChart';
 const ResultsPanel = ({ data }) => {
   if (!data) return null;
 
-  const { metrics, heat_recovery, benchmark, sankey } = data;
+  const { metrics = {}, heat_recovery = {}, benchmark = {}, sankey } = data;
 
   return (
     <div className="space-y-6">
@@ -15,26 +15,26 @@ const ResultsPanel = ({ data }) => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricsCard
           title="Exergy Verimi"
-          value={metrics.exergy_efficiency_percent}
+          value={metrics?.exergy_efficiency_percent}
           unit="%"
-          rating={benchmark.rating}
+          rating={benchmark?.rating}
           icon="gauge"
         />
         <MetricsCard
           title="Exergy Girisi"
-          value={metrics.exergy_input_kW}
+          value={metrics?.exergy_input_kW}
           unit="kW"
           icon="zap"
         />
         <MetricsCard
           title="Faydali Exergy"
-          value={metrics.exergy_output_kW}
+          value={metrics?.exergy_output_kW}
           unit="kW"
           icon="check-circle"
         />
         <MetricsCard
           title="Exergy Yikimi"
-          value={metrics.exergy_destroyed_kW}
+          value={metrics?.exergy_destroyed_kW}
           unit="kW"
           icon="x-circle"
         />
@@ -52,26 +52,26 @@ const ResultsPanel = ({ data }) => {
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Yillik Kayip</span>
               <span className="font-mono font-semibold text-red-600">
-                {formatNumber(metrics.annual_loss_kWh)} kWh
+                {formatNumber(metrics?.annual_loss_kWh)} kWh
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Yillik Maliyet</span>
               <span className="font-mono font-semibold text-red-600">
-                &euro;{formatNumber(metrics.annual_cost_eur)}
+                &euro;{formatNumber(metrics?.annual_cost_eur)}
               </span>
             </div>
             <hr />
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Isi Geri Kazanim Potansiyeli</span>
               <span className="font-mono font-semibold text-amber-600">
-                {formatNumber(heat_recovery.potential_kW)} kW
+                {formatNumber(heat_recovery?.potential_kW)} kW
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Potansiyel Tasarruf</span>
               <span className="font-mono font-semibold text-green-600">
-                &euro;{formatNumber(heat_recovery.annual_savings_eur)}/yil
+                &euro;{formatNumber(heat_recovery?.annual_savings_eur)}/yil
               </span>
             </div>
           </div>
@@ -79,12 +79,12 @@ const ResultsPanel = ({ data }) => {
 
         <Card title="Benchmark Karsilastirma">
           <BenchmarkChart
-            efficiency={metrics.exergy_efficiency_percent}
-            rating={benchmark.rating}
-            percentile={benchmark.percentile}
+            efficiency={metrics?.exergy_efficiency_percent}
+            rating={benchmark?.rating}
+            percentile={benchmark?.percentile}
           />
           <p className="mt-4 text-sm text-gray-600">
-            {benchmark.comparison_text}
+            {benchmark?.comparison_text}
           </p>
         </Card>
       </div>

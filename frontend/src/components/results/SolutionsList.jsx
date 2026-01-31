@@ -33,25 +33,25 @@ const SolutionsList = ({ solutions }) => {
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="font-medium text-gray-900">{solution.title}</h4>
-                <PriorityBadge priority={solution.priority} />
+                <h4 className="font-medium text-gray-900">{solution?.title ?? '—'}</h4>
+                <PriorityBadge priority={solution?.priority} />
               </div>
-              <p className="text-sm text-gray-600 mt-1">{solution.description}</p>
+              <p className="text-sm text-gray-600 mt-1">{solution?.description ?? '—'}</p>
             </div>
           </div>
 
           <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
             <div>
               <span className="text-gray-500">Tasarruf Potansiyeli</span>
-              <p className="font-semibold text-green-600">{solution.potential_savings_percent}%</p>
+              <p className="font-semibold text-green-600">{solution?.potential_savings_percent ?? '—'}%</p>
             </div>
             <div>
               <span className="text-gray-500">Tahmini Yatirim</span>
-              <p className="font-semibold">{solution.estimated_investment_eur}</p>
+              <p className="font-semibold">{solution?.estimated_investment_eur ?? '—'}</p>
             </div>
             <div>
               <span className="text-gray-500">Geri Odeme</span>
-              <p className="font-semibold">{solution.estimated_roi_years} yil</p>
+              <p className="font-semibold">{solution?.estimated_roi_years ?? '—'} yil</p>
             </div>
           </div>
         </div>

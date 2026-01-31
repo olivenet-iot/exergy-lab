@@ -5,7 +5,7 @@ const ParameterForm = ({ fields, values, onChange, onSubmit, loading }) => {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {fields.map((field) => (
+        {fields?.map((field) => (
           <FormField
             key={field.id}
             field={field}

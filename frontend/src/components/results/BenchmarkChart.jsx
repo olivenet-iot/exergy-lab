@@ -25,7 +25,7 @@ const BenchmarkChart = ({ efficiency, rating, percentile }) => {
         {/* Current value indicator */}
         <div
           className="absolute top-0 h-full w-1 bg-gray-900"
-          style={{ left: `${(Math.min(efficiency, 70) / 70) * 100}%` }}
+          style={{ left: `${(Math.min(efficiency ?? 0, 70) / 70) * 100}%` }}
         />
       </div>
 
