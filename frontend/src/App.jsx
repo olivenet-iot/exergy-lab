@@ -4,6 +4,7 @@ import CompressorTypeSelector from './components/forms/CompressorTypeSelector';
 import ParameterForm from './components/forms/ParameterForm';
 import ResultsPanel from './components/results/ResultsPanel';
 import SolutionsList from './components/results/SolutionsList';
+import AIInterpretation from './components/results/AIInterpretation';
 import Card from './components/common/Card';
 import LoadingSpinner from './components/common/Loading';
 import { useCompressorTypes } from './hooks/useCompressorTypes';
@@ -11,7 +12,7 @@ import { useAnalysis } from './hooks/useAnalysis';
 
 function App() {
   const { types, loading: typesLoading } = useCompressorTypes();
-  const { result, solutions, loading, error, analyze, reset } = useAnalysis();
+  const { result, solutions, loading, error, analyze, reset, interpretation, aiLoading } = useAnalysis();
 
   const [selectedType, setSelectedType] = useState(null);
   const [formValues, setFormValues] = useState({});
@@ -87,7 +88,9 @@ function App() {
               <ResultsPanel data={result} />
             </div>
 
-            {solutions.length > 0 && (
+            <AIInterpretation interpretation={interpretation} loading={aiLoading} />
+
+            {!interpretation && !aiLoading && solutions.length > 0 && (
               <SolutionsList solutions={solutions} />
             )}
           </>

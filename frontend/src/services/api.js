@@ -69,4 +69,13 @@ export const getSolutions = async (compressorType, params) => {
   };
 };
 
+export const interpretAnalysis = async (analysisResult, compressorType, parameters) => {
+  const response = await api.post('/interpret', {
+    analysis_result: analysisResult,
+    compressor_type: compressorType,
+    parameters,
+  });
+  return response.data;
+};
+
 export default api;
