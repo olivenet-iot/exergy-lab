@@ -220,7 +220,7 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
     hotspots = _identify_hotspots(valid_results)
 
     # 4. Detect integration opportunities
-    integration = _detect_integration_opportunities(valid_results)
+    integration = _detect_integration_opportunities(valid_results, equipment_list)
 
     # 5. Generate factory Sankey
     sankey = _generate_factory_sankey(valid_results, aggregates)
@@ -271,21 +271,40 @@ def _calculate_aggregates(results: List[dict]) -> dict:
 # Hotspots
 # ---------------------------------------------------------------------------
 
+def _get_priority(efficiency: float, loss_kW: float, total_loss_kW: float) -> str:
+    """
+    Hotspot oncelik seviyesi belirle.
+
+    Hem mutlak hem oransal kriterleri kullanir:
+    - high: verim < %30 VEYA kayip > toplam kaybın %40'i VEYA mutlak kayip > 20 kW
+    - medium: verim < %50 VEYA kayip > toplam kaybın %20'si VEYA mutlak kayip > 5 kW
+    - low: diger
+    """
+    loss_ratio = (loss_kW / total_loss_kW) if total_loss_kW > 0 else 0
+
+    if efficiency < 30 or loss_ratio > 0.40 or loss_kW > 20:
+        return "high"
+    elif efficiency < 50 or loss_ratio > 0.20 or loss_kW > 5:
+        return "medium"
+    else:
+        return "low"
+
+
 def _identify_hotspots(results: List[dict]) -> List[dict]:
     """Ekipmanlari exergy yikimina gore siralar (azalan)."""
+    # Calculate total loss first for relative priority
+    total_loss_kW = sum(
+        r["analysis"].get("exergy_destroyed_kW", 0) for r in results
+    )
+
     hotspots = []
     for r in results:
         a = r["analysis"]
         destroyed = a.get("exergy_destroyed_kW", 0)
+        efficiency = a.get("exergy_efficiency_pct", 0)
         annual_loss = a.get("annual_loss_EUR", 0) or 0
 
-        # Priority determination
-        if destroyed > 20 or annual_loss > 5000:
-            priority = "high"
-        elif destroyed > 5 or annual_loss > 1000:
-            priority = "medium"
-        else:
-            priority = "low"
+        priority = _get_priority(efficiency, destroyed, total_loss_kW)
 
         hotspots.append({
             "id": r["id"],
@@ -293,7 +312,7 @@ def _identify_hotspots(results: List[dict]) -> List[dict]:
             "equipment_type": r["equipment_type"],
             "subtype": r["subtype"],
             "exergy_destroyed_kW": round(destroyed, 2),
-            "exergy_efficiency_pct": round(a.get("exergy_efficiency_pct", 0), 1),
+            "exergy_efficiency_pct": round(efficiency, 1),
             "annual_loss_EUR": round(annual_loss, 0),
             "priority": priority,
         })
@@ -307,7 +326,10 @@ def _identify_hotspots(results: List[dict]) -> List[dict]:
 # Integration opportunities
 # ---------------------------------------------------------------------------
 
-def _detect_integration_opportunities(results: List[dict]) -> List[dict]:
+def _detect_integration_opportunities(
+    results: List[dict],
+    equipment_list: List[EquipmentItem],
+) -> List[dict]:
     """
     Capraz ekipman entegrasyon firsatlarini tespit eder.
 
@@ -320,50 +342,74 @@ def _detect_integration_opportunities(results: List[dict]) -> List[dict]:
     """
     opportunities = []
 
+    # Build lookup from equipment id -> original EquipmentItem for parameter access
+    eq_lookup = {item.id: item for item in equipment_list}
+
     # Categorize equipment
     compressors = [r for r in results if r["equipment_type"] == "compressor"]
     boilers = [r for r in results if r["equipment_type"] == "boiler"]
     chillers = [r for r in results if r["equipment_type"] == "chiller"]
     pumps = [r for r in results if r["equipment_type"] == "pump"]
 
+    # Helper: get compressor thermal power from first principles
+    # ~90% of electrical input becomes heat, ~75% is recoverable via oil cooler / aftercooler
+    def _compressor_recoverable_kW(comp_result: dict) -> float:
+        ca = comp_result["analysis"]
+        power_kW = ca.get("exergy_in_kW", 0)  # equals electrical input for compressors
+        if not power_kW:
+            # Fallback to original parameters
+            item = eq_lookup.get(comp_result["id"])
+            if item:
+                power_kW = item.parameters.get("power_kW", 0) or 0
+        return power_kW * 0.90 * 0.75  # ~67.5% of input is recoverable heat
+
+    def _get_operating_hours(comp_result: dict, default: int = 6000) -> int:
+        item = eq_lookup.get(comp_result["id"])
+        if item:
+            return item.parameters.get("operating_hours", default) or default
+        return default
+
     # Pattern 1: Compressor waste heat -> Boiler feedwater preheating
     if compressors and boilers:
         for comp in compressors:
-            ca = comp["analysis"]
-            recoverable = ca.get("recoverable_heat_kW", 0) or 0
+            recoverable = _compressor_recoverable_kW(comp)
             if recoverable > 0:
+                hours = _get_operating_hours(comp)
+                usable = recoverable * 0.60  # 60% heat exchanger effectiveness
+                savings = usable * hours * 0.05  # ~0.05 EUR/kWh fuel displaced
+                investment = 15000
                 for boiler in boilers:
-                    savings = recoverable * 0.6 * 6000 * 0.05  # 60% recovery, 6000h, ~0.05 EUR/kWh fuel
                     opportunities.append({
                         "type": "compressor_heat_to_boiler",
                         "title": "Kompresor Atik Isisi → Kazan Besleme Suyu",
                         "source": comp["name"],
                         "target": boiler["name"],
-                        "potential_recovery_kW": round(recoverable * 0.6, 1),
+                        "potential_recovery_kW": round(usable, 1),
                         "estimated_savings_EUR_year": round(savings, 0),
-                        "estimated_investment_EUR": 15000,
-                        "roi_years": round(15000 / savings, 1) if savings > 0 else 99,
+                        "estimated_investment_EUR": investment,
+                        "roi_years": round(investment / savings, 1) if savings > 0 else 99,
                         "complexity": "medium",
                         "description": f"{comp['name']} atik isisinin {boiler['name']} besleme suyu on isitmada kullanimi. "
-                                       f"Tahmini geri kazanilabilir isi: {recoverable * 0.6:.1f} kW.",
+                                       f"Tahmini geri kazanilabilir isi: {usable:.1f} kW.",
                     })
                     break  # One opportunity per compressor
 
     # Pattern 2: Compressor waste heat -> Space heating
     for comp in compressors:
-        ca = comp["analysis"]
-        recoverable = ca.get("recoverable_heat_kW", 0) or 0
+        recoverable = _compressor_recoverable_kW(comp)
         if recoverable > 3:  # At least 3 kW
-            savings = recoverable * 0.5 * 2000 * 0.06  # 50% useful, 2000h heating season, gas price
+            usable = recoverable * 0.50  # 50% useful for space heating
+            savings = usable * 2000 * 0.06  # 2000h heating season, gas price
+            investment = 8000
             opportunities.append({
                 "type": "compressor_heat_to_space",
                 "title": "Kompresor Atik Isisi → Mekan Isitma",
                 "source": comp["name"],
                 "target": "Mekan Isitma Sistemi",
-                "potential_recovery_kW": round(recoverable * 0.5, 1),
+                "potential_recovery_kW": round(usable, 1),
                 "estimated_savings_EUR_year": round(savings, 0),
-                "estimated_investment_EUR": 8000,
-                "roi_years": round(8000 / savings, 1) if savings > 0 else 99,
+                "estimated_investment_EUR": investment,
+                "roi_years": round(investment / savings, 1) if savings > 0 else 99,
                 "complexity": "low",
                 "description": f"{comp['name']} atik isisinin mekan isitmada kullanimi (kis sezonu).",
             })
@@ -374,11 +420,12 @@ def _detect_integration_opportunities(results: List[dict]) -> List[dict]:
             ba = boiler["analysis"]
             flue_gas_loss = ba.get("flue_gas_loss_kW", 0) or 0
             if flue_gas_loss > 10:
+                hours = _get_operating_hours(boiler, 4000)
+                cooling_potential = flue_gas_loss * 0.5 * 0.7  # 50% capture, COP 0.7
+                electricity_saved = cooling_potential / 4.0  # replaces electric chiller COP=4
+                savings = electricity_saved * hours * 0.12
+                investment = 50000
                 for chiller in chillers:
-                    # Absorption COP ~0.7
-                    cooling_potential = flue_gas_loss * 0.5 * 0.7
-                    electricity_savings = cooling_potential / 4.0  # Replace electric chiller COP=4
-                    savings = electricity_savings * 4000 * 0.12  # 4000h, 0.12 EUR/kWh
                     opportunities.append({
                         "type": "flue_gas_to_absorption",
                         "title": "Kazan Baca Gazi → Absorpsiyonlu Chiller",
@@ -386,8 +433,8 @@ def _detect_integration_opportunities(results: List[dict]) -> List[dict]:
                         "target": chiller["name"],
                         "potential_recovery_kW": round(cooling_potential, 1),
                         "estimated_savings_EUR_year": round(savings, 0),
-                        "estimated_investment_EUR": 50000,
-                        "roi_years": round(50000 / savings, 1) if savings > 0 else 99,
+                        "estimated_investment_EUR": investment,
+                        "roi_years": round(investment / savings, 1) if savings > 0 else 99,
                         "complexity": "high",
                         "description": f"{boiler['name']} baca gazi isisi ile {chiller['name']} yerine absorpsiyonlu sogutma.",
                     })
@@ -396,13 +443,15 @@ def _detect_integration_opportunities(results: List[dict]) -> List[dict]:
     # Pattern 4: Chiller condenser heat -> Hot water
     for chiller in chillers:
         ca = chiller["analysis"]
-        exergy_in = ca.get("exergy_in_kW", 0)
-        # Condenser rejects Q_cool + W_comp as heat
-        if exergy_in > 10:
-            # Rough estimate: condenser heat ~ 1.2 * input for VC chillers
-            condenser_heat = exergy_in * 1.2
-            recoverable = condenser_heat * 0.3  # 30% usable for hot water
-            savings = recoverable * 4000 * 0.05  # fuel displacement
+        # Use cooling capacity + compressor power as condenser rejection
+        cooling_kW = ca.get("cooling_capacity_kW", 0) or 0
+        comp_power = ca.get("compressor_power_kW", 0) or ca.get("exergy_in_kW", 0)
+        condenser_heat = cooling_kW + comp_power if cooling_kW else comp_power * 1.2
+        if condenser_heat > 10:
+            recoverable = condenser_heat * 0.30  # 30% usable for hot water
+            hours = _get_operating_hours(chiller, 4000)
+            savings = recoverable * hours * 0.05  # fuel displacement
+            investment = 12000
             if savings > 500:
                 opportunities.append({
                     "type": "condenser_heat_to_hotwater",
@@ -411,8 +460,8 @@ def _detect_integration_opportunities(results: List[dict]) -> List[dict]:
                     "target": "Sicak Su Sistemi",
                     "potential_recovery_kW": round(recoverable, 1),
                     "estimated_savings_EUR_year": round(savings, 0),
-                    "estimated_investment_EUR": 12000,
-                    "roi_years": round(12000 / savings, 1) if savings > 0 else 99,
+                    "estimated_investment_EUR": investment,
+                    "roi_years": round(investment / savings, 1) if savings > 0 else 99,
                     "complexity": "medium",
                     "description": f"{chiller['name']} kondenser atik isisinin sicak su uretiminde kullanimi.",
                 })
@@ -422,7 +471,8 @@ def _detect_integration_opportunities(results: List[dict]) -> List[dict]:
         pa = pump["analysis"]
         vsd_savings = pa.get("vsd_savings_potential_kW", 0) or 0
         if vsd_savings > 1:
-            annual_savings = vsd_savings * 6000 * 0.12  # 6000h, 0.12 EUR/kWh
+            hours = _get_operating_hours(pump)
+            annual_savings = vsd_savings * hours * 0.12
             motor_power = pa.get("exergy_in_kW", 10)
             investment = motor_power * 100  # ~100 EUR/kW for VSD
             opportunities.append({

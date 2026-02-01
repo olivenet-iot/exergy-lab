@@ -331,15 +331,15 @@ async def get_equipment_config(equipment_type: str):
 def _get_compressor_config() -> EquipmentTypeConfigResponse:
     """Compressor config with field definitions."""
     common_fields = [
-        CompressorFieldResponse(name="power_kW", label="Elektrik Gücü", type="number", required=True, min=0.1, max=5000, unit="kW"),
-        CompressorFieldResponse(name="flow_rate_m3_min", label="Hava Debisi", type="number", required=True, min=0.1, max=500, unit="m³/min"),
-        CompressorFieldResponse(name="outlet_pressure_bar", label="Çıkış Basıncı", type="number", required=True, min=1, max=50, unit="bar"),
+        CompressorFieldResponse(name="power_kW", label="Elektrik Gücü", type="number", required=True, default=37, min=0.1, max=5000, unit="kW"),
+        CompressorFieldResponse(name="flow_rate_m3_min", label="Hava Debisi", type="number", required=True, default=6.2, min=0.1, max=500, unit="m³/min"),
+        CompressorFieldResponse(name="outlet_pressure_bar", label="Çıkış Basıncı", type="number", required=True, default=7.5, min=1, max=50, unit="bar"),
         CompressorFieldResponse(name="inlet_temp_C", label="Giriş Sıcaklığı", type="number", required=False, default=25.0, min=-20, max=60, unit="°C"),
         CompressorFieldResponse(name="outlet_temp_C", label="Çıkış Sıcaklığı", type="number", required=False, min=20, max=300, unit="°C"),
         CompressorFieldResponse(name="ambient_temp_C", label="Ortam Sıcaklığı", type="number", required=False, default=25.0, min=-20, max=60, unit="°C"),
-        CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=4000, min=0, max=8760, unit="saat/yıl"),
-        CompressorFieldResponse(name="load_factor", label="Yük Faktörü", type="number", required=False, default=0.75, min=0, max=1),
-        CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.10, min=0, max=1, unit="€/kWh"),
+        CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=6000, min=0, max=8760, unit="saat/yıl"),
+        CompressorFieldResponse(name="load_factor", label="Yük Faktörü", type="number", required=False, default=0.75, min=0, max=1, hint="0-1 arası, tipik değer 0.65-0.85"),
+        CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.12, min=0, max=1, unit="€/kWh"),
     ]
 
     subtypes = [
@@ -363,17 +363,24 @@ def _get_compressor_config() -> EquipmentTypeConfigResponse:
 def _get_boiler_config() -> EquipmentTypeConfigResponse:
     """Boiler config with field definitions."""
     common_fields = [
-        CompressorFieldResponse(name="fuel_flow_kg_h", label="Yakıt Debisi", type="number", required=True, min=1, max=50000, unit="kg/h"),
-        CompressorFieldResponse(name="steam_flow_kg_h", label="Buhar Debisi", type="number", required=True, min=1, max=100000, unit="kg/h"),
-        CompressorFieldResponse(name="steam_pressure_bar", label="Buhar Basıncı", type="number", required=True, min=1, max=100, unit="bar"),
+        CompressorFieldResponse(name="fuel_flow_kg_h", label="Yakıt Debisi", type="number", required=True, default=100, min=1, max=50000, unit="kg/h"),
+        CompressorFieldResponse(name="steam_flow_kg_h", label="Buhar Debisi", type="number", required=True, default=2000, min=1, max=100000, unit="kg/h"),
+        CompressorFieldResponse(name="steam_pressure_bar", label="Buhar Basıncı", type="number", required=True, default=10, min=1, max=100, unit="bar"),
         CompressorFieldResponse(name="steam_temp_C", label="Buhar Sıcaklığı", type="number", required=False, min=50, max=600, unit="°C"),
         CompressorFieldResponse(name="feedwater_temp_C", label="Besleme Suyu Sıcaklığı", type="number", required=False, default=80, min=5, max=200, unit="°C"),
         CompressorFieldResponse(name="flue_gas_temp_C", label="Baca Gazı Sıcaklığı", type="number", required=False, default=180, min=50, max=500, unit="°C"),
-        CompressorFieldResponse(name="fuel_type", label="Yakıt Tipi", type="select", required=False, options=["natural_gas", "fuel_oil", "coal", "biomass", "lpg", "diesel"]),
+        CompressorFieldResponse(name="fuel_type", label="Yakıt Tipi", type="select", required=False, default="natural_gas", options=[
+            {"value": "natural_gas", "label": "Dogalgaz"},
+            {"value": "fuel_oil", "label": "Fuel Oil"},
+            {"value": "coal", "label": "Komur"},
+            {"value": "biomass", "label": "Biyokutle"},
+            {"value": "lpg", "label": "LPG"},
+            {"value": "diesel", "label": "Dizel"},
+        ]),
         CompressorFieldResponse(name="excess_air_pct", label="Fazla Hava", type="number", required=False, default=15, min=0, max=100, unit="%"),
         CompressorFieldResponse(name="blowdown_rate_pct", label="Blowdown Oranı", type="number", required=False, default=3, min=0, max=20, unit="%"),
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=6000, min=0, max=8760, unit="saat/yıl"),
-        CompressorFieldResponse(name="fuel_price_eur_kg", label="Yakıt Fiyatı", type="number", required=False, default=0.50, min=0, max=10, unit="€/kg"),
+        CompressorFieldResponse(name="fuel_price_eur_kg", label="Yakıt Fiyatı", type="number", required=False, default=0.50, min=0, max=10, unit="€/kg", hint="Dogalgaz icin tipik: 0.35-0.60 €/kg"),
     ]
 
     subtypes = []
@@ -397,13 +404,16 @@ def _get_boiler_config() -> EquipmentTypeConfigResponse:
 def _get_chiller_config() -> EquipmentTypeConfigResponse:
     """Chiller config with field definitions."""
     vc_fields = [
-        CompressorFieldResponse(name="cooling_capacity_kW", label="Soğutma Kapasitesi", type="number", required=True, min=1, max=10000, unit="kW"),
-        CompressorFieldResponse(name="compressor_power_kW", label="Kompresör Gücü", type="number", required=True, min=1, max=5000, unit="kW"),
+        CompressorFieldResponse(name="cooling_capacity_kW", label="Soğutma Kapasitesi", type="number", required=True, default=350, min=1, max=10000, unit="kW"),
+        CompressorFieldResponse(name="compressor_power_kW", label="Kompresör Gücü", type="number", required=True, default=70, min=1, max=5000, unit="kW"),
         CompressorFieldResponse(name="chw_supply_temp_C", label="Soğuk Su Çıkış", type="number", required=False, default=7, min=-10, max=25, unit="°C"),
         CompressorFieldResponse(name="chw_return_temp_C", label="Soğuk Su Dönüş", type="number", required=False, default=12, min=0, max=30, unit="°C"),
         CompressorFieldResponse(name="cw_supply_temp_C", label="Kondenser Suyu Giriş", type="number", required=False, default=30, min=10, max=50, unit="°C"),
         CompressorFieldResponse(name="cw_return_temp_C", label="Kondenser Suyu Çıkış", type="number", required=False, default=35, min=15, max=55, unit="°C"),
-        CompressorFieldResponse(name="condenser_type", label="Kondenser Tipi", type="select", required=False, options=["water", "air"]),
+        CompressorFieldResponse(name="condenser_type", label="Kondenser Tipi", type="select", required=False, options=[
+            {"value": "water", "label": "Su Sogutmali"},
+            {"value": "air", "label": "Hava Sogutmali"},
+        ]),
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=4000, min=0, max=8760, unit="saat/yıl"),
         CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.12, min=0, max=1, unit="€/kWh"),
     ]
@@ -440,15 +450,20 @@ def _get_chiller_config() -> EquipmentTypeConfigResponse:
 def _get_pump_config() -> EquipmentTypeConfigResponse:
     """Pump config with field definitions."""
     common_fields = [
-        CompressorFieldResponse(name="motor_power_kW", label="Motor Gücü", type="number", required=True, min=0.1, max=5000, unit="kW"),
-        CompressorFieldResponse(name="flow_rate_m3_h", label="Debi", type="number", required=True, min=0.1, max=50000, unit="m³/h"),
-        CompressorFieldResponse(name="total_head_m", label="Toplam Basma Yüksekliği", type="number", required=True, min=1, max=1000, unit="m"),
+        CompressorFieldResponse(name="motor_power_kW", label="Motor Gücü", type="number", required=True, default=15, min=0.1, max=5000, unit="kW"),
+        CompressorFieldResponse(name="flow_rate_m3_h", label="Debi", type="number", required=True, default=50, min=0.1, max=50000, unit="m³/h"),
+        CompressorFieldResponse(name="total_head_m", label="Toplam Basma Yüksekliği", type="number", required=True, default=40, min=1, max=1000, unit="m"),
         CompressorFieldResponse(name="fluid_density_kg_m3", label="Akışkan Yoğunluğu", type="number", required=False, default=1000, min=500, max=2000, unit="kg/m³"),
-        CompressorFieldResponse(name="control_method", label="Kontrol Yöntemi", type="select", required=False, options=["none", "throttle", "vsd", "bypass"]),
+        CompressorFieldResponse(name="control_method", label="Kontrol Yöntemi", type="select", required=False, options=[
+            {"value": "none", "label": "Kontrolsuz"},
+            {"value": "throttle", "label": "Vana (Kisma)"},
+            {"value": "vsd", "label": "VSD (Degisken Hiz)"},
+            {"value": "bypass", "label": "Bypass"},
+        ]),
         CompressorFieldResponse(name="throttle_loss_pct", label="Vana Kaybı", type="number", required=False, default=0, min=0, max=50, unit="%"),
         CompressorFieldResponse(name="has_vsd", label="VSD Var mı?", type="boolean", required=False, default=0),
         CompressorFieldResponse(name="motor_efficiency_pct", label="Motor Verimi", type="number", required=False, min=50, max=99, unit="%"),
-        CompressorFieldResponse(name="pump_efficiency_pct", label="Pompa Verimi", type="number", required=False, min=30, max=95, unit="%"),
+        CompressorFieldResponse(name="pump_efficiency_pct", label="Pompa Verimi", type="number", required=False, default=75, min=30, max=95, unit="%"),
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=6000, min=0, max=8760, unit="saat/yıl"),
         CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.12, min=0, max=1, unit="€/kWh"),
     ]

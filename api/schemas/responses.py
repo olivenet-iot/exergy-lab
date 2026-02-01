@@ -1,6 +1,6 @@
 """Response schemas for ExergyLab API."""
 
-from typing import List, Optional
+from typing import Any, List, Optional
 from pydantic import BaseModel
 
 
@@ -95,11 +95,12 @@ class CompressorFieldResponse(BaseModel):
     label: str
     type: str
     required: bool
-    default: Optional[float] = None
+    default: Optional[Any] = None
     min: Optional[float] = None
     max: Optional[float] = None
     unit: Optional[str] = None
-    options: Optional[List[str]] = None
+    options: Optional[List] = None
+    hint: Optional[str] = None
 
 
 class CompressorTypeResponse(BaseModel):

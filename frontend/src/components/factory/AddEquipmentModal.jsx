@@ -69,7 +69,8 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
       }
     }
 
-    const equipmentName = name.trim() || `${selectedType}-${Date.now().toString().slice(-4)}`;
+    const typeLabel = EQUIPMENT_TYPES.find((t) => t.id === selectedType)?.label || selectedType;
+    const equipmentName = name.trim() || `${typeLabel} #1`;
 
     onAdd({
       type: selectedType,
@@ -161,7 +162,7 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={`Ornek: ${selectedType}-1`}
+                  placeholder={`Ornek: ${EQUIPMENT_TYPES.find((t) => t.id === selectedType)?.label || selectedType} #1`}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -177,11 +178,13 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
                     <select
                       value={formValues[field.name] ?? field.default ?? ''}
                       onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 shadow-sm"
                     >
-                      {(field.options || []).map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
+                      {(field.options || []).map((opt) => {
+                        const optValue = opt?.value ?? opt;
+                        const optLabel = opt?.label ?? opt;
+                        return <option key={optValue} value={optValue}>{optLabel}</option>;
+                      })}
                     </select>
                   ) : field.type === 'boolean' ? (
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -204,6 +207,9 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
                       step="any"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
+                  )}
+                  {field.hint && (
+                    <p className="text-xs text-gray-500 mt-1">{field.hint}</p>
                   )}
                 </div>
               ))}
