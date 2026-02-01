@@ -58,7 +58,9 @@ class CentrifugalCompressorParams(BaseModel):
 
 
 class AnalysisRequest(BaseModel):
-    compressor_type: Literal["screw", "piston", "scroll", "centrifugal"] = Field(
-        ..., description="Kompresör tipi"
+    equipment_type: Optional[str] = Field(None, description="Ekipman tipi")
+    subtype: Optional[str] = Field(None, description="Ekipman alt tipi")
+    compressor_type: Optional[Literal["screw", "piston", "scroll", "centrifugal"]] = Field(
+        None, description="Kompresör tipi (geriye uyumluluk)"
     )
-    parameters: dict = Field(..., description="Kompresör parametreleri")
+    parameters: dict = Field(..., description="Ekipman parametreleri")

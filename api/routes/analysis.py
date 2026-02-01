@@ -20,11 +20,17 @@ from api.schemas.responses import (
     BenchmarkDetailResponse, SankeyResponse,
     CompressorTypesListResponse, CompressorTypeResponse, CompressorFieldResponse,
 )
+from api.services.equipment_registry import (
+    get_equipment_types,
+    get_equipment_subtypes,
+    is_valid_equipment,
+    is_engine_ready,
+)
 
 router = APIRouter()
 
 
-# Param validators per type
+# Param validators per compressor subtype
 _PARAM_VALIDATORS = {
     "screw": ScrewCompressorParams,
     "piston": PistonCompressorParams,
@@ -32,7 +38,7 @@ _PARAM_VALIDATORS = {
     "centrifugal": CentrifugalCompressorParams,
 }
 
-# Engine dispatch
+# Engine dispatch for compressor subtypes
 _ANALYZERS = {
     "screw": (CompressorInput, analyze_compressor),
     "piston": (PistonCompressorInput, analyze_piston_compressor),
@@ -41,10 +47,39 @@ _ANALYZERS = {
 }
 
 
+@router.get("/equipment-types")
+async def list_equipment_types():
+    """Tum desteklenen ekipman tiplerini listele."""
+    return {"equipment_types": get_equipment_types()}
+
+
+@router.get("/equipment-types/{equipment_type}/subtypes")
+async def list_subtypes(equipment_type: str):
+    """Belirli ekipman tipinin alt tiplerini listele."""
+    if not is_valid_equipment(equipment_type):
+        raise HTTPException(status_code=404, detail=f"Unknown equipment type: {equipment_type}")
+    return {"subtypes": get_equipment_subtypes(equipment_type)}
+
+
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze(request: AnalysisRequest):
-    """Kompresör exergy analizi yapar."""
-    comp_type = request.compressor_type
+    """Ekipman exergy analizi yapar. Hem eski hem yeni format desteklenir."""
+    # Normalize: support both old (compressor_type) and new (equipment_type/subtype) formats
+    if request.compressor_type and not request.equipment_type:
+        # Old format: compressor_type -> equipment_type=compressor, subtype=compressor_type
+        equipment_type = "compressor"
+        comp_type = request.compressor_type
+    elif request.equipment_type:
+        # New format
+        equipment_type = request.equipment_type
+        comp_type = request.subtype
+        if not is_engine_ready(equipment_type):
+            raise HTTPException(
+                status_code=501,
+                detail="Bu ekipman tipi henuz desteklenmiyor",
+            )
+    else:
+        raise HTTPException(status_code=422, detail="compressor_type or equipment_type is required")
 
     # Validate parameters via Pydantic model
     validator_cls = _PARAM_VALIDATORS.get(comp_type)

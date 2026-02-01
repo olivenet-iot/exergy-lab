@@ -2,7 +2,7 @@
 
 ## Bu skill ne yapar?
 
-Kompresör exergy analiz sonuçlarını yorumlar ve yapılandırılmış JSON formatında detaylı öneriler üretir. Frontend'in doğrudan render edebileceği formatta çıktı verir.
+Ekipman exergy analiz sonuçlarını yorumlar ve yapılandırılmış JSON formatında detaylı öneriler üretir. Kompresör, kazan, chiller ve pompa olmak üzere 4 ekipman tipi desteklenir. Frontend'in doğrudan render edebileceği formatta çıktı verir.
 
 ## Ne zaman kullanılır?
 
@@ -10,22 +10,88 @@ Bu skill doğrudan kullanıcı tarafından çağrılmaz. FastAPI backend'in `/ap
 
 ## Bilgi Kaynakları
 
-Yorumlama sırasında aşağıdaki knowledge dosyaları referans alınmalıdır:
+Yorumlama sırasında ekipman tipine göre aşağıdaki knowledge dosyaları referans alınmalıdır:
 
-- `/knowledge/benchmarks/compressor_benchmarks.md` — Sektör karşılaştırma verileri
-- `/knowledge/equipment/compressor_screw.md` — Vidalı kompresör bilgileri
-- `/knowledge/equipment/compressor_piston.md` — Pistonlu kompresör bilgileri
-- `/knowledge/equipment/compressor_scroll.md` — Scroll kompresör bilgileri
-- `/knowledge/equipment/compressor_centrifugal.md` — Santrifüj kompresör bilgileri
-- `/knowledge/solutions/compressor_heat_recovery.md` — Isı geri kazanım çözümleri
-- `/knowledge/solutions/compressor_vsd.md` — Değişken hız sürücü çözümleri
-- `/knowledge/solutions/compressor_pressure_optimization.md` — Basınç optimizasyonu
-- `/knowledge/solutions/compressor_air_leaks.md` — Kaçak tespiti/giderimi
-- `/knowledge/solutions/compressor_maintenance.md` — Bakım optimizasyonu
-- `/knowledge/solutions/compressor_inlet_optimization.md` — Giriş optimizasyonu
-- `/knowledge/solutions/compressor_dryer_optimization.md` — Kurutucu optimizasyonu
-- `/knowledge/solutions/compressor_system_design.md` — Sistem tasarımı
-- `/knowledge/formulas/compressor_exergy.md` — Exergy hesaplama formülleri
+### Kompresör
+- `knowledge/compressor/benchmarks.md` — Sektör karşılaştırma verileri
+- `knowledge/compressor/formulas.md` — Exergy hesaplama formülleri
+- `knowledge/compressor/equipment/screw.md` — Vidalı kompresör bilgileri
+- `knowledge/compressor/equipment/screw_oilfree.md` — Yağsız vidalı kompresör
+- `knowledge/compressor/equipment/piston.md` — Pistonlu kompresör bilgileri
+- `knowledge/compressor/equipment/scroll.md` — Scroll kompresör bilgileri
+- `knowledge/compressor/equipment/centrifugal.md` — Santrifüj kompresör bilgileri
+- `knowledge/compressor/equipment/roots.md` — Roots blower bilgileri
+- `knowledge/compressor/solutions/heat_recovery.md` — Isı geri kazanım çözümleri
+- `knowledge/compressor/solutions/vsd.md` — Değişken hız sürücü çözümleri
+- `knowledge/compressor/solutions/pressure_optimization.md` — Basınç optimizasyonu
+- `knowledge/compressor/solutions/air_leaks.md` — Kaçak tespiti/giderimi
+- `knowledge/compressor/solutions/maintenance.md` — Bakım optimizasyonu
+- `knowledge/compressor/solutions/inlet_optimization.md` — Giriş optimizasyonu
+- `knowledge/compressor/solutions/dryer_optimization.md` — Kurutucu optimizasyonu
+- `knowledge/compressor/solutions/system_design.md` — Sistem tasarımı
+
+### Kazan
+- `knowledge/boiler/benchmarks.md` — Kazan sektör karşılaştırma verileri
+- `knowledge/boiler/formulas.md` — Kazan exergy hesaplama formülleri
+- `knowledge/boiler/equipment/steam_firetube.md` — Ateş borulu buhar kazanı
+- `knowledge/boiler/equipment/steam_watertube.md` — Su borulu buhar kazanı
+- `knowledge/boiler/equipment/hotwater.md` — Sıcak su kazanı
+- `knowledge/boiler/equipment/condensing.md` — Yoğuşmalı kazan
+- `knowledge/boiler/equipment/waste_heat.md` — Atık ısı kazanı / HRSG
+- `knowledge/boiler/equipment/electric.md` — Elektrikli kazan
+- `knowledge/boiler/equipment/biomass.md` — Biyokütle kazanı
+- `knowledge/boiler/solutions/economizer.md` — Ekonomizer
+- `knowledge/boiler/solutions/air_preheater.md` — Hava ön ısıtıcı
+- `knowledge/boiler/solutions/oxygen_control.md` — Oksijen kontrolü
+- `knowledge/boiler/solutions/blowdown_recovery.md` — Blöf geri kazanımı
+- `knowledge/boiler/solutions/condensate_return.md` — Kondensat geri dönüşü
+- `knowledge/boiler/solutions/steam_trap.md` — Buhar kapanı
+- `knowledge/boiler/solutions/insulation.md` — Yalıtım
+- `knowledge/boiler/solutions/load_optimization.md` — Yük optimizasyonu
+- `knowledge/boiler/solutions/combustion_tuning.md` — Yanma ayarı
+- `knowledge/boiler/solutions/feedwater_treatment.md` — Besleme suyu arıtma
+
+### Chiller
+- `knowledge/chiller/benchmarks.md` — Chiller sektör karşılaştırma verileri
+- `knowledge/chiller/formulas.md` — Chiller exergy hesaplama formülleri
+- `knowledge/chiller/equipment/vapor_compression.md` — Buhar sıkıştırmalı chiller
+- `knowledge/chiller/equipment/screw.md` — Vidalı chiller
+- `knowledge/chiller/equipment/centrifugal.md` — Santrifüj chiller
+- `knowledge/chiller/equipment/scroll.md` — Scroll chiller
+- `knowledge/chiller/equipment/reciprocating.md` — Pistonlu chiller
+- `knowledge/chiller/equipment/absorption.md` — Absorpsiyonlu chiller
+- `knowledge/chiller/equipment/air_cooled.md` — Hava soğutmalı chiller
+- `knowledge/chiller/equipment/water_cooled.md` — Su soğutmalı chiller
+- `knowledge/chiller/solutions/vsd.md` — Değişken hız sürücü
+- `knowledge/chiller/solutions/condenser_optimization.md` — Kondenser optimizasyonu
+- `knowledge/chiller/solutions/chilled_water_reset.md` — Soğuk su sıcaklık ayarı
+- `knowledge/chiller/solutions/free_cooling.md` — Serbest soğutma
+- `knowledge/chiller/solutions/sequencing.md` — Chiller sıralama
+- `knowledge/chiller/solutions/maintenance.md` — Bakım
+- `knowledge/chiller/solutions/load_reduction.md` — Yük azaltma
+- `knowledge/chiller/solutions/delta_t.md` — Delta-T optimizasyonu
+- `knowledge/chiller/solutions/thermal_storage.md` — Termal depolama
+- `knowledge/chiller/solutions/heat_recovery.md` — Isı geri kazanımı
+
+### Pompa
+- `knowledge/pump/benchmarks.md` — Pompa sektör karşılaştırma verileri
+- `knowledge/pump/formulas.md` — Pompa exergy hesaplama formülleri
+- `knowledge/pump/equipment/centrifugal.md` — Santrifüj pompa
+- `knowledge/pump/equipment/positive_displacement.md` — Pozitif deplasmanlı pompa
+- `knowledge/pump/equipment/submersible.md` — Dalgıç pompa
+- `knowledge/pump/equipment/vertical_turbine.md` — Dikey türbin pompa
+- `knowledge/pump/equipment/booster.md` — Hidrofor
+- `knowledge/pump/equipment/vacuum.md` — Vakum pompası
+- `knowledge/pump/solutions/vsd.md` — Değişken hız sürücü
+- `knowledge/pump/solutions/impeller_trimming.md` — Çark tornalama
+- `knowledge/pump/solutions/right_sizing.md` — Doğru boyutlandırma
+- `knowledge/pump/solutions/parallel_operation.md` — Paralel çalışma
+- `knowledge/pump/solutions/system_optimization.md` — Sistem optimizasyonu
+- `knowledge/pump/solutions/motor_upgrade.md` — Motor yükseltme
+- `knowledge/pump/solutions/maintenance.md` — Bakım
+- `knowledge/pump/solutions/throttle_elimination.md` — Kısma eliminasyonu
+- `knowledge/pump/solutions/cavitation_prevention.md` — Kavitasyon önleme
+- `knowledge/pump/solutions/control_optimization.md` — Kontrol optimizasyonu
 
 ## JSON Çıktı Şeması
 

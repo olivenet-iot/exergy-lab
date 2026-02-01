@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes.analysis import router as analysis_router
 from api.routes.benchmarks import router as benchmarks_router
+from api.routes.factory import router as factory_router
 from api.routes.interpret import router as interpret_router
 from api.routes.solutions import router as solutions_router
 
@@ -29,6 +30,7 @@ app.add_middleware(
 # Routers
 app.include_router(analysis_router, prefix="/api", tags=["analysis"])
 app.include_router(benchmarks_router, prefix="/api", tags=["benchmarks"])
+app.include_router(factory_router, prefix="/api", tags=["factory"])
 app.include_router(interpret_router, prefix="/api", tags=["interpretation"])
 app.include_router(solutions_router, prefix="/api", tags=["solutions"])
 
