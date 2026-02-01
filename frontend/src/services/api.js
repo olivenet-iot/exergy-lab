@@ -123,10 +123,11 @@ export const getSolutions = async (compressorType, params) => {
   };
 };
 
-export const interpretAnalysis = async (analysisResult, compressorType, parameters) => {
+export const interpretAnalysis = async (analysisResult, equipmentType, subtype, parameters) => {
   const response = await api.post('/interpret', {
     analysis_result: analysisResult,
-    compressor_type: compressorType,
+    equipment_type: equipmentType,
+    subtype: subtype,
     parameters,
   });
   return response.data;

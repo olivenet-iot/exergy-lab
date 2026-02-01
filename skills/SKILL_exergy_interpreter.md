@@ -155,5 +155,5 @@ Mevcut duruma uygun olmayan çözümleri ve nedenlerini belirt. Örneğin:
 
 1. **Türkçe:** Tüm yorumlar ve öneriler Türkçe olmalıdır
 2. **Sayısal tutarlılık:** Tasarruf ve yatırım rakamları gerçekçi olmalı, verilen parametrelere dayalı hesaplanmalı
-3. **Kompresör tipine özel:** Her kompresör tipinin kendine özgü sorunları ve çözümleri vardır
+3. **Ekipman tipine özel:** Her ekipman tipinin kendine özgü sorunları ve çözümleri vardır
 4. **Saf JSON:** Çıktı saf JSON olmalı, markdown formatting kullanılmamalı

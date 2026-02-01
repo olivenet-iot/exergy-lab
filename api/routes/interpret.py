@@ -15,7 +15,9 @@ router = APIRouter()
 
 class InterpretRequest(BaseModel):
     analysis_result: dict[str, Any]
-    compressor_type: str
+    compressor_type: str = ""          # backward compat
+    equipment_type: str = "compressor"
+    subtype: str = ""
     parameters: dict[str, Any]
 
 
@@ -32,9 +34,14 @@ async def interpret(request: InterpretRequest):
     If AI fails, interpretation.ai_available will be False.
     """
     try:
+        # Resolve equipment_type and subtype (backward compat: fall back to compressor_type)
+        equipment_type = request.equipment_type
+        subtype = request.subtype or request.compressor_type
+
         interpretation = await interpret_with_claude_code(
             analysis_result=request.analysis_result,
-            compressor_type=request.compressor_type,
+            equipment_type=equipment_type,
+            subtype=subtype,
             parameters=request.parameters,
         )
         return InterpretResponse(success=True, interpretation=interpretation)

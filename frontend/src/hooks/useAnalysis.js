@@ -46,19 +46,17 @@ export const useAnalysis = () => {
       // Phase 1 complete: main results are ready
       setLoading(false);
 
-      // Phase 2: AI interpretation (non-blocking, compressor only for now)
-      if (equipmentType === 'compressor') {
-        setAiLoading(true);
-        try {
-          const aiResult = await interpretAnalysis(analysisResult, subtype, parameters);
-          if (aiResult?.success && aiResult?.interpretation?.ai_available) {
-            setInterpretation(aiResult.interpretation);
-          }
-        } catch {
-          // AI failure is silent
-        } finally {
-          setAiLoading(false);
+      // Phase 2: AI interpretation (non-blocking, all equipment types)
+      setAiLoading(true);
+      try {
+        const aiResult = await interpretAnalysis(analysisResult, equipmentType, subtype, parameters);
+        if (aiResult?.success && aiResult?.interpretation?.ai_available) {
+          setInterpretation(aiResult.interpretation);
         }
+      } catch {
+        // AI failure is silent
+      } finally {
+        setAiLoading(false);
       }
     } catch (err) {
       setError(err.response?.data?.detail || err.message);

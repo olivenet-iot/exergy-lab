@@ -8,6 +8,60 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+EQUIPMENT_LABELS = {
+    "compressor": "Kompresör",
+    "boiler": "Kazan",
+    "chiller": "Chiller",
+    "pump": "Pompa",
+}
+
+EQUIPMENT_PARAMS_TEMPLATE = {
+    "compressor": """- Güç: {power_kW} kW
+- Debi: {flow_rate_m3_min} m³/min
+- Çıkış Basıncı: {outlet_pressure_bar} bar
+- Çalışma Saati: {operating_hours} saat/yıl
+- Yük Faktörü: {load_factor}
+- Elektrik Fiyatı: {electricity_price_eur_kwh} €/kWh""",
+    "boiler": """- Yakıt Debisi: {fuel_flow_kg_h} kg/h
+- Buhar/Su Debisi: {steam_flow_kg_h} kg/h
+- Buhar Basıncı: {steam_pressure_bar} bar
+- Besleme Suyu Sıcaklığı: {feedwater_temp_C} °C
+- Baca Gazı Sıcaklığı: {flue_gas_temp_C} °C
+- Yakıt Tipi: {fuel_type}
+- Fazla Hava: {excess_air_pct}%
+- Çalışma Saati: {operating_hours} saat/yıl
+- Yakıt Fiyatı: {fuel_price_eur_kg} €/kg""",
+    "chiller": """- Soğutma Kapasitesi: {cooling_capacity_kW} kW
+- Kompresör Gücü: {compressor_power_kW} kW
+- Soğuk Su Çıkış: {chw_supply_temp_C} °C
+- Soğuk Su Dönüş: {chw_return_temp_C} °C
+- Kondenser Su Giriş: {cw_supply_temp_C} °C
+- Kondenser Su Çıkış: {cw_return_temp_C} °C
+- Çalışma Saati: {operating_hours} saat/yıl
+- Elektrik Fiyatı: {electricity_price_eur_kwh} €/kWh""",
+    "pump": """- Motor Gücü: {motor_power_kW} kW
+- Debi: {flow_rate_m3_h} m³/h
+- Basma Yüksekliği: {total_head_m} m
+- Pompa Verimi: {pump_efficiency_pct}%
+- Kontrol Yöntemi: {control_method}
+- Çalışma Saati: {operating_hours} saat/yıl
+- Elektrik Fiyatı: {electricity_price_eur_kwh} €/kWh""",
+}
+
+EQUIPMENT_CATEGORIES = {
+    "compressor": "heat_recovery|vsd|pressure|maintenance|leaks|system_design|inlet|dryer",
+    "boiler": "economizer|air_preheater|oxygen_control|blowdown|condensate|steam_trap|insulation|load_optimization|combustion|feedwater",
+    "chiller": "vsd|condenser|chilled_water_reset|free_cooling|sequencing|maintenance|load_reduction|delta_t|thermal_storage|heat_recovery",
+    "pump": "vsd|impeller_trimming|right_sizing|parallel|system_optimization|motor_upgrade|maintenance|throttle_elimination|cavitation|control",
+}
+
+
+class _SafeDict(dict):
+    """Dict subclass that returns 'N/A' for missing keys in str.format_map()."""
+
+    def __missing__(self, key: str) -> str:
+        return "N/A"
+
 
 class ClaudeCodeClient:
     """Singleton client for Claude Code CLI interactions."""
@@ -37,7 +91,8 @@ class ClaudeCodeClient:
     def _build_prompt(
         self,
         analysis_result: dict,
-        compressor_type: str,
+        equipment_type: str,
+        subtype: str,
         parameters: dict,
     ) -> str:
         """Build the prompt sent to Claude Code CLI."""
@@ -50,7 +105,20 @@ class ClaudeCodeClient:
             "exergy_efficiency_pct"
         )
 
-        return f"""Sen bir endüstriyel exergy analizi uzmanısın. Aşağıdaki kompresör analiz sonuçlarını yorumla.
+        equipment_label = EQUIPMENT_LABELS.get(equipment_type, equipment_type)
+        categories = EQUIPMENT_CATEGORIES.get(equipment_type, "")
+
+        # Build parameters section with safe formatting (missing keys → 'N/A')
+        params_template = EQUIPMENT_PARAMS_TEMPLATE.get(equipment_type, "")
+        safe_params = {k: v for k, v in parameters.items()}
+        try:
+            params_section = params_template.format_map(
+                _SafeDict(safe_params)
+            )
+        except Exception:
+            params_section = str(parameters)
+
+        return f"""Sen bir endüstriyel exergy analizi uzmanısın. Aşağıdaki {equipment_label.lower()} analiz sonuçlarını yorumla.
 
 ## Yorumlama Kuralları ve Şema
 
@@ -58,15 +126,11 @@ class ClaudeCodeClient:
 
 ## Analiz Verileri
 
-**Kompresör Tipi:** {compressor_type}
+**Ekipman Tipi:** {equipment_label}
+**Alt Tip:** {subtype}
 
 **Parametreler:**
-- Güç: {parameters.get('power_kW', 'N/A')} kW
-- Debi: {parameters.get('flow_rate_m3_min', 'N/A')} m³/min
-- Çıkış Basıncı: {parameters.get('outlet_pressure_bar', 'N/A')} bar
-- Çalışma Saati: {parameters.get('operating_hours', 4000)} saat/yıl
-- Yük Faktörü: {parameters.get('load_factor', 0.75)}
-- Elektrik Fiyatı: {parameters.get('electricity_price_eur_kwh', 0.10)} €/kWh
+{params_section}
 
 **Exergy Metrikleri:**
 - Exergy Girişi: {metrics.get('exergy_input_kW', 'N/A')} kW
@@ -100,7 +164,7 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
       "estimated_savings_eur_year": 5000,
       "estimated_investment_eur": 15000,
       "payback_years": 3.0,
-      "category": "heat_recovery|vsd|pressure|maintenance|leaks|system_design|inlet|dryer"
+      "category": "{categories}"
     }}
   ],
   "not_recommended": [
@@ -161,7 +225,8 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
     async def interpret(
         self,
         analysis_result: dict,
-        compressor_type: str,
+        equipment_type: str,
+        subtype: str,
         parameters: dict,
     ) -> dict:
         """Run Claude Code CLI to interpret exergy analysis results.
@@ -169,7 +234,7 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
         Returns a dict with ai_available=True and interpretation data on success,
         or ai_available=False with empty fields on failure.
         """
-        prompt = self._build_prompt(analysis_result, compressor_type, parameters)
+        prompt = self._build_prompt(analysis_result, equipment_type, subtype, parameters)
 
         try:
             logger.info("Claude Code CLI called")
@@ -219,7 +284,8 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
 
 async def interpret_with_claude_code(
     analysis_result: dict,
-    compressor_type: str,
+    equipment_type: str,
+    subtype: str,
     parameters: dict,
 ) -> dict:
     """Module-level function preserving the existing import interface.
@@ -227,4 +293,4 @@ async def interpret_with_claude_code(
     Delegates to the ClaudeCodeClient singleton.
     """
     client = ClaudeCodeClient.get_instance()
-    return await client.interpret(analysis_result, compressor_type, parameters)
+    return await client.interpret(analysis_result, equipment_type, subtype, parameters)
