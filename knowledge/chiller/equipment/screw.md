@@ -1,3 +1,14 @@
+---
+title: "Vidalı Kompresörlü Chiller — Screw Compressor Chiller"
+category: equipment
+equipment_type: chiller
+subtype: "Vidalı (Screw)"
+keywords: [vidalı chiller, screw, orta kapasite]
+related_files: [chiller/benchmarks.md, chiller/formulas.md, chiller/solutions/vsd.md]
+use_when: ["Vidalı chiller analizi yapılırken", "Orta kapasite soğutma değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Vidalı Kompresörlü Chiller — Screw Compressor Chiller
 
 > Son güncelleme: 2026-01-31

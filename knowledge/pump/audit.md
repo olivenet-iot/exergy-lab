@@ -1,3 +1,13 @@
+---
+title: "Pompa Sistemi Enerji Denetimi Metodolojisi"
+category: reference
+equipment_type: pump
+keywords: [enerji denetimi, pompa, ölçüm, analiz]
+related_files: [pump/formulas.md, pump/benchmarks.md, pump/equipment/systems_overview.md]
+use_when: ["Pompa enerji denetimi planlanırken", "Pompa sistemi ölçümleri değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Pompa Sistemi Enerji Denetimi Metodolojisi
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Kontrol Optimizasyonu — Control Optimization"
+category: solutions
+equipment_type: pump
+keywords: [kontrol, optimizasyon, pompa]
+related_files: [pump/solutions/vsd.md, pump/benchmarks.md, pump/solutions/throttle_elimination.md]
+use_when: ["Pompa kontrol optimizasyonu önerilirken", "Otomasyon iyileştirmesi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Kontrol Optimizasyonu — Control Optimization
 
 > Son güncelleme: 2026-01-31

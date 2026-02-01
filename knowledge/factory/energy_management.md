@@ -1,3 +1,13 @@
+---
+title: "Enerji Yönetim Sistemleri (Energy Management Systems — ISO 50001)"
+category: factory
+equipment_type: factory
+keywords: [enerji yönetimi, ISO 50001, fabrika]
+related_files: [factory/kpi_definitions.md, factory/reporting.md, factory/implementation.md]
+use_when: ["Enerji yönetim sistemi önerilirken", "ISO 50001 uyumu değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Enerji Yönetim Sistemleri (Energy Management Systems — ISO 50001)
 
 > Son güncelleme: 2026-01-31

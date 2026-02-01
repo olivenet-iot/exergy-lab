@@ -1,3 +1,14 @@
+---
+title: "Su Soğutmalı Chiller — Water-Cooled Chiller"
+category: equipment
+equipment_type: chiller
+subtype: "Su Soğutmalı"
+keywords: [su soğutmalı, chiller, kondenser]
+related_files: [chiller/benchmarks.md, chiller/formulas.md, chiller/equipment/cooling_tower.md]
+use_when: ["Su soğutmalı chiller analizi yapılırken", "Soğutma kulesi sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Su Soğutmalı Chiller — Water-Cooled Chiller
 
 > Son güncelleme: 2026-01-31

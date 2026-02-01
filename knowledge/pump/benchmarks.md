@@ -1,3 +1,13 @@
+---
+title: "Pompa Benchmark Verileri"
+category: reference
+equipment_type: pump
+keywords: [benchmark, pompa, özgül enerji, verimlilik]
+related_files: [pump/formulas.md, pump/audit.md, pump/solutions/vsd.md]
+use_when: ["Pompa performansı değerlendirilirken", "Özgül enerji karşılaştırması yapılırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Pompa Benchmark Verileri
 
 > Son güncelleme: 2026-01-31

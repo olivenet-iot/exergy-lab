@@ -1,3 +1,14 @@
+---
+title: "Roots Blower (Roots Üfleyici)"
+category: equipment
+equipment_type: compressor
+subtype: "Roots Üfleyici"
+keywords: [roots üfleyici, düşük basınç, pnömatik]
+related_files: [compressor/benchmarks.md, compressor/formulas.md, compressor/solutions/system_design.md]
+use_when: ["Roots üfleyici analizi yapılırken", "Düşük basınç uygulaması değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Roots Blower (Roots Üfleyici)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,14 @@
+---
+title: "Basınçlı Hava Sistemleri (Compressed Air Systems)"
+category: equipment
+equipment_type: compressor
+subtype: "Sistem Genel Bakış"
+keywords: [kompresör sistemi, basınçlı hava, genel bakış]
+related_files: [compressor/formulas.md, compressor/benchmarks.md, compressor/audit.md]
+use_when: ["Kompresör sistemine genel bakış gerektiğinde", "Basınçlı hava sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Basınçlı Hava Sistemleri (Compressed Air Systems)
 
 > Son güncelleme: 2026-01-31

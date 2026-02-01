@@ -1,3 +1,13 @@
+---
+title: "Kağıt ve Selüloz Sektörü Enerji Profili ve Optimizasyon (Paper and Pulp Sector Energy Profile)"
+category: factory
+equipment_type: factory
+keywords: [kağıt, sektör, kurutma, enerji]
+related_files: [factory/factory_benchmarks.md, factory/waste_heat_recovery.md, factory/heat_integration.md]
+use_when: ["Kağıt fabrikası analiz edilirken", "Kağıt sektörü benchmarkları gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Kağıt ve Selüloz Sektörü Enerji Profili ve Optimizasyon (Paper and Pulp Sector Energy Profile)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Basınçlı Hava Kaçak Tespiti ve Onarımı"
+category: solutions
+equipment_type: compressor
+keywords: [hava kaçağı, kaçak tespiti, ultrasonik, kompresör]
+related_files: [compressor/audit.md, compressor/benchmarks.md, compressor/solutions/pressure_optimization.md]
+use_when: ["Hava kaçağı tespiti önerilirken", "Basınçlı hava kayıpları değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Basınçlı Hava Kaçak Tespiti ve Onarımı
 
 > Son güncelleme: 2026-01-31

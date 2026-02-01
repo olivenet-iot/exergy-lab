@@ -1,3 +1,13 @@
+---
+title: "Exergy Akis Analizi ve Grassmann Diyagramlari (Exergy Flow Analysis and Grassmann Diagrams)"
+category: factory
+equipment_type: factory
+keywords: [exergy akış, Grassmann, yıkım]
+related_files: [factory/energy_flow_analysis.md, factory/exergy_fundamentals.md, factory/system_boundaries.md]
+use_when: ["Exergy akış analizi yapılırken", "Exergy yıkım noktaları belirlenirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Exergy Akis Analizi ve Grassmann Diyagramlari (Exergy Flow Analysis and Grassmann Diagrams)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Gıda ve İçecek Sektörü Enerji Profili ve Optimizasyon (Food and Beverage Sector Energy Profile)"
+category: factory
+equipment_type: factory
+keywords: [gıda, sektör, soğutma, enerji]
+related_files: [factory/factory_benchmarks.md, factory/heat_integration.md, factory/cross_equipment.md]
+use_when: ["Gıda fabrikası analiz edilirken", "Gıda sektörü benchmarkları gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Gıda ve İçecek Sektörü Enerji Profili ve Optimizasyon (Food and Beverage Sector Energy Profile)
 
 > Son güncelleme: 2026-01-31

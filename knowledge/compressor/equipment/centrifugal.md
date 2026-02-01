@@ -1,3 +1,14 @@
+---
+title: "Santrifüj Kompresör (Centrifugal Compressor)"
+category: equipment
+equipment_type: compressor
+subtype: "Santrifüj"
+keywords: [santrifüj kompresör, centrifugal, yüksek debi]
+related_files: [compressor/benchmarks.md, compressor/formulas.md, compressor/solutions/inlet_optimization.md]
+use_when: ["Santrifüj kompresör analizi yapılırken", "Büyük kapasite sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Santrifüj Kompresör (Centrifugal Compressor)
 
 > Son güncelleme: 2026-01-31

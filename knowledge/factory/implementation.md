@@ -1,3 +1,13 @@
+---
+title: "Uygulama Stratejileri ve Değişim Yönetimi (Implementation Strategies and Change Management)"
+category: factory
+equipment_type: factory
+keywords: [uygulama, proje yönetimi, fabrika]
+related_files: [factory/prioritization.md, factory/economic_analysis.md, factory/reporting.md]
+use_when: ["Proje uygulama planı hazırlanırken", "İyileştirme adımları planlanırken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Uygulama Stratejileri ve Değişim Yönetimi (Implementation Strategies and Change Management)
 
 > Son güncelleme: 2026-01-31

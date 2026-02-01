@@ -1,3 +1,14 @@
+---
+title: "Pozitif Deplasmanlı Pompalar — Positive Displacement Pumps"
+category: equipment
+equipment_type: pump
+subtype: "Pozitif Deplasmanlı"
+keywords: [pozitif deplasman, dişli pompa, vidalı pompa]
+related_files: [pump/benchmarks.md, pump/formulas.md, pump/solutions/maintenance.md]
+use_when: ["Pozitif deplasmanlı pompa analizi yapılırken", "Viskoz akışkan pompalaması değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Pozitif Deplasmanlı Pompalar — Positive Displacement Pumps
 
 > Son güncelleme: 2026-01-31

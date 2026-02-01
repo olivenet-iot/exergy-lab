@@ -1,3 +1,14 @@
+---
+title: "Buhar Sıkıştırmalı Chiller — Vapor Compression Chiller (Genel)"
+category: equipment
+equipment_type: chiller
+subtype: "Buhar Sıkıştırmalı"
+keywords: [buhar sıkıştırma, çevrim, chiller]
+related_files: [chiller/equipment/systems_overview.md, chiller/formulas.md, chiller/equipment/refrigerants.md]
+use_when: ["Buhar sıkıştırma çevrimi analiz edilirken", "Soğutma prensibi açıklanırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Buhar Sıkıştırmalı Chiller — Vapor Compression Chiller (Genel)
 
 > Son güncelleme: 2026-01-31

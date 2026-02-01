@@ -1,3 +1,14 @@
+---
+title: "Hidrofor / Basınç Artırıcı Sistemler — Booster/Pressure Boosting Systems"
+category: equipment
+equipment_type: pump
+subtype: "Basınç Artırıcı (Booster)"
+keywords: [basınç artırıcı, booster, pompa]
+related_files: [pump/benchmarks.md, pump/formulas.md, pump/solutions/control_optimization.md]
+use_when: ["Basınç artırıcı pompa analizi yapılırken", "Booster sistem değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Hidrofor / Basınç Artırıcı Sistemler — Booster/Pressure Boosting Systems
 
 > Son güncelleme: 2026-01-31

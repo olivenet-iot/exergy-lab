@@ -1,3 +1,14 @@
+---
+title: "Elektrikli Kazan — Electric Boiler"
+category: equipment
+equipment_type: boiler
+subtype: "Elektrikli Kazan"
+keywords: [elektrikli kazan, rezistans, verimlilik]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, boiler/solutions/insulation.md]
+use_when: ["Elektrikli kazan analizi yapılırken", "Elektrikle ısıtma değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Elektrikli Kazan — Electric Boiler
 
 > Son güncelleme: 2026-01-31

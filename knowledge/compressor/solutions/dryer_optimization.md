@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Kurutucu Optimizasyonu"
+category: solutions
+equipment_type: compressor
+keywords: [kurutucu, kompresör, nem, çiğ noktası]
+related_files: [compressor/solutions/system_design.md, compressor/benchmarks.md, compressor/audit.md]
+use_when: ["Hava kurutucu optimizasyonu önerilirken", "Çiğ noktası gereksinimleri değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Kurutucu Optimizasyonu
 
 > Son güncelleme: 2026-01-31

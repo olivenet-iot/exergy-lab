@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Soğutma Suyu Sıcaklığı Reset — Chilled Water Temperature Reset"
+category: solutions
+equipment_type: chiller
+keywords: [soğuk su reset, sıcaklık, chiller]
+related_files: [chiller/benchmarks.md, chiller/solutions/delta_t.md, chiller/solutions/sequencing.md]
+use_when: ["Soğuk su sıcaklık reset önerilirken", "Kısmi yük optimizasyonu değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Soğutma Suyu Sıcaklığı Reset — Chilled Water Temperature Reset
 
 > Son güncelleme: 2026-01-31

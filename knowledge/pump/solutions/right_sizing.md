@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Pompa Boyutlandırma Optimizasyonu — Pump Right-Sizing"
+category: solutions
+equipment_type: pump
+keywords: [boyutlandırma, pompa, BEP, verimlilik]
+related_files: [pump/formulas.md, pump/solutions/impeller_trimming.md, pump/benchmarks.md]
+use_when: ["Pompa doğru boyutlandırma önerilirken", "Aşırı boyutlu pompa değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Pompa Boyutlandırma Optimizasyonu — Pump Right-Sizing
 
 > Son güncelleme: 2026-01-31

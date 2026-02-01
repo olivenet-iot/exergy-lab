@@ -1,3 +1,13 @@
+---
+title: "Çözüm: İmpeller Kesme/Değiştirme — Impeller Trimming"
+category: solutions
+equipment_type: pump
+keywords: [impeller, tıraşlama, pompa, eğri]
+related_files: [pump/formulas.md, pump/solutions/right_sizing.md, pump/benchmarks.md]
+use_when: ["İmpeller tıraşlama önerilirken", "Pompa boyut uyumsuzluğu değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: İmpeller Kesme/Değiştirme — Impeller Trimming
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,14 @@
+---
+title: "Yağsız Vidalı Kompresör (Oil-Free Screw Compressor)"
+category: equipment
+equipment_type: compressor
+subtype: "Yağsız Vidalı (Oil-free Screw)"
+keywords: [yağsız kompresör, oil-free, gıda, ilaç]
+related_files: [compressor/benchmarks.md, compressor/formulas.md, compressor/solutions/heat_recovery.md]
+use_when: ["Yağsız kompresör analizi yorumlanırken", "Temiz hava gereksinimleri değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Yağsız Vidalı Kompresör (Oil-Free Screw Compressor)
 
 > Son güncelleme: 2026-01-31

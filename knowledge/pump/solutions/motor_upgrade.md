@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Motor Yükseltme — Motor Upgrade (IE2 → IE3/IE4)"
+category: solutions
+equipment_type: pump
+keywords: [motor, IE3, IE4, verimlilik]
+related_files: [pump/equipment/motors_drives.md, pump/benchmarks.md, pump/solutions/vsd.md]
+use_when: ["Motor yükseltme önerilirken", "IE3/IE4 motor değişimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Motor Yükseltme — Motor Upgrade (IE2 → IE3/IE4)
 
 > Son güncelleme: 2026-01-31

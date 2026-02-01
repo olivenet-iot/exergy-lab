@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Chiller VSD (Değişken Hızlı Sürücü) Uygulaması"
+category: solutions
+equipment_type: chiller
+keywords: [VSD, değişken hız, chiller, enerji tasarrufu]
+related_files: [chiller/formulas.md, chiller/benchmarks.md, chiller/equipment/centrifugal.md]
+use_when: ["Chiller'a VSD önerisi değerlendirilirken", "Değişken soğutma yükü analiz edilirken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Çözüm: Chiller VSD (Değişken Hızlı Sürücü) Uygulaması
 
 > Son güncelleme: 2026-01-31

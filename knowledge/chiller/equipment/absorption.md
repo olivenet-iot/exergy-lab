@@ -1,3 +1,14 @@
+---
+title: "Absorpsiyonlu Chiller — Absorption Chiller"
+category: equipment
+equipment_type: chiller
+subtype: "Absorpsiyon"
+keywords: [absorpsiyon, chiller, LiBr, ısı kaynaklı]
+related_files: [chiller/benchmarks.md, chiller/formulas.md, chiller/solutions/heat_recovery.md]
+use_when: ["Absorpsiyon chiller analizi yapılırken", "Isı kaynaklı soğutma değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Absorpsiyonlu Chiller — Absorption Chiller
 
 > Son güncelleme: 2026-01-31

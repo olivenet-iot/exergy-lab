@@ -1,3 +1,14 @@
+---
+title: "Atık Isı Kazanı / HRSG — Waste Heat Recovery Boiler"
+category: equipment
+equipment_type: boiler
+subtype: "Atık Isı Kazanı"
+keywords: [atık ısı, kazan, geri kazanım]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, factory/waste_heat_recovery.md]
+use_when: ["Atık ısı kazanı analizi yapılırken", "Proses atık ısısı değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Atık Isı Kazanı / HRSG — Waste Heat Recovery Boiler
 
 > Son güncelleme: 2026-01-31

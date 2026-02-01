@@ -1,3 +1,13 @@
+---
+title: "Blowdown Isi Geri Kazanimi — Blowdown Heat Recovery"
+category: solutions
+equipment_type: boiler
+keywords: [blöf, geri kazanım, kazan, TDS]
+related_files: [boiler/formulas.md, boiler/solutions/feedwater_treatment.md, boiler/benchmarks.md]
+use_when: ["Blöf geri kazanım önerisi değerlendirilirken", "Kazan blöf kayıpları analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Blowdown Isi Geri Kazanimi — Blowdown Heat Recovery
 
 > Son güncelleme: 2026-01-31

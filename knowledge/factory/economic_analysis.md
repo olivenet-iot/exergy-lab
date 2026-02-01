@@ -1,3 +1,13 @@
+---
+title: "Yatırım Analizi Metodları (Economic Analysis Methods)"
+category: factory
+equipment_type: factory
+keywords: [ekonomik analiz, maliyet, geri ödeme]
+related_files: [factory/life_cycle_cost.md, factory/prioritization.md, factory/energy_pricing.md]
+use_when: ["Ekonomik fizibilite hesaplanırken", "Geri ödeme süresi analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Yatırım Analizi Metodları (Economic Analysis Methods)
 
 > Son güncelleme: 2026-01-31

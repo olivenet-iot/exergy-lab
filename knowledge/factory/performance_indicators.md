@@ -1,3 +1,13 @@
+---
+title: "Performans Göstergeleri ve Hedefler (Performance Indicators and Targets)"
+category: factory
+equipment_type: factory
+keywords: [performans, gösterge, KPI]
+related_files: [factory/kpi_definitions.md, factory/factory_benchmarks.md, factory/reporting.md]
+use_when: ["Performans göstergeleri değerlendirilirken", "İzleme metrikleri belirlenirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Performans Göstergeleri ve Hedefler (Performance Indicators and Targets)
 
 > Son güncelleme: 2026-01-31

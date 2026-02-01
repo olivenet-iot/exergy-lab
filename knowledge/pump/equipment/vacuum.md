@@ -1,3 +1,14 @@
+---
+title: "Vakum Pompaları — Vacuum Pumps"
+category: equipment
+equipment_type: pump
+subtype: "Vakum Pompası"
+keywords: [vakum pompası, negatif basınç, emme]
+related_files: [pump/benchmarks.md, pump/formulas.md, pump/solutions/maintenance.md]
+use_when: ["Vakum pompası analizi yapılırken", "Vakum sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Vakum Pompaları — Vacuum Pumps
 
 > Son güncelleme: 2026-01-31

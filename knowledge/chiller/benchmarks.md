@@ -1,3 +1,13 @@
+---
+title: "Chiller Benchmark Verileri"
+category: reference
+equipment_type: chiller
+keywords: [benchmark, chiller, COP, kW/RT]
+related_files: [chiller/formulas.md, chiller/audit.md, chiller/solutions/vsd.md]
+use_when: ["Chiller performansı değerlendirilirken", "COP karşılaştırması yapılırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Chiller Benchmark Verileri
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,14 @@
+---
+title: "Vidalı Kompresör — Yağlı (Oil-Injected Screw Compressor)"
+category: equipment
+equipment_type: compressor
+subtype: "Vidalı (Screw)"
+keywords: [vidalı kompresör, screw, yağlı, kapasite]
+related_files: [compressor/benchmarks.md, compressor/formulas.md, compressor/solutions/vsd.md]
+use_when: ["Vidalı kompresör analizi yorumlanırken", "Screw kompresör seçimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Vidalı Kompresör — Yağlı (Oil-Injected Screw Compressor)
 
 > Son güncelleme: 2026-01-31

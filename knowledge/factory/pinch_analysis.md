@@ -1,3 +1,13 @@
+---
+title: "Pinch Analizi ve Isı Entegrasyonu (Pinch Analysis and Heat Integration)"
+category: factory
+equipment_type: factory
+keywords: [pinch analizi, ısı değiştirici, entegrasyon]
+related_files: [factory/heat_integration.md, factory/process_integration.md, factory/waste_heat_recovery.md]
+use_when: ["Pinch analizi yapılırken", "Isı değiştirici ağı optimize edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Pinch Analizi ve Isı Entegrasyonu (Pinch Analysis and Heat Integration)
 
 > Son güncelleme: 2026-01-31

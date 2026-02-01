@@ -1,3 +1,13 @@
+---
+title: "Yardımcı Sistemler Analizi (Utility Systems Analysis)"
+category: factory
+equipment_type: factory
+keywords: [yardımcı tesis, utilite, fabrika]
+related_files: [factory/energy_flow_analysis.md, factory/energy_pricing.md, factory/system_boundaries.md]
+use_when: ["Yardımcı tesis analizi yapılırken", "Utilite sistemleri değerlendirilirken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Yardımcı Sistemler Analizi (Utility Systems Analysis)
 
 > Son güncelleme: 2026-01-31

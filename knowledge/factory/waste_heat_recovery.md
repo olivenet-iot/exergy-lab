@@ -1,3 +1,13 @@
+---
+title: "Atık Isı Geri Kazanım Teknolojileri (Waste Heat Recovery Technologies)"
+category: factory
+equipment_type: factory
+keywords: [atık ısı, geri kazanım, fabrika]
+related_files: [factory/heat_integration.md, factory/cross_equipment.md, factory/cogeneration.md]
+use_when: ["Fabrika atık ısı geri kazanımı değerlendirilirken", "Atık ısı kaynakları haritalanırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Atık Isı Geri Kazanım Teknolojileri (Waste Heat Recovery Technologies)
 
 > Son güncelleme: 2026-01-31

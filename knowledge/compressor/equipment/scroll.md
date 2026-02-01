@@ -1,3 +1,14 @@
+---
+title: "Scroll Kompresör (Scroll Compressor)"
+category: equipment
+equipment_type: compressor
+subtype: "Scroll"
+keywords: [scroll kompresör, düşük kapasite, sessiz]
+related_files: [compressor/benchmarks.md, compressor/formulas.md, compressor/solutions/maintenance.md]
+use_when: ["Scroll kompresör analizi yapılırken", "Küçük kapasite sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Scroll Kompresör (Scroll Compressor)
 
 > Son güncelleme: 2026-01-31

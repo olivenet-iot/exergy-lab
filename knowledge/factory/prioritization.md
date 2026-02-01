@@ -1,3 +1,13 @@
+---
+title: "Proje Önceliklendirme ve Karar Analizi (Project Prioritization and Decision Analysis)"
+category: factory
+equipment_type: factory
+keywords: [önceliklendirme, yatırım, fabrika, ROI]
+related_files: [factory/economic_analysis.md, factory/cross_equipment.md, factory/implementation.md]
+use_when: ["Yatırım önceliklendirmesi yapılırken", "Proje sıralaması belirlenirken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Proje Önceliklendirme ve Karar Analizi (Project Prioritization and Decision Analysis)
 
 > Son güncelleme: 2026-01-31

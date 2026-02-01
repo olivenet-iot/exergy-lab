@@ -1,3 +1,13 @@
+---
+title: "Metal İşleme Sektörü Enerji Profili ve Optimizasyon (Metal Processing Sector Energy Profile)"
+category: factory
+equipment_type: factory
+keywords: [metal, sektör, ergitme, enerji]
+related_files: [factory/factory_benchmarks.md, factory/waste_heat_recovery.md, factory/heat_integration.md]
+use_when: ["Metal fabrikası analiz edilirken", "Metal sektörü benchmarkları gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Metal İşleme Sektörü Enerji Profili ve Optimizasyon (Metal Processing Sector Energy Profile)
 
 > Son güncelleme: 2026-01-31

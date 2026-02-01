@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Delta-T Optimizasyonu — Delta-T Optimization"
+category: solutions
+equipment_type: chiller
+keywords: [delta-T, sıcaklık farkı, chiller, debi]
+related_files: [chiller/solutions/chilled_water_reset.md, chiller/benchmarks.md, chiller/formulas.md]
+use_when: ["Delta-T iyileştirme önerilirken", "Soğuk su debi optimizasyonu değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Delta-T Optimizasyonu — Delta-T Optimization
 
 > Son güncelleme: 2026-01-31

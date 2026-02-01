@@ -1,3 +1,14 @@
+---
+title: "Hava Soğutmalı Chiller — Air-Cooled Chiller"
+category: equipment
+equipment_type: chiller
+subtype: "Hava Soğutmalı"
+keywords: [hava soğutmalı, chiller, kondenser]
+related_files: [chiller/benchmarks.md, chiller/formulas.md, chiller/solutions/condenser_optimization.md]
+use_when: ["Hava soğutmalı chiller analizi yapılırken", "Kondenser tipi seçimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Hava Soğutmalı Chiller — Air-Cooled Chiller
 
 > Son güncelleme: 2026-01-31

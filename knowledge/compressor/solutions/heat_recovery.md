@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Kompresör Atık Isı Geri Kazanımı"
+category: solutions
+equipment_type: compressor
+keywords: [ısı geri kazanımı, kompresör, atık ısı]
+related_files: [compressor/formulas.md, compressor/benchmarks.md, factory/waste_heat_recovery.md]
+use_when: ["Kompresör ısı geri kazanımı önerilirken", "Atık ısı değerlendirmesi yapılırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Çözüm: Kompresör Atık Isı Geri Kazanımı
 
 > Son güncelleme: 2026-01-31

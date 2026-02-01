@@ -1,3 +1,13 @@
+---
+title: "Çimento Sektörü Enerji Profili ve Optimizasyon (Cement Sector Energy Profile)"
+category: factory
+equipment_type: factory
+keywords: [çimento, sektör, fırın, enerji]
+related_files: [factory/factory_benchmarks.md, factory/waste_heat_recovery.md, factory/heat_integration.md]
+use_when: ["Çimento fabrikası analiz edilirken", "Çimento sektörü benchmarkları gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çimento Sektörü Enerji Profili ve Optimizasyon (Cement Sector Energy Profile)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Giriş Havası Optimizasyonu"
+category: solutions
+equipment_type: compressor
+keywords: [emme, filtre, kompresör, sıcaklık]
+related_files: [compressor/formulas.md, compressor/solutions/maintenance.md, compressor/benchmarks.md]
+use_when: ["Kompresör emme koşulları değerlendirilirken", "Filtre ve emme sistemi optimize edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Giriş Havası Optimizasyonu
 
 > Son güncelleme: 2026-01-31

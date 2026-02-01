@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Bakım Tabanlı Enerji Verimliliği"
+category: solutions
+equipment_type: compressor
+keywords: [bakım, kompresör, izleme, yağ analizi]
+related_files: [compressor/audit.md, compressor/benchmarks.md, compressor/solutions/air_leaks.md]
+use_when: ["Kompresör bakım programı önerilirken", "Performans izleme sistemi kurulurken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Bakım Tabanlı Enerji Verimliliği
 
 > Son güncelleme: 2026-01-31

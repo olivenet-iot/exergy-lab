@@ -1,3 +1,13 @@
+---
+title: "Kutle Dengesi ve Materyal Akis Analizi (Mass Balance and Material Flow Analysis — MFA)"
+category: factory
+equipment_type: factory
+keywords: [kütle dengesi, malzeme, akış]
+related_files: [factory/energy_flow_analysis.md, factory/system_boundaries.md, factory/data_collection.md]
+use_when: ["Kütle dengesi hazırlanırken", "Malzeme akışı analiz edilirken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Kutle Dengesi ve Materyal Akis Analizi (Mass Balance and Material Flow Analysis — MFA)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Çözüm: VSD (Değişken Hızlı Sürücü) ile Kompresör Kontrolü"
+category: solutions
+equipment_type: compressor
+keywords: [VSD, değişken hız, enerji tasarrufu, kompresör]
+related_files: [compressor/formulas.md, compressor/benchmarks.md, compressor/equipment/screw.md]
+use_when: ["Kompresöre VSD önerisi değerlendirilirken", "Değişken yük profili analiz edilirken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Çözüm: VSD (Değişken Hızlı Sürücü) ile Kompresör Kontrolü
 
 > Son güncelleme: 2026-01-31

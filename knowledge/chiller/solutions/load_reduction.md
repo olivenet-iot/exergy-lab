@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Soğutma Yükü Azaltma — Cooling Load Reduction"
+category: solutions
+equipment_type: chiller
+keywords: [yük azaltma, soğutma, chiller]
+related_files: [chiller/benchmarks.md, chiller/solutions/free_cooling.md, chiller/solutions/chilled_water_reset.md]
+use_when: ["Soğutma yükü azaltma önerilirken", "Tesis soğutma ihtiyacı optimize edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Soğutma Yükü Azaltma — Cooling Load Reduction
 
 > Son güncelleme: 2026-01-31

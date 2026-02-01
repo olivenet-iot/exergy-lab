@@ -4,7 +4,9 @@ import asyncio
 import json
 import logging
 import re
+from functools import lru_cache
 from pathlib import Path
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -63,14 +65,30 @@ class _SafeDict(dict):
         return "N/A"
 
 
+@lru_cache(maxsize=100)
+def _read_file_cached(file_path: str) -> Optional[str]:
+    """Read a file with LRU caching. Returns None if file not found."""
+    try:
+        return Path(file_path).read_text(encoding="utf-8")
+    except FileNotFoundError:
+        logger.debug("File not found: %s", file_path)
+        return None
+    except Exception:
+        logger.warning("Error reading file: %s", file_path, exc_info=True)
+        return None
+
+
 class ClaudeCodeClient:
-    """Singleton client for Claude Code CLI interactions."""
+    """Singleton client for Claude Code CLI interactions with modular skill loading."""
 
     _instance: "ClaudeCodeClient | None" = None
 
     def __init__(self) -> None:
         self._project_root = Path(__file__).resolve().parent.parent.parent
         self._timeout = 120
+        self._skills_dir = self._project_root / "skills"
+        self._knowledge_dir = self._project_root / "knowledge"
+        # Backwards-compatible: also load legacy SKILL file
         self._skill_content = self._load_skill_file()
 
     @classmethod
@@ -80,13 +98,115 @@ class ClaudeCodeClient:
         return cls._instance
 
     def _load_skill_file(self) -> str:
-        """Load the SKILL file content at startup."""
+        """Load the legacy SKILL file content at startup (backwards compatible)."""
         skill_path = self._project_root / "skills" / "SKILL_exergy_interpreter.md"
         try:
             return skill_path.read_text(encoding="utf-8")
         except FileNotFoundError:
-            logger.warning("SKILL file not found at %s", skill_path)
+            logger.warning("Legacy SKILL file not found at %s", skill_path)
             return ""
+
+    def _load_skill(self, skill_path: str) -> Optional[str]:
+        """Load a single modular skill file with caching.
+
+        Args:
+            skill_path: Relative path within skills/ directory (e.g. 'core/exergy_fundamentals.md')
+        """
+        full_path = str(self._skills_dir / skill_path)
+        return _read_file_cached(full_path)
+
+    def _load_skills(self, analysis_type: str, equipment_type: Optional[str] = None) -> str:
+        """Load relevant skill files based on analysis type and equipment.
+
+        Loading order:
+        1. Core skills (always loaded)
+        2. Equipment-specific skill (for single equipment analysis)
+        3. Factory skills (for factory analysis)
+        4. Output skills (always loaded)
+
+        Args:
+            analysis_type: 'single_equipment' or 'factory'
+            equipment_type: Equipment type for equipment-specific skills
+        """
+        skills: list[str] = []
+
+        # Core skills — always loaded
+        for core_skill in [
+            "core/exergy_fundamentals.md",
+            "core/response_format.md",
+            "core/decision_trees.md",
+        ]:
+            content = self._load_skill(core_skill)
+            if content:
+                skills.append(content)
+
+        # Equipment-specific skill
+        if equipment_type and equipment_type in EQUIPMENT_LABELS:
+            content = self._load_skill(f"equipment/{equipment_type}_expert.md")
+            if content:
+                skills.append(content)
+
+        # Factory skills
+        if analysis_type == "factory":
+            for factory_skill in [
+                "factory/factory_analyst.md",
+                "factory/integration_expert.md",
+            ]:
+                content = self._load_skill(factory_skill)
+                if content:
+                    skills.append(content)
+
+        # Output skills — always loaded
+        content = self._load_skill("output/turkish_style.md")
+        if content:
+            skills.append(content)
+
+        return "\n\n---\n\n".join(skills)
+
+    def _load_knowledge_file(self, file_path: str) -> Optional[str]:
+        """Load a single knowledge file with caching.
+
+        Args:
+            file_path: Relative path from project root (e.g. 'knowledge/compressor/benchmarks.md')
+        """
+        full_path = str(self._project_root / file_path)
+        return _read_file_cached(full_path)
+
+    def _load_relevant_knowledge(
+        self,
+        analysis_type: str,
+        equipment_type: Optional[str] = None,
+        sector: Optional[str] = None,
+    ) -> str:
+        """Load knowledge files relevant to the current analysis context.
+
+        Args:
+            analysis_type: 'single_equipment' or 'factory'
+            equipment_type: Equipment type for targeted knowledge loading
+            sector: Factory sector for sector-specific knowledge
+        """
+        files: list[str] = []
+
+        if equipment_type and equipment_type in EQUIPMENT_LABELS:
+            files.append(f"knowledge/{equipment_type}/benchmarks.md")
+            files.append(f"knowledge/{equipment_type}/formulas.md")
+
+        if analysis_type == "factory":
+            files.extend([
+                "knowledge/factory/cross_equipment.md",
+                "knowledge/factory/prioritization.md",
+                "knowledge/factory/factory_benchmarks.md",
+            ])
+            if sector:
+                files.append(f"knowledge/factory/sector_{sector}.md")
+
+        contents: list[str] = []
+        for f in files:
+            content = self._load_knowledge_file(f)
+            if content:
+                contents.append(f"## {f}\n\n{content}")
+
+        return "\n\n---\n\n".join(contents)
 
     def _build_prompt(
         self,
@@ -95,7 +215,7 @@ class ClaudeCodeClient:
         subtype: str,
         parameters: dict,
     ) -> str:
-        """Build the prompt sent to Claude Code CLI."""
+        """Build the prompt sent to Claude Code CLI using modular skills."""
         metrics = analysis_result.get("metrics", {})
         benchmark = analysis_result.get("benchmark", {})
         heat_recovery = analysis_result.get("heat_recovery", {})
@@ -108,6 +228,18 @@ class ClaudeCodeClient:
         equipment_label = EQUIPMENT_LABELS.get(equipment_type, equipment_type)
         categories = EQUIPMENT_CATEGORIES.get(equipment_type, "")
 
+        # Load modular skills for this analysis
+        skills_content = self._load_skills("single_equipment", equipment_type)
+
+        # Load relevant knowledge files
+        knowledge_content = self._load_relevant_knowledge(
+            "single_equipment", equipment_type
+        )
+
+        # Fall back to legacy SKILL file if modular skills are empty
+        if not skills_content:
+            skills_content = self._skill_content
+
         # Build parameters section with safe formatting (missing keys → 'N/A')
         params_template = EQUIPMENT_PARAMS_TEMPLATE.get(equipment_type, "")
         safe_params = {k: v for k, v in parameters.items()}
@@ -118,12 +250,22 @@ class ClaudeCodeClient:
         except Exception:
             params_section = str(parameters)
 
+        # Build knowledge section
+        knowledge_section = ""
+        if knowledge_content:
+            knowledge_section = f"""
+
+## Bilgi Kaynakları (Knowledge Base)
+
+{knowledge_content}
+"""
+
         return f"""Sen bir endüstriyel exergy analizi uzmanısın. Aşağıdaki {equipment_label.lower()} analiz sonuçlarını yorumla.
 
 ## Yorumlama Kuralları ve Şema
 
-{self._skill_content}
-
+{skills_content}
+{knowledge_section}
 ## Analiz Verileri
 
 **Ekipman Tipi:** {equipment_label}
@@ -344,15 +486,37 @@ async def interpret_factory_analysis(
 
     sector_label = sector or project.get("sector") or "genel"
 
-    prompt = f"""Sen bir endustriyel exergy analizi uzmanisin. Asagidaki fabrika seviyesi analiz sonuclarini yorumla.
+    # Load modular factory skills and knowledge
+    skills_content = client._load_skills("factory")
+    knowledge_content = client._load_relevant_knowledge("factory", sector=sector_label)
 
-## Bilgi Kaynaklari
+    # Build knowledge section
+    knowledge_section = ""
+    if knowledge_content:
+        knowledge_section = f"""
+
+## Bilgi Kaynaklari (Knowledge Base)
+
+{knowledge_content}
+"""
+
+    # Build skills section (fall back to inline references if modular skills empty)
+    if not skills_content:
+        skills_section = """## Bilgi Kaynaklari
 
 Fabrika yorumlamasi icin asagidaki knowledge dosyalarini referans al:
 - knowledge/factory/cross_equipment.md — Capraz ekipman entegrasyon firsatlari
 - knowledge/factory/prioritization.md — Yatirim onceliklendirme
-- knowledge/factory/factory_benchmarks.md — Fabrika benchmark verileri
+- knowledge/factory/factory_benchmarks.md — Fabrika benchmark verileri"""
+    else:
+        skills_section = f"""## Yorumlama Kurallari ve Skill'ler
 
+{skills_content}"""
+
+    prompt = f"""Sen bir endustriyel exergy analizi uzmanisin. Asagidaki fabrika seviyesi analiz sonuclarini yorumla.
+
+{skills_section}
+{knowledge_section}
 ## Fabrika Verileri
 
 {analysis_summary}

@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Chiller Sıralama Optimizasyonu — Chiller Sequencing Optimization"
+category: solutions
+equipment_type: chiller
+keywords: [sıralama, chiller, kısmi yük]
+related_files: [chiller/benchmarks.md, chiller/solutions/vsd.md, chiller/solutions/chilled_water_reset.md]
+use_when: ["Chiller sıralama stratejisi önerilirken", "Çoklu chiller yönetimi planlanırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Chiller Sıralama Optimizasyonu — Chiller Sequencing Optimization
 
 > Son güncelleme: 2026-01-31

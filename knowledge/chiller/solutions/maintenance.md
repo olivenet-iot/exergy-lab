@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Chiller Bakım ve Performans İyileştirme — Chiller Maintenance and Performance Improvement"
+category: solutions
+equipment_type: chiller
+keywords: [bakım, chiller, izleme, performans]
+related_files: [chiller/audit.md, chiller/benchmarks.md, chiller/solutions/condenser_optimization.md]
+use_when: ["Chiller bakım programı önerilirken", "Performans izleme sistemi kurulurken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Chiller Bakım ve Performans İyileştirme — Chiller Maintenance and Performance Improvement
 
 > Son güncelleme: 2026-01-31

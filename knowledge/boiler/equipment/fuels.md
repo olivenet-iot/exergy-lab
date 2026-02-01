@@ -1,3 +1,14 @@
+---
+title: "Kazan Yakıtları ve Özellikleri — Boiler Fuels & Properties"
+category: equipment
+equipment_type: boiler
+subtype: "Yakıt Tipleri"
+keywords: [yakıt, doğalgaz, LPG, kalorifer yakıtı]
+related_files: [boiler/benchmarks.md, boiler/equipment/steam_firetube.md, boiler/equipment/condensing.md]
+use_when: ["Yakıt karşılaştırması yapılırken", "Yakıt dönüşümü değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Kazan Yakıtları ve Özellikleri — Boiler Fuels & Properties
 
 > Son güncelleme: 2026-01-31

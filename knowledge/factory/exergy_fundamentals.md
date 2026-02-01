@@ -1,3 +1,13 @@
+---
+title: "Fabrika Seviyesi Exergy Analizi Temelleri (Factory-Level Exergy Analysis Fundamentals)"
+category: factory
+equipment_type: factory
+keywords: [exergy, temel kavramlar, termodinamik]
+related_files: [factory/exergy_flow_analysis.md, factory/methodology.md, factory/energy_flow_analysis.md]
+use_when: ["Exergy kavramları açıklanırken", "Termodinamik temel bilgiler gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Fabrika Seviyesi Exergy Analizi Temelleri (Factory-Level Exergy Analysis Fundamentals)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,14 @@
+---
+title: "Santrifüj Kompresörlü Chiller — Centrifugal Chiller"
+category: equipment
+equipment_type: chiller
+subtype: "Santrifüj"
+keywords: [santrifüj chiller, centrifugal, büyük kapasite]
+related_files: [chiller/benchmarks.md, chiller/formulas.md, chiller/solutions/vsd.md]
+use_when: ["Santrifüj chiller analizi yapılırken", "Büyük kapasite soğutma değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Santrifüj Kompresörlü Chiller — Centrifugal Chiller
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Yaşam Döngüsü Maliyet Analizi (Life Cycle Cost Analysis — LCC)"
+category: factory
+equipment_type: factory
+keywords: [yaşam döngüsü, LCC, maliyet]
+related_files: [factory/economic_analysis.md, factory/energy_pricing.md, factory/prioritization.md]
+use_when: ["Yaşam döngüsü maliyeti hesaplanırken", "Uzun vadeli yatırım analizi yapılırken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Yaşam Döngüsü Maliyet Analizi (Life Cycle Cost Analysis — LCC)
 
 > Son güncelleme: 2026-01-31

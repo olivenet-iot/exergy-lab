@@ -1,3 +1,13 @@
+---
+title: "Kazan Benchmark Verileri"
+category: reference
+equipment_type: boiler
+keywords: [benchmark, kazan, verimlilik, kayıp]
+related_files: [boiler/formulas.md, boiler/audit.md, boiler/solutions/economizer.md]
+use_when: ["Kazan performansı değerlendirilirken", "Verimlilik karşılaştırması yapılırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Kazan Benchmark Verileri
 
 > Son güncelleme: 2026-01-31

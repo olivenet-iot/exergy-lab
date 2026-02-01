@@ -1,3 +1,13 @@
+---
+title: "Fabrika Seviyesi Benchmark Verileri (Factory-Level Benchmark Data)"
+category: factory
+equipment_type: factory
+keywords: [benchmark, fabrika, sektör, karşılaştırma]
+related_files: [factory/performance_indicators.md, factory/kpi_definitions.md, factory/methodology.md]
+use_when: ["Fabrika enerji performansı değerlendirilirken", "Sektör kıyaslaması yapılırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Fabrika Seviyesi Benchmark Verileri (Factory-Level Benchmark Data)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,14 @@
+---
+title: "Pompalama Sistemleri Genel Bakış — Pumping Systems Overview"
+category: equipment
+equipment_type: pump
+subtype: "Sistem Genel Bakış"
+keywords: [pompa sistemi, hidrolik, genel bakış]
+related_files: [pump/formulas.md, pump/benchmarks.md, pump/audit.md]
+use_when: ["Pompa sistemine genel bakış gerektiğinde", "Hidrolik sistem değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Pompalama Sistemleri Genel Bakış — Pumping Systems Overview
 
 > Son güncelleme: 2026-01-31

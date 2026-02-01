@@ -1,3 +1,14 @@
+---
+title: "Su Borulu Buhar Kazani -- Water-tube Steam Boiler"
+category: equipment
+equipment_type: boiler
+subtype: "Su Borulu Buhar"
+keywords: [su borulu, buhar kazanı, watertube]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, boiler/solutions/combustion_tuning.md]
+use_when: ["Su borulu buhar kazanı analizi yapılırken", "Watertube kazan seçimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Su Borulu Buhar Kazani -- Water-tube Steam Boiler
 
 > Son guncelleme: 2026-01-31

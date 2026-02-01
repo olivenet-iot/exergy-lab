@@ -1,3 +1,13 @@
+---
+title: "Çözüm: VSD (Değişken Hızlı Sürücü) ile Pompa Kontrolü — Variable Speed Drive for Pump Control"
+category: solutions
+equipment_type: pump
+keywords: [VSD, değişken hız, pompa, enerji tasarrufu]
+related_files: [pump/formulas.md, pump/benchmarks.md, pump/equipment/centrifugal.md]
+use_when: ["Pompaya VSD önerisi değerlendirilirken", "Değişken debi ihtiyacı analiz edilirken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Çözüm: VSD (Değişken Hızlı Sürücü) ile Pompa Kontrolü — Variable Speed Drive for Pump Control
 
 > Son güncelleme: 2026-01-31

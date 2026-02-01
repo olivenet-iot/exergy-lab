@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Kondenser Optimizasyonu — Condenser Optimization"
+category: solutions
+equipment_type: chiller
+keywords: [kondenser, optimizasyon, chiller]
+related_files: [chiller/equipment/cooling_tower.md, chiller/benchmarks.md, chiller/solutions/maintenance.md]
+use_when: ["Kondenser optimizasyonu önerilirken", "Kondenser kirlenme/performans analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Kondenser Optimizasyonu — Condenser Optimization
 
 > Son güncelleme: 2026-01-31

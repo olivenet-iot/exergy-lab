@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Paralel Pompa Operasyonu — Parallel Pump Operation"
+category: solutions
+equipment_type: pump
+keywords: [paralel, pompa, çalışma, kapasite]
+related_files: [pump/formulas.md, pump/solutions/control_optimization.md, pump/benchmarks.md]
+use_when: ["Paralel pompa çalışması önerilirken", "Çoklu pompa yönetimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Paralel Pompa Operasyonu — Parallel Pump Operation
 
 > Son güncelleme: 2026-01-31

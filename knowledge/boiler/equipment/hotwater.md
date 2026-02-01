@@ -1,3 +1,14 @@
+---
+title: "Sıcak Su Kazanı — Hot Water Boiler"
+category: equipment
+equipment_type: boiler
+subtype: "Sıcak Su Kazanı"
+keywords: [sıcak su kazanı, ısıtma, kazan]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, boiler/solutions/insulation.md]
+use_when: ["Sıcak su kazanı analizi yapılırken", "Isıtma sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Sıcak Su Kazanı — Hot Water Boiler
 
 > Son güncelleme: 2026-01-31

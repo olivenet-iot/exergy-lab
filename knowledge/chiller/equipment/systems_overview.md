@@ -1,3 +1,14 @@
+---
+title: "Soğutma Suyu Sistemleri Genel Bakış — Chilled Water Systems Overview"
+category: equipment
+equipment_type: chiller
+subtype: "Sistem Genel Bakış"
+keywords: [soğutma sistemi, chiller, genel bakış]
+related_files: [chiller/formulas.md, chiller/benchmarks.md, chiller/audit.md]
+use_when: ["Soğutma sistemine genel bakış gerektiğinde", "Chiller sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Soğutma Suyu Sistemleri Genel Bakış — Chilled Water Systems Overview
 
 > Son güncelleme: 2026-01-31

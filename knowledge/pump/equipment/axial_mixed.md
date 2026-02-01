@@ -1,3 +1,14 @@
+---
+title: "Eksenel ve Karışık Akışlı Pompalar — Axial and Mixed Flow Pumps"
+category: equipment
+equipment_type: pump
+subtype: "Eksenel / Karışık Akışlı"
+keywords: [eksenel pompa, karışık akışlı, yüksek debi]
+related_files: [pump/benchmarks.md, pump/formulas.md, pump/equipment/centrifugal.md]
+use_when: ["Eksenel/karışık akışlı pompa analizi yapılırken", "Yüksek debili uygulama değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Eksenel ve Karışık Akışlı Pompalar — Axial and Mixed Flow Pumps
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Pompa Exergy Hesaplamaları"
+category: reference
+equipment_type: pump
+keywords: [exergy, pompa, termodinamik, hesaplama]
+related_files: [pump/benchmarks.md, pump/audit.md, pump/equipment/systems_overview.md]
+use_when: ["Pompa exergy hesaplaması yapılırken", "Hidrolik formüller gerektiğinde"]
+priority: high
+last_updated: 2026-01-31
+---
 # Pompa Exergy Hesaplamaları
 
 > Son güncelleme: 2026-01-31

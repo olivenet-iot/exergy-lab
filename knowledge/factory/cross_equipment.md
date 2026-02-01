@@ -1,3 +1,13 @@
+---
+title: "Ekipmanlar Arası Optimizasyon Fırsatları (Cross-Equipment Optimization Opportunities)"
+category: factory
+equipment_type: factory
+keywords: [ekipmanlar arası, çapraz optimizasyon, fabrika]
+related_files: [factory/prioritization.md, factory/heat_integration.md, factory/waste_heat_recovery.md]
+use_when: ["Ekipmanlar arası optimizasyon değerlendirilirken", "Çapraz enerji fırsatları analiz edilirken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Ekipmanlar Arası Optimizasyon Fırsatları (Cross-Equipment Optimization Opportunities)
 
 > Son güncelleme: 2026-01-31

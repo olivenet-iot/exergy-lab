@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Pompa Sistemi Optimizasyonu — Pumping System Optimization"
+category: solutions
+equipment_type: pump
+keywords: [sistem, optimizasyon, pompa, boru]
+related_files: [pump/formulas.md, pump/benchmarks.md, pump/solutions/throttle_elimination.md]
+use_when: ["Pompa sistemi optimizasyonu önerilirken", "Boru hattı kayıpları değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Pompa Sistemi Optimizasyonu — Pumping System Optimization
 
 > Son güncelleme: 2026-01-31

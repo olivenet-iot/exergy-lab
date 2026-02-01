@@ -1,3 +1,13 @@
+---
+title: "Kimya Sektörü Enerji Profili ve Optimizasyon (Chemical Sector Energy Profile)"
+category: factory
+equipment_type: factory
+keywords: [kimya, sektör, proses, enerji]
+related_files: [factory/factory_benchmarks.md, factory/process_integration.md, factory/heat_integration.md]
+use_when: ["Kimya fabrikası analiz edilirken", "Kimya sektörü benchmarkları gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Kimya Sektörü Enerji Profili ve Optimizasyon (Chemical Sector Energy Profile)
 
 > Son güncelleme: 2026-01-31

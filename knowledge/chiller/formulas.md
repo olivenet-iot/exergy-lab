@@ -1,3 +1,13 @@
+---
+title: "Chiller Exergy Hesaplamaları"
+category: reference
+equipment_type: chiller
+keywords: [exergy, chiller, termodinamik, COP]
+related_files: [chiller/benchmarks.md, chiller/audit.md, chiller/equipment/systems_overview.md]
+use_when: ["Chiller exergy hesaplaması yapılırken", "COP ve soğutma formülleri gerektiğinde"]
+priority: high
+last_updated: 2026-01-31
+---
 # Chiller Exergy Hesaplamaları
 
 > Son güncelleme: 2026-01-31

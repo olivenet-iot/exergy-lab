@@ -1,3 +1,14 @@
+---
+title: "Yoğuşmalı Kazan — Condensing Boiler"
+category: equipment
+equipment_type: boiler
+subtype: "Yoğuşmalı Kazan"
+keywords: [yoğuşmalı kazan, condensing, verimlilik]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, boiler/equipment/fuels.md]
+use_when: ["Yoğuşmalı kazan analizi yapılırken", "Yüksek verimli kazan seçimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Yoğuşmalı Kazan — Condensing Boiler
 
 > Son güncelleme: 2026-01-31

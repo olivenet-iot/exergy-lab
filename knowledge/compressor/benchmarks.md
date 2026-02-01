@@ -1,3 +1,13 @@
+---
+title: "Kompresör Benchmark Verileri"
+category: reference
+equipment_type: compressor
+keywords: [benchmark, kompresör, özgül enerji, SEC]
+related_files: [compressor/formulas.md, compressor/audit.md, compressor/solutions/vsd.md]
+use_when: ["Kompresör performansı değerlendirilirken", "SEC karşılaştırması yapılırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Kompresör Benchmark Verileri
 
 > Son güncelleme: 2026-01-31

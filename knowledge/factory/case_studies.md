@@ -1,3 +1,13 @@
+---
+title: "Fabrika Enerji Verimlilik Vaka Çalışmaları (Factory Energy Efficiency Case Studies)"
+category: factory
+equipment_type: factory
+keywords: [vaka çalışması, uygulama, fabrika]
+related_files: [factory/implementation.md, factory/economic_analysis.md, factory/reporting.md]
+use_when: ["Gerçek uygulama örnekleri gerektiğinde", "Benzer fabrika vaka çalışması aranırken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Fabrika Enerji Verimlilik Vaka Çalışmaları (Factory Energy Efficiency Case Studies)
 
 > Son güncelleme: 2026-01-31

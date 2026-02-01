@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Serbest Soğutma — Free Cooling (Economizer)"
+category: solutions
+equipment_type: chiller
+keywords: [serbest soğutma, free cooling, chiller]
+related_files: [chiller/benchmarks.md, chiller/solutions/load_reduction.md, chiller/solutions/thermal_storage.md]
+use_when: ["Serbest soğutma (free cooling) önerilirken", "Mevsimsel soğutma fırsatı değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Serbest Soğutma — Free Cooling (Economizer)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Economizer — Baca Gazı Isı Geri Kazanımı (Flue Gas Heat Recovery)"
+category: solutions
+equipment_type: boiler
+keywords: [ekonomizer, baca gazı, enerji tasarrufu, kazan]
+related_files: [boiler/formulas.md, boiler/benchmarks.md, boiler/solutions/air_preheater.md]
+use_when: ["Ekonomizer önerisi değerlendirilirken", "Baca gazı ısı geri kazanımı planlanırken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Economizer — Baca Gazı Isı Geri Kazanımı (Flue Gas Heat Recovery)
 
 > Son güncelleme: 2026-01-31

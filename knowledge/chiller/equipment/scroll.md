@@ -1,3 +1,14 @@
+---
+title: "Scroll Kompresörlü Chiller — Scroll Compressor Chiller"
+category: equipment
+equipment_type: chiller
+subtype: "Scroll"
+keywords: [scroll chiller, küçük kapasite, sessiz]
+related_files: [chiller/benchmarks.md, chiller/formulas.md, chiller/solutions/maintenance.md]
+use_when: ["Scroll chiller analizi yapılırken", "Küçük ölçekli soğutma değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Scroll Kompresörlü Chiller — Scroll Compressor Chiller
 
 > Son güncelleme: 2026-01-31

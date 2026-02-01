@@ -1,3 +1,13 @@
+---
+title: "Enerji Audit Raporlama (Energy Audit Reporting)"
+category: factory
+equipment_type: factory
+keywords: [raporlama, sunum, fabrika]
+related_files: [factory/kpi_definitions.md, factory/performance_indicators.md, factory/implementation.md]
+use_when: ["Enerji raporu hazırlanırken", "Sunum formatı belirlenirken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Enerji Audit Raporlama (Energy Audit Reporting)
 
 > Son güncelleme: 2026-01-31

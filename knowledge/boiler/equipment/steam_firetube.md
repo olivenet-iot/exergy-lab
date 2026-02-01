@@ -1,3 +1,14 @@
+---
+title: "Ates Borulu Buhar Kazani — Fire-tube Steam Boiler"
+category: equipment
+equipment_type: boiler
+subtype: "Ateş Borulu Buhar"
+keywords: [ateş borulu, buhar kazanı, firetube]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, boiler/solutions/economizer.md]
+use_when: ["Ateş borulu buhar kazanı analizi yapılırken", "Firetube kazan seçimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Ates Borulu Buhar Kazani — Fire-tube Steam Boiler
 
 > Son guncelleme: 2026-01-31

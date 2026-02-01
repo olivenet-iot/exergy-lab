@@ -1,3 +1,13 @@
+---
+title: "Kojenerasyon ve Trijenerasyon Sistemleri (Cogeneration — CHP and Trigeneration — CCHP)"
+category: factory
+equipment_type: factory
+keywords: [kojenerasyon, CHP, elektrik, ısı]
+related_files: [factory/waste_heat_recovery.md, factory/economic_analysis.md, factory/energy_flow_analysis.md]
+use_when: ["Kojenerasyon fizibilitesi değerlendirilirken", "CHP sistemi analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Kojenerasyon ve Trijenerasyon Sistemleri (Cogeneration — CHP and Trigeneration — CCHP)
 
 > Son güncelleme: 2026-01-31

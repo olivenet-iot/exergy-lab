@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Bakım ve Performans İzleme — Maintenance and Performance Monitoring"
+category: solutions
+equipment_type: pump
+keywords: [bakım, pompa, izleme, titreşim]
+related_files: [pump/audit.md, pump/benchmarks.md, pump/solutions/cavitation_prevention.md]
+use_when: ["Pompa bakım programı önerilirken", "Performans degradasyonu analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Bakım ve Performans İzleme — Maintenance and Performance Monitoring
 
 > Son güncelleme: 2026-01-31

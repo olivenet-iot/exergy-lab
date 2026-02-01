@@ -1,3 +1,13 @@
+---
+title: "Hava On Isitici --- Air Preheater"
+category: solutions
+equipment_type: boiler
+keywords: [hava ön ısıtıcı, kazan, yanma havası]
+related_files: [boiler/formulas.md, boiler/solutions/economizer.md, boiler/solutions/combustion_tuning.md]
+use_when: ["Hava ön ısıtıcı önerisi değerlendirilirken", "Yanma havası ön ısıtması planlanırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Hava On Isitici --- Air Preheater
 
 > Son guncelleme: 2026-01-31

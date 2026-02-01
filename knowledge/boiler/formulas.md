@@ -1,3 +1,13 @@
+---
+title: "Kazan Exergy Hesaplamalari"
+category: reference
+equipment_type: boiler
+keywords: [exergy, kazan, termodinamik, hesaplama]
+related_files: [boiler/benchmarks.md, boiler/audit.md, boiler/equipment/systems_overview.md]
+use_when: ["Kazan exergy hesaplaması yapılırken", "Kazan verimliliği formülleri gerektiğinde"]
+priority: high
+last_updated: 2026-01-31
+---
 # Kazan Exergy Hesaplamalari
 
 > Son guncelleme: 2026-01-31

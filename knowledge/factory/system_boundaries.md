@@ -1,3 +1,13 @@
+---
+title: "Sistem Sınırları ve Ölçüm Noktaları (System Boundaries and Measurement Points)"
+category: factory
+equipment_type: factory
+keywords: [sistem sınırı, kapsam, analiz]
+related_files: [factory/methodology.md, factory/data_collection.md, factory/energy_flow_analysis.md]
+use_when: ["Analiz sınırları belirlenirken", "Sistem kapsamı tanımlanırken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Sistem Sınırları ve Ölçüm Noktaları (System Boundaries and Measurement Points)
 
 > Son güncelleme: 2026-01-31

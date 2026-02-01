@@ -1,3 +1,13 @@
+---
+title: "Proses Entegrasyonu (Process Integration)"
+category: factory
+equipment_type: factory
+keywords: [proses entegrasyon, fabrika, optimizasyon]
+related_files: [factory/heat_integration.md, factory/pinch_analysis.md, factory/cross_equipment.md]
+use_when: ["Proses entegrasyonu değerlendirilirken", "Fabrika çapında optimizasyon planlanırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Proses Entegrasyonu (Process Integration)
 
 > Son güncelleme: 2026-01-31

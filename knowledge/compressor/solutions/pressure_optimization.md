@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Basınçlı Hava Sistem Basıncı Optimizasyonu"
+category: solutions
+equipment_type: compressor
+keywords: [basınç, optimizasyon, kompresör, set noktası]
+related_files: [compressor/benchmarks.md, compressor/solutions/air_leaks.md, compressor/solutions/system_design.md]
+use_when: ["Sistem basıncı optimizasyonu önerilirken", "Basınç düşürme potansiyeli değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Basınçlı Hava Sistem Basıncı Optimizasyonu
 
 > Son güncelleme: 2026-01-31

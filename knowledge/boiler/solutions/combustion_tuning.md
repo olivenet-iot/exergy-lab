@@ -1,3 +1,13 @@
+---
+title: "Yanma Ayarı — Combustion Tuning"
+category: solutions
+equipment_type: boiler
+keywords: [yanma ayarı, O2, kazan, verimlilik]
+related_files: [boiler/formulas.md, boiler/solutions/oxygen_control.md, boiler/benchmarks.md]
+use_when: ["Yanma ayarı önerisi değerlendirilirken", "Fazla hava oranı optimize edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Yanma Ayarı — Combustion Tuning
 
 > Son güncelleme: 2026-01-31

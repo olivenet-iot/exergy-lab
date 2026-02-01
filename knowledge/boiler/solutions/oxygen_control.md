@@ -1,3 +1,13 @@
+---
+title: "O₂ Trim / Fazla Hava Kontrolu -- Oxygen Trim Control"
+category: solutions
+equipment_type: boiler
+keywords: [oksijen, O2 kontrol, kazan, fazla hava]
+related_files: [boiler/solutions/combustion_tuning.md, boiler/formulas.md, boiler/benchmarks.md]
+use_when: ["O2 kontrol sistemi önerilirken", "Yanma optimizasyonu değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # O₂ Trim / Fazla Hava Kontrolu -- Oxygen Trim Control
 
 > Son guncelleme: 2026-01-31

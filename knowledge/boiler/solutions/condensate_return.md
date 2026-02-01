@@ -1,3 +1,13 @@
+---
+title: "Kondensat Geri Dönüşü — Condensate Return"
+category: solutions
+equipment_type: boiler
+keywords: [kondensat, geri dönüş, buhar, kazan]
+related_files: [boiler/formulas.md, boiler/solutions/steam_trap.md, boiler/benchmarks.md]
+use_when: ["Kondensat geri dönüş önerisi değerlendirilirken", "Buhar sistemi kayıpları analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Kondensat Geri Dönüşü — Condensate Return
 
 > Son güncelleme: 2026-01-31

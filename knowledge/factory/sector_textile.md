@@ -1,3 +1,13 @@
+---
+title: "Tekstil Sektoru Enerji Profili ve Optimizasyon (Textile Sector Energy Profile)"
+category: factory
+equipment_type: factory
+keywords: [tekstil, sektör, boyama, enerji]
+related_files: [factory/factory_benchmarks.md, factory/heat_integration.md, factory/waste_heat_recovery.md]
+use_when: ["Tekstil fabrikası analiz edilirken", "Tekstil sektörü benchmarkları gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Tekstil Sektoru Enerji Profili ve Optimizasyon (Textile Sector Energy Profile)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Basınçlı Hava Sistem Tasarımı İyileştirmeleri"
+category: solutions
+equipment_type: compressor
+keywords: [sistem tasarımı, boru çapı, kompresör, depo]
+related_files: [compressor/formulas.md, compressor/benchmarks.md, compressor/solutions/pressure_optimization.md]
+use_when: ["Basınçlı hava sistemi tasarımı yapılırken", "Boru hattı ve depo boyutlandırılırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Basınçlı Hava Sistem Tasarımı İyileştirmeleri
 
 > Son güncelleme: 2026-01-31

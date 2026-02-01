@@ -1,3 +1,13 @@
+---
+title: "Ölçüm ve Doğrulama Protokolleri (Measurement and Verification — M&V)"
+category: factory
+equipment_type: factory
+keywords: [ölçüm, doğrulama, M&V]
+related_files: [factory/data_collection.md, factory/kpi_definitions.md, factory/reporting.md]
+use_when: ["Ölçüm ve doğrulama planı hazırlanırken", "M&V protokolü belirlenirken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Ölçüm ve Doğrulama Protokolleri (Measurement and Verification — M&V)
 
 > Son güncelleme: 2026-01-31

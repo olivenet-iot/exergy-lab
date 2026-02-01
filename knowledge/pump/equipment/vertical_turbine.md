@@ -1,3 +1,14 @@
+---
+title: "Dikey Türbin Pompa — Vertical Turbine Pump"
+category: equipment
+equipment_type: pump
+subtype: "Düşey Türbin"
+keywords: [düşey türbin, kuyu pompası, derin kuyu]
+related_files: [pump/benchmarks.md, pump/formulas.md, pump/equipment/submersible.md]
+use_when: ["Düşey türbin pompa analizi yapılırken", "Derin kuyu pompası değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Dikey Türbin Pompa — Vertical Turbine Pump
 
 > Son güncelleme: 2026-01-31

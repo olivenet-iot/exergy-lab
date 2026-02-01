@@ -1,3 +1,13 @@
+---
+title: "Buhar Kapanı Yönetimi — Steam Trap Management"
+category: solutions
+equipment_type: boiler
+keywords: [buhar kapanı, kondensat, kazan, kaçak]
+related_files: [boiler/solutions/condensate_return.md, boiler/benchmarks.md, boiler/audit.md]
+use_when: ["Buhar kapanı bakımı önerilirken", "Kondensat sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Buhar Kapanı Yönetimi — Steam Trap Management
 
 > Son güncelleme: 2026-01-31

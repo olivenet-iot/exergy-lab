@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Throttle Valf Eliminasyonu — Throttle Valve Elimination"
+category: solutions
+equipment_type: pump
+keywords: [kısma valfi, vana, pompa, kayıp]
+related_files: [pump/solutions/vsd.md, pump/solutions/control_optimization.md, pump/benchmarks.md]
+use_when: ["Kısma valfi eliminasyonu önerilirken", "Vana kayıpları analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Throttle Valf Eliminasyonu — Throttle Valve Elimination
 
 > Son güncelleme: 2026-01-31

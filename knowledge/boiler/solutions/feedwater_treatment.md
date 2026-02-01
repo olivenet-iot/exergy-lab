@@ -1,3 +1,13 @@
+---
+title: "Besleme Suyu Aritma --- Feedwater Treatment"
+category: solutions
+equipment_type: boiler
+keywords: [besleme suyu, arıtma, kazan, kireç]
+related_files: [boiler/solutions/blowdown_recovery.md, boiler/benchmarks.md, boiler/audit.md]
+use_when: ["Besleme suyu arıtma önerisi değerlendirilirken", "Kazan su kalitesi iyileştirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Besleme Suyu Aritma --- Feedwater Treatment
 
 > Son guncelleme: 2026-01-31

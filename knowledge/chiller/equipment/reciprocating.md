@@ -1,3 +1,14 @@
+---
+title: "Pistonlu Kompresörlü Chiller — Reciprocating Compressor Chiller"
+category: equipment
+equipment_type: chiller
+subtype: "Pistonlu Chiller"
+keywords: [pistonlu chiller, reciprocating, küçük kapasite]
+related_files: [chiller/benchmarks.md, chiller/formulas.md, chiller/solutions/maintenance.md]
+use_when: ["Pistonlu chiller analizi yapılırken", "Küçük kapasite soğutma değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Pistonlu Kompresörlü Chiller — Reciprocating Compressor Chiller
 
 > Son güncelleme: 2026-01-31

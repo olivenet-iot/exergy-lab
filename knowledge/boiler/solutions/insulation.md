@@ -1,3 +1,13 @@
+---
+title: "İzolasyon İyileştirme — Insulation Improvement"
+category: solutions
+equipment_type: boiler
+keywords: [yalıtım, kazan, boru, ısı kaybı]
+related_files: [boiler/formulas.md, boiler/benchmarks.md, boiler/audit.md]
+use_when: ["Yalıtım iyileştirme önerisi değerlendirilirken", "Isı kaybı analizi yapılırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # İzolasyon İyileştirme — Insulation Improvement
 
 > Son güncelleme: 2026-01-31

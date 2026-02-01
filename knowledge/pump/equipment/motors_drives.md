@@ -1,3 +1,14 @@
+---
+title: "Pompa Motorları ve Sürücüler — Pump Motors and Drives"
+category: equipment
+equipment_type: pump
+subtype: "Motor ve Sürücüler"
+keywords: [motor, sürücü, pompa, verimlilik]
+related_files: [pump/benchmarks.md, pump/solutions/motor_upgrade.md, pump/solutions/vsd.md]
+use_when: ["Pompa motoru değerlendirilirken", "Motor verimliliği analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Pompa Motorları ve Sürücüler — Pump Motors and Drives
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Isı Geri Kazanım — Chiller Heat Recovery"
+category: solutions
+equipment_type: chiller
+keywords: [ısı geri kazanımı, chiller, atık ısı]
+related_files: [chiller/formulas.md, chiller/benchmarks.md, factory/waste_heat_recovery.md]
+use_when: ["Chiller ısı geri kazanımı önerilirken", "Kondenser atık ısısı değerlendirilirken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Çözüm: Isı Geri Kazanım — Chiller Heat Recovery
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Kazan/Buhar Sistemi Enerji Denetimi Metodolojisi — Boiler/Steam System Energy Audit"
+category: reference
+equipment_type: boiler
+keywords: [enerji denetimi, kazan, baca gazı, analiz]
+related_files: [boiler/formulas.md, boiler/benchmarks.md, boiler/equipment/systems_overview.md]
+use_when: ["Kazan enerji denetimi planlanırken", "Baca gazı analizi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Kazan/Buhar Sistemi Enerji Denetimi Metodolojisi — Boiler/Steam System Energy Audit
 
 > Son güncelleme: 2026-01-31

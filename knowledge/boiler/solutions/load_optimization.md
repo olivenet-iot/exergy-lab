@@ -1,3 +1,13 @@
+---
+title: "Yük Optimizasyonu ve Çoklu Kazan Kontrolü — Load Optimization & Multi-Boiler Control"
+category: solutions
+equipment_type: boiler
+keywords: [yük, optimizasyon, kazan, modülasyon]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, boiler/solutions/combustion_tuning.md]
+use_when: ["Kazan yük optimizasyonu önerilirken", "Çoklu kazan yönetimi planlanırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Yük Optimizasyonu ve Çoklu Kazan Kontrolü — Load Optimization & Multi-Boiler Control
 
 > Son güncelleme: 2026-01-31

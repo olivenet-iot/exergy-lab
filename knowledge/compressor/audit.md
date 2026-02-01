@@ -1,3 +1,13 @@
+---
+title: "Basınçlı Hava Sistemi Enerji Denetimi Metodolojisi"
+category: reference
+equipment_type: compressor
+keywords: [enerji denetimi, kompresör, ölçüm, analiz]
+related_files: [compressor/formulas.md, compressor/benchmarks.md, compressor/equipment/systems_overview.md]
+use_when: ["Kompresör enerji denetimi planlanırken", "Ölçüm metodolojisi belirlenirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Basınçlı Hava Sistemi Enerji Denetimi Metodolojisi
 
 > Son güncelleme: 2026-01-31

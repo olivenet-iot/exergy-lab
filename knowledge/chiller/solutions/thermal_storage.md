@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Termal Depolama — Thermal Energy Storage"
+category: solutions
+equipment_type: chiller
+keywords: [termal depolama, buz, chiller, pik]
+related_files: [chiller/solutions/sequencing.md, chiller/benchmarks.md, factory/economic_analysis.md]
+use_when: ["Termal depolama önerilirken", "Pik yük yönetimi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Termal Depolama — Thermal Energy Storage
 
 > Son güncelleme: 2026-01-31

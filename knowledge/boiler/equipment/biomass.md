@@ -1,3 +1,14 @@
+---
+title: "Biyokütle Kazanı — Biomass Boiler"
+category: equipment
+equipment_type: boiler
+subtype: "Biyokütle Kazanı"
+keywords: [biyokütle, kazan, odun, pellet]
+related_files: [boiler/benchmarks.md, boiler/formulas.md, boiler/equipment/fuels.md]
+use_when: ["Biyokütle kazanı analizi yapılırken", "Yenilenebilir yakıt seçeneği değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Biyokütle Kazanı — Biomass Boiler
 
 > Son güncelleme: 2026-01-31

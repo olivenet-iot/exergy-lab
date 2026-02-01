@@ -1,3 +1,13 @@
+---
+title: "Çözüm: Kavitasyon Önleme — Cavitation Prevention"
+category: solutions
+equipment_type: pump
+keywords: [kavitasyon, NPSH, pompa, hasar]
+related_files: [pump/formulas.md, pump/equipment/centrifugal.md, pump/solutions/system_optimization.md]
+use_when: ["Kavitasyon önleme önerilirken", "NPSH problemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Çözüm: Kavitasyon Önleme — Cavitation Prevention
 
 > Son güncelleme: 2026-01-31

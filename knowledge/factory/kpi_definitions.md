@@ -1,3 +1,13 @@
+---
+title: "Enerji Performans Göstergeleri Tanımları (Energy KPI Definitions)"
+category: factory
+equipment_type: factory
+keywords: [KPI, gösterge, performans]
+related_files: [factory/performance_indicators.md, factory/factory_benchmarks.md, factory/methodology.md]
+use_when: ["KPI tanımları gerektiğinde", "Performans göstergeleri belirlenirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Enerji Performans Göstergeleri Tanımları (Energy KPI Definitions)
 
 > Son güncelleme: 2026-01-31

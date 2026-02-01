@@ -1,3 +1,13 @@
+---
+title: "Fabrika Enerji Audit Metodolojisi (Factory Energy Audit Methodology)"
+category: factory
+equipment_type: factory
+keywords: [metodoloji, çerçeve, analiz]
+related_files: [factory/system_boundaries.md, factory/data_collection.md, factory/exergy_fundamentals.md]
+use_when: ["Analiz metodolojisi belirlenirken", "Çerçeve yaklaşım gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Fabrika Enerji Audit Metodolojisi (Factory Energy Audit Methodology)
 
 > Son güncelleme: 2026-01-31

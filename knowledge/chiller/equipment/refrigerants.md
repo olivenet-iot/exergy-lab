@@ -1,3 +1,14 @@
+---
+title: "Soğutucu Akışkanlar — Refrigerants"
+category: equipment
+equipment_type: chiller
+subtype: "Soğutucu Akışkanlar"
+keywords: [soğutucu akışkan, R134a, R410A, GWP]
+related_files: [chiller/equipment/systems_overview.md, chiller/benchmarks.md, chiller/equipment/vapor_compression.md]
+use_when: ["Soğutucu akışkan seçimi değerlendirilirken", "Çevresel etki analizi yapılırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Soğutucu Akışkanlar — Refrigerants
 
 > Son güncelleme: 2026-01-31

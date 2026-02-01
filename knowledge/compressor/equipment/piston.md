@@ -1,3 +1,14 @@
+---
+title: "Pistonlu Kompresör (Reciprocating / Piston Compressor)"
+category: equipment
+equipment_type: compressor
+subtype: "Pistonlu"
+keywords: [pistonlu kompresör, reciprocating, basınç]
+related_files: [compressor/benchmarks.md, compressor/formulas.md, compressor/solutions/maintenance.md]
+use_when: ["Pistonlu kompresör analizi yapılırken", "Yüksek basınç uygulaması değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Pistonlu Kompresör (Reciprocating / Piston Compressor)
 
 > Son güncelleme: 2026-01-31

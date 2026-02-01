@@ -1,3 +1,13 @@
+---
+title: "Enerji Akis Analizi ve Sankey Diyagramlari (Energy Flow Analysis and Sankey Diagrams)"
+category: factory
+equipment_type: factory
+keywords: [enerji akış, Sankey, fabrika]
+related_files: [factory/exergy_flow_analysis.md, factory/mass_balance.md, factory/system_boundaries.md]
+use_when: ["Fabrika enerji akışı haritalanırken", "Sankey diyagramı hazırlanırken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Enerji Akis Analizi ve Sankey Diyagramlari (Energy Flow Analysis and Sankey Diagrams)
 
 > Son güncelleme: 2026-01-31

@@ -1,3 +1,13 @@
+---
+title: "Enerji Fiyatlandirma ve Tarife Yapilari (Energy Pricing and Tariff Structures)"
+category: factory
+equipment_type: factory
+keywords: [enerji fiyat, tarife, maliyet]
+related_files: [factory/economic_analysis.md, factory/life_cycle_cost.md, factory/utility_analysis.md]
+use_when: ["Enerji maliyeti analiz edilirken", "Tarife optimizasyonu değerlendirilirken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Enerji Fiyatlandirma ve Tarife Yapilari (Energy Pricing and Tariff Structures)
 
 > Son güncelleme: 2026-01-31

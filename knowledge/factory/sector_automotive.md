@@ -1,3 +1,13 @@
+---
+title: "Otomotiv Sektörü Enerji Profili ve Optimizasyon (Automotive Sector Energy Profile)"
+category: factory
+equipment_type: factory
+keywords: [otomotiv, sektör, fabrika, enerji]
+related_files: [factory/factory_benchmarks.md, factory/cross_equipment.md, factory/heat_integration.md]
+use_when: ["Otomotiv fabrikası analiz edilirken", "Otomotiv sektörü benchmarkları gerektiğinde"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Otomotiv Sektörü Enerji Profili ve Optimizasyon (Automotive Sector Energy Profile)
 
 > Son güncelleme: 2026-01-31

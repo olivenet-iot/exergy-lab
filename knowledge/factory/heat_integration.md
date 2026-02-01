@@ -1,3 +1,13 @@
+---
+title: "Isı Entegrasyonu ve Kaynak-Kullanım Eşleştirme (Heat Integration and Source-Sink Matching)"
+category: factory
+equipment_type: factory
+keywords: [ısı entegrasyonu, pinch, fabrika]
+related_files: [factory/pinch_analysis.md, factory/waste_heat_recovery.md, factory/cross_equipment.md]
+use_when: ["Isı entegrasyonu değerlendirilirken", "Proses ısı alışverişi optimize edilirken"]
+priority: high
+last_updated: 2026-01-31
+---
 # Isı Entegrasyonu ve Kaynak-Kullanım Eşleştirme (Heat Integration and Source-Sink Matching)
 
 > Son güncelleme: 2026-01-31

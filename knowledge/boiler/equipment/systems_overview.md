@@ -1,3 +1,14 @@
+---
+title: "Buhar Sistemleri Genel Bakış — Steam Systems Overview"
+category: equipment
+equipment_type: boiler
+subtype: "Sistem Genel Bakış"
+keywords: [kazan sistemi, buhar, genel bakış]
+related_files: [boiler/formulas.md, boiler/benchmarks.md, boiler/audit.md]
+use_when: ["Kazan sistemine genel bakış gerektiğinde", "Buhar/sıcak su sistemi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Buhar Sistemleri Genel Bakış — Steam Systems Overview
 
 > Son güncelleme: 2026-01-31

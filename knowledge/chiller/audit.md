@@ -1,3 +1,13 @@
+---
+title: "Chiller Sistemi Enerji Denetimi Metodolojisi"
+category: reference
+equipment_type: chiller
+keywords: [enerji denetimi, chiller, soğutma, analiz]
+related_files: [chiller/formulas.md, chiller/benchmarks.md, chiller/equipment/systems_overview.md]
+use_when: ["Chiller enerji denetimi planlanırken", "Soğutma sistemi analiz edilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Chiller Sistemi Enerji Denetimi Metodolojisi
 
 > Son güncelleme: 2026-01-31

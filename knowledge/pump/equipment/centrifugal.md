@@ -1,3 +1,14 @@
+---
+title: "Santrifüj Pompa — Centrifugal Pump"
+category: equipment
+equipment_type: pump
+subtype: "Santrifüj"
+keywords: [santrifüj pompa, centrifugal, debi, basınç]
+related_files: [pump/benchmarks.md, pump/formulas.md, pump/solutions/vsd.md]
+use_when: ["Santrifüj pompa analizi yapılırken", "Pompa eğrisi değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Santrifüj Pompa — Centrifugal Pump
 
 > Son güncelleme: 2026-01-31

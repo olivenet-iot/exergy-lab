@@ -1,3 +1,13 @@
+---
+title: "Veri Toplama ve Yönetimi (Data Collection and Management)"
+category: factory
+equipment_type: factory
+keywords: [veri toplama, ölçüm, fabrika]
+related_files: [factory/measurement_verification.md, factory/methodology.md, factory/system_boundaries.md]
+use_when: ["Veri toplama planı hazırlanırken", "Ölçüm noktaları belirlenirken"]
+priority: low
+last_updated: 2026-01-31
+---
 # Veri Toplama ve Yönetimi (Data Collection and Management)
 
 > Son güncelleme: 2026-01-31

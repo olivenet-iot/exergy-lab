@@ -1,3 +1,14 @@
+---
+title: "Soğutma Kulesi — Cooling Tower"
+category: equipment
+equipment_type: chiller
+subtype: "Soğutma Kulesi"
+keywords: [soğutma kulesi, kule, su, yaklaşım]
+related_files: [chiller/equipment/water_cooled.md, chiller/solutions/condenser_optimization.md, chiller/benchmarks.md]
+use_when: ["Soğutma kulesi analizi yapılırken", "Kule performansı değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Soğutma Kulesi — Cooling Tower
 
 > Son güncelleme: 2026-01-31

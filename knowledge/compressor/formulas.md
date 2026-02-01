@@ -1,3 +1,13 @@
+---
+title: "Kompresör Exergy Hesaplamaları"
+category: reference
+equipment_type: compressor
+keywords: [exergy, kompresör, termodinamik, hesaplama]
+related_files: [compressor/benchmarks.md, compressor/audit.md, compressor/equipment/systems_overview.md]
+use_when: ["Kompresör exergy hesaplaması yapılırken", "Termodinamik formüller gerektiğinde"]
+priority: high
+last_updated: 2026-01-31
+---
 # Kompresör Exergy Hesaplamaları
 
 > Son güncelleme: 2026-01-31

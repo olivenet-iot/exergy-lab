@@ -1,3 +1,14 @@
+---
+title: "Dalgıç Pompa — Submersible Pump"
+category: equipment
+equipment_type: pump
+subtype: "Dalgıç Pompa"
+keywords: [dalgıç pompa, kuyu, su]
+related_files: [pump/benchmarks.md, pump/formulas.md, pump/solutions/cavitation_prevention.md]
+use_when: ["Dalgıç pompa analizi yapılırken", "Kuyu pompası değerlendirilirken"]
+priority: medium
+last_updated: 2026-01-31
+---
 # Dalgıç Pompa — Submersible Pump
 
 > Son güncelleme: 2026-01-31
