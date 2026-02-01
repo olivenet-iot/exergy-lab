@@ -11,4 +11,16 @@ from .compressor import (
     analyze_piston_compressor, analyze_scroll_compressor, analyze_centrifugal_compressor,
     get_compressor_recommendations,
 )
+from .boiler import (
+    BoilerInput, BoilerResult, analyze_boiler,
+    get_boiler_recommendations,
+)
+from .chiller import (
+    ChillerInput, ChillerResult, analyze_chiller,
+    get_chiller_recommendations,
+)
+from .pump import (
+    PumpInput, PumpResult, analyze_pump,
+    get_pump_recommendations,
+)
 from .sankey import generate_sankey_data

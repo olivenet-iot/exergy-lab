@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Wind, Flame, Snowflake, Droplets, Clock } from 'lucide-react';
-import { getCompressorTypes, getEquipmentSubtypes } from '../services/api';
+import { Wind, Flame, Snowflake, Droplets } from 'lucide-react';
+import { getEquipmentConfig } from '../services/api';
 import { useAnalysis } from '../hooks/useAnalysis';
 import SubtypeSelector from '../components/equipment/SubtypeSelector';
 import ParameterForm from '../components/forms/ParameterForm';
@@ -30,7 +30,7 @@ const EquipmentAnalysis = () => {
 
   const { result, solutions, loading, error, analyze, reset, interpretation, aiLoading } = useAnalysis();
 
-  // Fetch subtypes when equipment type changes
+  // Fetch subtypes with field definitions when equipment type changes
   useEffect(() => {
     setSubtypes([]);
     setSelectedSubtype(null);
@@ -38,21 +38,10 @@ const EquipmentAnalysis = () => {
     reset();
     setSubtypesLoading(true);
 
-    const fetchSubtypes = async () => {
+    const fetchConfig = async () => {
       try {
-        if (equipmentType === 'compressor') {
-          const data = await getCompressorTypes();
-          setSubtypes(data);
-        } else {
-          const data = await getEquipmentSubtypes(equipmentType);
-          setSubtypes(
-            (data.subtypes || []).map((s) => ({
-              id: s.id || s.type,
-              name: s.name || s.label || s.id,
-              ...s,
-            }))
-          );
-        }
+        const data = await getEquipmentConfig(equipmentType);
+        setSubtypes(data);
       } catch {
         setSubtypes([]);
       } finally {
@@ -60,7 +49,7 @@ const EquipmentAnalysis = () => {
       }
     };
 
-    fetchSubtypes();
+    fetchConfig();
   }, [equipmentType]);
 
   const handleSubtypeSelect = (subtypeId) => {
@@ -75,10 +64,9 @@ const EquipmentAnalysis = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    analyze(selectedSubtype, formValues);
+    analyze(equipmentType, selectedSubtype, formValues);
   };
 
-  const isCompressor = equipmentType === 'compressor';
   const selectedSubtypeData = subtypes?.find((t) => (t.id || t.type) === selectedSubtype);
 
   return (
@@ -89,9 +77,7 @@ const EquipmentAnalysis = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{meta.name} Ekserji Analizi</h2>
           <p className="text-gray-600 mt-1">
-            {isCompressor
-              ? 'Kompresör tipini seçin ve parametreleri girin'
-              : `${meta.name} tipini seçin`}
+            {meta.name} tipini seçin ve parametreleri girin
           </p>
         </div>
       </div>
@@ -111,8 +97,8 @@ const EquipmentAnalysis = () => {
         )}
       </Card>
 
-      {/* Compressor: full analysis flow */}
-      {isCompressor && selectedSubtypeData && (
+      {/* Parameter form + analysis for ALL equipment types */}
+      {selectedSubtypeData && (
         <>
           <Card title="2. Parametreler">
             <ParameterForm
@@ -126,7 +112,7 @@ const EquipmentAnalysis = () => {
 
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-              {error}
+              {typeof error === 'string' ? error : JSON.stringify(error)}
             </div>
           )}
 
@@ -145,20 +131,6 @@ const EquipmentAnalysis = () => {
             </>
           )}
         </>
-      )}
-
-      {/* Non-compressor: coming soon */}
-      {!isCompressor && selectedSubtype && (
-        <Card>
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Clock className="w-12 h-12 text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700">Yakında...</h3>
-            <p className="text-sm text-gray-500 mt-2 max-w-md">
-              {meta.name} ekserji analiz motoru geliştirme aşamasındadır.
-              Yakında bu ekipman tipi için de tam analiz yapabileceksiniz.
-            </p>
-          </div>
-        </Card>
       )}
     </div>
   );

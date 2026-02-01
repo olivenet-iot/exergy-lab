@@ -11,6 +11,18 @@ class MetricsResponse(BaseModel):
     exergy_efficiency_pct: float
     mass_flow_kg_s: Optional[float] = None
     specific_power_kW_m3min: Optional[float] = None
+    # Boiler-specific
+    thermal_efficiency_pct: Optional[float] = None
+    combustion_loss_kW: Optional[float] = None
+    flue_gas_loss_kW: Optional[float] = None
+    # Chiller-specific
+    cop: Optional[float] = None
+    cop_carnot: Optional[float] = None
+    kw_per_ton: Optional[float] = None
+    # Pump-specific
+    hydraulic_power_kW: Optional[float] = None
+    wire_to_water_efficiency_pct: Optional[float] = None
+    throttle_loss_kW: Optional[float] = None
 
 
 class HeatRecoveryResponse(BaseModel):
@@ -99,6 +111,20 @@ class CompressorTypeResponse(BaseModel):
 
 class CompressorTypesListResponse(BaseModel):
     compressor_types: List[CompressorTypeResponse]
+
+
+# --- Generic equipment config endpoint ---
+
+class EquipmentSubtypeConfig(BaseModel):
+    id: str
+    name: str
+    description: str
+    fields: List[CompressorFieldResponse]
+
+
+class EquipmentTypeConfigResponse(BaseModel):
+    equipment_type: str
+    subtypes: List[EquipmentSubtypeConfig]
 
 
 # --- Benchmarks endpoint ---

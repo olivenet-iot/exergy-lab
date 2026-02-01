@@ -203,3 +203,197 @@ class TestSolutions:
             assert "title" in rec
             assert "priority" in rec
             assert rec["priority"] in ("high", "medium", "low")
+
+
+# ===========================================================================
+# Boiler API tests
+# ===========================================================================
+
+class TestBoilerAnalyze:
+    def test_steam_firetube(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "boiler",
+            "subtype": "steam_firetube",
+            "parameters": {
+                "fuel_flow_kg_h": 370,
+                "steam_flow_kg_h": 5000,
+                "steam_pressure_bar": 10,
+            },
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["compressor_type"] == "steam_firetube"
+        assert data["metrics"]["exergy_input_kW"] > 0
+        assert data["metrics"]["exergy_output_kW"] > 0
+        assert data["metrics"]["thermal_efficiency_pct"] is not None
+        assert "sankey" in data
+        assert len(data["sankey"]["nodes"]) == 7
+
+    def test_hotwater_boiler(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "boiler",
+            "subtype": "hotwater",
+            "parameters": {
+                "fuel_flow_kg_h": 100,
+                "steam_flow_kg_h": 3000,
+                "steam_pressure_bar": 3,
+                "steam_temp_C": 90,
+            },
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["compressor_type"] == "hotwater"
+
+    def test_invalid_boiler_type(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "boiler",
+            "subtype": "nuclear",
+            "parameters": {
+                "fuel_flow_kg_h": 370,
+                "steam_flow_kg_h": 5000,
+                "steam_pressure_bar": 10,
+            },
+        })
+        assert resp.status_code == 422
+
+
+# ===========================================================================
+# Chiller API tests
+# ===========================================================================
+
+class TestChillerAnalyze:
+    def test_centrifugal_chiller(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "chiller",
+            "subtype": "centrifugal",
+            "parameters": {
+                "cooling_capacity_kW": 500,
+                "compressor_power_kW": 83,
+            },
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["compressor_type"] == "centrifugal"
+        assert data["metrics"]["exergy_input_kW"] > 0
+        assert data["metrics"]["cop"] is not None
+        assert data["metrics"]["cop"] > 0
+        assert "sankey" in data
+
+    def test_absorption_chiller(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "chiller",
+            "subtype": "absorption",
+            "parameters": {
+                "cooling_capacity_kW": 500,
+                "generator_heat_kW": 700,
+                "generator_temp_C": 90,
+            },
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["compressor_type"] == "absorption"
+        assert data["metrics"]["cop"] is not None
+
+    def test_invalid_chiller_type(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "chiller",
+            "subtype": "magnetic",
+            "parameters": {
+                "cooling_capacity_kW": 500,
+                "compressor_power_kW": 83,
+            },
+        })
+        assert resp.status_code == 422
+
+
+# ===========================================================================
+# Pump API tests
+# ===========================================================================
+
+class TestPumpAnalyze:
+    def test_centrifugal_pump(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "pump",
+            "subtype": "centrifugal",
+            "parameters": {
+                "motor_power_kW": 22,
+                "flow_rate_m3_h": 80,
+                "total_head_m": 45,
+            },
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["compressor_type"] == "centrifugal"
+        assert data["metrics"]["exergy_input_kW"] == 22.0
+        assert data["metrics"]["hydraulic_power_kW"] is not None
+        assert data["metrics"]["hydraulic_power_kW"] > 0
+        assert "sankey" in data
+        assert len(data["sankey"]["nodes"]) == 7
+
+    def test_pump_with_throttle(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "pump",
+            "subtype": "centrifugal",
+            "parameters": {
+                "motor_power_kW": 22,
+                "flow_rate_m3_h": 80,
+                "total_head_m": 45,
+                "control_method": "throttle",
+                "throttle_loss_pct": 20,
+            },
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["metrics"]["throttle_loss_kW"] is not None
+
+    def test_invalid_pump_type(self):
+        resp = client.post("/api/analyze", json={
+            "equipment_type": "pump",
+            "subtype": "turbo",
+            "parameters": {
+                "motor_power_kW": 22,
+                "flow_rate_m3_h": 80,
+                "total_head_m": 45,
+            },
+        })
+        assert resp.status_code == 422
+
+
+# ===========================================================================
+# Equipment config endpoint
+# ===========================================================================
+
+class TestEquipmentConfig:
+    def test_compressor_config(self):
+        resp = client.get("/api/equipment-types/compressor/config")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["equipment_type"] == "compressor"
+        assert len(data["subtypes"]) == 4
+
+    def test_boiler_config(self):
+        resp = client.get("/api/equipment-types/boiler/config")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["equipment_type"] == "boiler"
+        assert len(data["subtypes"]) == 7
+        for st in data["subtypes"]:
+            assert len(st["fields"]) > 0
+
+    def test_chiller_config(self):
+        resp = client.get("/api/equipment-types/chiller/config")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["equipment_type"] == "chiller"
+        assert len(data["subtypes"]) == 7  # 6 VC + 1 absorption
+
+    def test_pump_config(self):
+        resp = client.get("/api/equipment-types/pump/config")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["equipment_type"] == "pump"
+        assert len(data["subtypes"]) == 6
+
+    def test_invalid_equipment_config(self):
+        resp = client.get("/api/equipment-types/reactor/config")
+        assert resp.status_code == 404

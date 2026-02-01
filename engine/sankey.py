@@ -1,38 +1,58 @@
 """
 ExergyLab - Sankey Diagram Data Generator
 
-Kompresör exergy akış diyagramı verisi oluşturur.
+Ekipman exergy akis diyagrami verisi olusturur.
 """
 
 from .compressor import CompressorResult
+from .boiler import BoilerResult, generate_boiler_sankey_data
+from .chiller import ChillerResult, generate_chiller_sankey_data
+from .pump import PumpResult, generate_pump_sankey_data
 from .core import DeadState, heat_exergy
 
 
-def generate_sankey_data(result: CompressorResult, compressor_type: str = "screw") -> dict:
+def generate_sankey_data(result, equipment_subtype: str = "screw") -> dict:
     """
-    Sankey diyagramı için node ve link verisi oluşturur.
+    Sankey diyagrami icin node ve link verisi olusturur.
 
-    Exergy destroyed, geri kazanılabilir ısı ve saf tersinmezlik olarak ayrılır.
-    Enerji dengesi sağlanır (giriş = çıkışlar toplamı).
+    Result tipine gore uygun sankey fonksiyonuna dispatch yapar.
 
     Args:
-        result: Kompresör analiz sonucu
-        compressor_type: Kompresör tipi
+        result: Analiz sonucu (CompressorResult, BoilerResult, ChillerResult, PumpResult)
+        equipment_subtype: Ekipman alt tipi
 
     Returns:
-        dict: {nodes: [...], links: [...]}
+        dict: {nodes: [...], links: [...], summary: {...}}
+    """
+    if isinstance(result, BoilerResult):
+        return generate_boiler_sankey_data(result, equipment_subtype)
+    elif isinstance(result, ChillerResult):
+        return generate_chiller_sankey_data(result, equipment_subtype)
+    elif isinstance(result, PumpResult):
+        return generate_pump_sankey_data(result, equipment_subtype)
+    else:
+        # Default: compressor sankey (original code)
+        return _generate_compressor_sankey_data(result, equipment_subtype)
+
+
+def _generate_compressor_sankey_data(result: CompressorResult, compressor_type: str = "screw") -> dict:
+    """
+    Kompresor Sankey diyagrami icin node ve link verisi olusturur.
+
+    Exergy destroyed, geri kazanilabilir isi ve saf tersinmezlik olarak ayrilir.
+    Enerji dengesi saglanir (giris = cikislar toplami).
     """
     Ex_in = result.exergy_in_kW
     Ex_out = result.exergy_out_kW
     Ex_destroyed = result.exergy_destroyed_kW
 
-    # Geri kazanılabilir ısı exergy'si (atık ısının exergy değeri)
+    # Geri kazanilabilir isi exergy'si
     recoverable_heat = result.recoverable_heat_kW or 0.0
 
-    # Saf tersinmezlik = toplam yıkım - geri kazanılabilir ısı exergy
+    # Saf tersinmezlik
     pure_irreversibility = max(0.0, Ex_destroyed - recoverable_heat)
 
-    # Normalizasyon: çıkışlar toplamı girişe eşit olmalı
+    # Normalizasyon
     total_out = Ex_out + recoverable_heat + pure_irreversibility
     if total_out > 0 and abs(total_out - Ex_in) > 0.01:
         scale = Ex_in / total_out

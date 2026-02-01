@@ -10,6 +10,18 @@ from engine.compressor import (
     analyze_scroll_compressor, analyze_centrifugal_compressor,
     get_compressor_recommendations,
 )
+from engine.boiler import (
+    BoilerInput, BoilerResult, analyze_boiler,
+    get_boiler_recommendations, generate_boiler_sankey_data,
+)
+from engine.chiller import (
+    ChillerInput, ChillerResult, analyze_chiller,
+    get_chiller_recommendations, generate_chiller_sankey_data,
+)
+from engine.pump import (
+    PumpInput, PumpResult, analyze_pump,
+    get_pump_recommendations, generate_pump_sankey_data,
+)
 from engine.sankey import generate_sankey_data
 
 
@@ -230,3 +242,309 @@ class TestRecommendations:
             assert "description" in rec
             assert "priority" in rec
             assert rec["priority"] in ("high", "medium", "low")
+
+
+# ===========================================================================
+# Boiler tests
+# ===========================================================================
+
+class TestBoiler:
+    def test_basic_analysis(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=370,
+            steam_flow_kg_h=5000,
+            steam_pressure_bar=10,
+            ambient_temp_C=25.0,
+        )
+        result = analyze_boiler(inp)
+
+        assert result.exergy_in_kW > 0
+        assert result.exergy_out_kW > 0
+        assert result.exergy_destroyed_kW > 0
+        # Boiler exergy efficiency typically 30-50%
+        assert 15 < result.exergy_efficiency_pct < 60
+        # Thermal efficiency typically 80-95%
+        assert result.thermal_efficiency_pct is not None
+        assert 50 < result.thermal_efficiency_pct < 100
+
+    def test_energy_balance(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=370,
+            steam_flow_kg_h=5000,
+            steam_pressure_bar=10,
+        )
+        result = analyze_boiler(inp)
+        assert abs(result.exergy_in_kW - result.exergy_out_kW - result.exergy_destroyed_kW) < 0.1
+
+    def test_loss_breakdown(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=370,
+            steam_flow_kg_h=5000,
+            steam_pressure_bar=10,
+        )
+        result = analyze_boiler(inp)
+        assert result.combustion_loss_kW is not None and result.combustion_loss_kW > 0
+        assert result.flue_gas_loss_kW is not None and result.flue_gas_loss_kW >= 0
+        assert result.radiation_loss_kW is not None and result.radiation_loss_kW > 0
+        assert result.blowdown_loss_kW is not None and result.blowdown_loss_kW >= 0
+
+    def test_benchmark_valid(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=370,
+            steam_flow_kg_h=5000,
+            steam_pressure_bar=10,
+        )
+        result = analyze_boiler(inp)
+        assert result.benchmark_comparison in ('poor', 'below_average', 'average', 'good', 'excellent')
+
+    def test_hotwater_boiler(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=100,
+            steam_flow_kg_h=3000,
+            steam_pressure_bar=3,
+            steam_temp_C=90,
+            boiler_type="hotwater",
+        )
+        result = analyze_boiler(inp)
+        assert result.exergy_in_kW > 0
+        assert result.exergy_out_kW > 0
+        # Hot water boiler exergy efficiency is lower
+        assert result.exergy_efficiency_pct > 0
+
+    def test_sankey_structure(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=370,
+            steam_flow_kg_h=5000,
+            steam_pressure_bar=10,
+        )
+        result = analyze_boiler(inp)
+        sankey = generate_sankey_data(result, "steam_firetube")
+        assert len(sankey["nodes"]) == 7
+        assert len(sankey["links"]) == 6
+
+    def test_api_dict(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=370,
+            steam_flow_kg_h=5000,
+            steam_pressure_bar=10,
+        )
+        result = analyze_boiler(inp)
+        api = result.to_api_dict("steam_firetube")
+        assert "exergy_input_kW" in api
+        assert "thermal_efficiency_pct" in api
+        assert "benchmark_percentile" in api
+
+    def test_recommendations(self):
+        inp = BoilerInput(
+            fuel_flow_kg_h=370,
+            steam_flow_kg_h=5000,
+            steam_pressure_bar=10,
+        )
+        result = analyze_boiler(inp)
+        recs = get_boiler_recommendations(result, inp)
+        assert isinstance(recs, list)
+
+
+# ===========================================================================
+# Chiller tests
+# ===========================================================================
+
+class TestChiller:
+    def test_basic_analysis(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=83,
+            chw_supply_temp_C=7,
+            chw_return_temp_C=12,
+            ambient_temp_C=25.0,
+        )
+        result = analyze_chiller(inp)
+
+        assert result.exergy_in_kW > 0
+        assert result.exergy_out_kW > 0
+        assert result.exergy_destroyed_kW > 0
+        # COP should be reasonable
+        assert result.cop is not None
+        assert 3.0 < result.cop < 10.0
+        assert result.cop_carnot is not None
+        assert result.cop_carnot > result.cop
+
+    def test_energy_balance(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=83,
+        )
+        result = analyze_chiller(inp)
+        assert abs(result.exergy_in_kW - result.exergy_out_kW - result.exergy_destroyed_kW) < 0.1
+
+    def test_kw_per_ton(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=83,
+        )
+        result = analyze_chiller(inp)
+        assert result.kw_per_ton is not None
+        # kW/ton = 3.517 / COP -> for COP ~6, kW/ton ~ 0.58
+        assert 0.3 < result.kw_per_ton < 2.0
+
+    def test_benchmark_valid(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=83,
+        )
+        result = analyze_chiller(inp)
+        assert result.benchmark_comparison in ('poor', 'below_average', 'average', 'good', 'excellent')
+
+    def test_absorption_chiller(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=5,  # solution pump
+            chiller_type="absorption",
+            generator_heat_kW=700,
+            generator_temp_C=90,
+        )
+        result = analyze_chiller(inp)
+        assert result.cop is not None
+        assert 0.5 < result.cop < 1.5  # single-effect absorption
+        assert result.exergy_in_kW > 0
+
+    def test_sankey_structure(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=83,
+        )
+        result = analyze_chiller(inp)
+        sankey = generate_sankey_data(result, "centrifugal")
+        assert len(sankey["nodes"]) == 5
+        assert len(sankey["links"]) == 4
+
+    def test_api_dict(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=83,
+        )
+        result = analyze_chiller(inp)
+        api = result.to_api_dict("centrifugal")
+        assert "cop" in api
+        assert "cop_carnot" in api
+        assert "kw_per_ton" in api
+
+    def test_recommendations(self):
+        inp = ChillerInput(
+            cooling_capacity_kW=500,
+            compressor_power_kW=83,
+        )
+        result = analyze_chiller(inp)
+        recs = get_chiller_recommendations(result, inp)
+        assert isinstance(recs, list)
+
+
+# ===========================================================================
+# Pump tests
+# ===========================================================================
+
+class TestPump:
+    def test_basic_analysis(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+            ambient_temp_C=25.0,
+        )
+        result = analyze_pump(inp)
+
+        assert result.exergy_in_kW == 22.0
+        assert result.exergy_out_kW > 0
+        assert result.exergy_destroyed_kW > 0
+        assert result.hydraulic_power_kW is not None
+        assert result.hydraulic_power_kW > 0
+        # Wire-to-water efficiency typically 40-80%
+        assert result.wire_to_water_efficiency_pct is not None
+        assert 10 < result.wire_to_water_efficiency_pct < 90
+
+    def test_energy_balance(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+        )
+        result = analyze_pump(inp)
+        assert abs(result.exergy_in_kW - result.exergy_out_kW - result.exergy_destroyed_kW) < 0.1
+
+    def test_hydraulic_power(self):
+        """P_hyd = rho * g * Q * H / 1000"""
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+            fluid_density_kg_m3=1000,
+        )
+        result = analyze_pump(inp)
+        expected = 1000 * 9.81 * (80 / 3600) * 45 / 1000
+        assert abs(result.hydraulic_power_kW - expected) < 0.1
+
+    def test_benchmark_valid(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+        )
+        result = analyze_pump(inp)
+        assert result.benchmark_comparison in ('poor', 'below_average', 'average', 'good', 'excellent')
+
+    def test_throttle_loss(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+            control_method="throttle",
+            throttle_loss_pct=20,
+        )
+        result = analyze_pump(inp)
+        assert result.throttle_loss_kW is not None
+        assert result.throttle_loss_kW > 0
+
+    def test_vsd_savings(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+            control_method="throttle",
+            has_vsd=False,
+        )
+        result = analyze_pump(inp)
+        assert result.vsd_savings_potential_kW is not None
+        assert result.vsd_savings_potential_kW > 0
+
+    def test_sankey_structure(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+        )
+        result = analyze_pump(inp)
+        sankey = generate_sankey_data(result, "centrifugal")
+        assert len(sankey["nodes"]) == 7
+        assert len(sankey["links"]) == 6
+
+    def test_api_dict(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+        )
+        result = analyze_pump(inp)
+        api = result.to_api_dict("centrifugal")
+        assert "hydraulic_power_kW" in api
+        assert "wire_to_water_efficiency_pct" in api
+        assert "benchmark_percentile" in api
+
+    def test_recommendations(self):
+        inp = PumpInput(
+            motor_power_kW=22,
+            flow_rate_m3_h=80,
+            total_head_m=45,
+        )
+        result = analyze_pump(inp)
+        recs = get_pump_recommendations(result, inp)
+        assert isinstance(recs, list)

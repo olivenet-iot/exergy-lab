@@ -34,7 +34,7 @@ EQUIPMENT_TYPES = {
         ],
         "knowledge_path": "knowledge/boiler",
         "engine_module": "engine.boiler",
-        "engine_ready": False,
+        "engine_ready": True,
     },
     "chiller": {
         "id": "chiller",
@@ -52,7 +52,7 @@ EQUIPMENT_TYPES = {
         ],
         "knowledge_path": "knowledge/chiller",
         "engine_module": "engine.chiller",
-        "engine_ready": False,
+        "engine_ready": True,
     },
     "pump": {
         "id": "pump",
@@ -69,7 +69,7 @@ EQUIPMENT_TYPES = {
         ],
         "knowledge_path": "knowledge/pump",
         "engine_module": "engine.pump",
-        "engine_ready": False,
+        "engine_ready": True,
     },
 }
 

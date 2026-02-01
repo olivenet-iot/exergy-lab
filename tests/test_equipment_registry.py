@@ -83,30 +83,30 @@ class TestAnalyzeEquipment:
         assert data["compressor_type"] == "screw"
         assert "metrics" in data
 
-    def test_boiler_returns_501(self):
+    def test_boiler_requires_params(self):
         resp = client.post("/api/analyze", json={
             "equipment_type": "boiler",
             "subtype": "steam_firetube",
             "parameters": {},
         })
-        assert resp.status_code == 501
-        assert "desteklenmiyor" in resp.json()["detail"]
+        # Now engine_ready=True, so missing params returns 422
+        assert resp.status_code == 422
 
-    def test_chiller_returns_501(self):
+    def test_chiller_requires_params(self):
         resp = client.post("/api/analyze", json={
             "equipment_type": "chiller",
             "subtype": "screw",
             "parameters": {},
         })
-        assert resp.status_code == 501
+        assert resp.status_code == 422
 
-    def test_pump_returns_501(self):
+    def test_pump_requires_params(self):
         resp = client.post("/api/analyze", json={
             "equipment_type": "pump",
             "subtype": "centrifugal",
             "parameters": {},
         })
-        assert resp.status_code == 501
+        assert resp.status_code == 422
 
 
 class TestFactoryProjects:

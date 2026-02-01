@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { analyzeCompressor, getSolutions, interpretAnalysis } from '../services/api';
+import { analyzeCompressor, analyzeEquipment, getSolutions, interpretAnalysis } from '../services/api';
 
 export const useAnalysis = () => {
   const [result, setResult] = useState(null);
@@ -9,36 +9,56 @@ export const useAnalysis = () => {
   const [interpretation, setInterpretation] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
 
-  const analyze = async (compressorType, parameters) => {
+  const analyze = async (equipmentType, subtype, parameters) => {
     setLoading(true);
     setError(null);
     setInterpretation(null);
 
     try {
-      const analysisResult = await analyzeCompressor(compressorType, parameters);
+      let analysisResult;
+
+      if (equipmentType === 'compressor') {
+        // Use legacy compressor endpoint for backward compatibility
+        analysisResult = await analyzeCompressor(subtype, parameters);
+      } else {
+        // Use generic equipment endpoint
+        analysisResult = await analyzeEquipment(equipmentType, subtype, parameters);
+      }
+
       setResult(analysisResult ?? null);
 
-      const solutionsResult = await getSolutions(compressorType, {
-        efficiency: analysisResult?.metrics?.exergy_efficiency_percent,
-        specific_power: (parameters?.power_kW ?? 0) / (parameters?.flow_rate_m3_min || 1),
-        operating_hours: parameters?.operating_hours || 4000,
-      });
-      setSolutions(solutionsResult?.recommendations ?? []);
+      // Solutions: only for compressors currently
+      if (equipmentType === 'compressor') {
+        try {
+          const solutionsResult = await getSolutions(subtype, {
+            efficiency: analysisResult?.metrics?.exergy_efficiency_percent,
+            specific_power: (parameters?.power_kW ?? 0) / (parameters?.flow_rate_m3_min || 1),
+            operating_hours: parameters?.operating_hours || 4000,
+          });
+          setSolutions(solutionsResult?.recommendations ?? []);
+        } catch {
+          setSolutions([]);
+        }
+      } else {
+        setSolutions([]);
+      }
 
       // Phase 1 complete: main results are ready
       setLoading(false);
 
-      // Phase 2: AI interpretation (non-blocking)
-      setAiLoading(true);
-      try {
-        const aiResult = await interpretAnalysis(analysisResult, compressorType, parameters);
-        if (aiResult?.success && aiResult?.interpretation?.ai_available) {
-          setInterpretation(aiResult.interpretation);
+      // Phase 2: AI interpretation (non-blocking, compressor only for now)
+      if (equipmentType === 'compressor') {
+        setAiLoading(true);
+        try {
+          const aiResult = await interpretAnalysis(analysisResult, subtype, parameters);
+          if (aiResult?.success && aiResult?.interpretation?.ai_available) {
+            setInterpretation(aiResult.interpretation);
+          }
+        } catch {
+          // AI failure is silent
+        } finally {
+          setAiLoading(false);
         }
-      } catch {
-        // AI failure is silent — does not affect main results
-      } finally {
-        setAiLoading(false);
       }
     } catch (err) {
       setError(err.response?.data?.detail || err.message);
