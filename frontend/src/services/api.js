@@ -78,4 +78,14 @@ export const interpretAnalysis = async (analysisResult, compressorType, paramete
   return response.data;
 };
 
+export const getEquipmentTypes = async () => {
+  const response = await api.get('/equipment-types');
+  return response.data;
+};
+
+export const getEquipmentSubtypes = async (equipmentType) => {
+  const response = await api.get(`/equipment-types/${equipmentType}/subtypes`);
+  return response.data;
+};
+
 export default api;
