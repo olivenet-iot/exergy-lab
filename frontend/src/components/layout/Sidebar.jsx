@@ -8,6 +8,7 @@ import {
   Droplets,
   Factory,
   FolderOpen,
+  Plus,
   ChevronDown,
 } from 'lucide-react';
 
@@ -19,8 +20,8 @@ const equipmentLinks = [
 ];
 
 const factoryLinks = [
-  { to: '/factory', label: 'Yeni Proje', icon: Factory },
-  { to: '/reports', label: 'Raporlar', icon: FolderOpen },
+  { to: '/factory', label: 'Projeler', icon: FolderOpen },
+  { to: '/factory/new', label: 'Yeni Proje', icon: Plus },
 ];
 
 const linkClass = ({ isActive }) =>

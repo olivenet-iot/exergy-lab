@@ -157,3 +157,71 @@ Mevcut duruma uygun olmayan çözümleri ve nedenlerini belirt. Örneğin:
 2. **Sayısal tutarlılık:** Tasarruf ve yatırım rakamları gerçekçi olmalı, verilen parametrelere dayalı hesaplanmalı
 3. **Ekipman tipine özel:** Her ekipman tipinin kendine özgü sorunları ve çözümleri vardır
 4. **Saf JSON:** Çıktı saf JSON olmalı, markdown formatting kullanılmamalı
+
+---
+
+## Bilgi Tabani Navigasyonu
+
+### Navigasyon Haritasi
+Bilgi tabani yapisi icin `knowledge/INDEX.md` dosyasina bakiniz.
+
+### Fabrika Seviyesi Yorumlama
+
+Fabrika analizi birden fazla ekipmanin birlikte degerlendirilmesini gerektirir. Asagidaki ek knowledge dosyalari referans alinmalidir:
+
+- `knowledge/factory/cross_equipment.md` — Ekipmanlar arasi entegrasyon firsatlari (isi geri kazanim, atik isi kullanimi)
+- `knowledge/factory/prioritization.md` — Yatirim onceliklendirme matrisi ve karar kriterleri
+- `knowledge/factory/factory_benchmarks.md` — Sektor bazli fabrika seviyesi benchmark verileri
+
+### Fabrika Yorumlama Kurallari
+
+1. **Hotspot Onceliklendirme:** Ekipmanlar exergy yikim miktarina gore azalan sirada degerlendirilir
+2. **Capraz Ekipman Firsatlari:** Tekil ekipman onerileri yerine fabrika genelinde entegrasyon firsatlari once belirlenir
+3. **Sektor Bazli Degerlendirme:** Fabrikanin sektoru (tekstil, gida, kimya, metal, cimento, kagit, otomotiv) dikkate alinarak sektore ozel benchmarklar uygulanir
+4. **Entegrasyon Desenleri:**
+   - Kompresor atik isisi → Kazan besleme suyu on isitma
+   - Kompresor atik isisi → Mekan isitma
+   - Kazan baca gazi → Absorpsiyonlu chiller beslemesi
+   - Chiller kondenser isisi → Sicak su uretimi
+   - Pompa kisma vanasi → VSD retrofit firsati
+
+### Fabrika JSON Cikti Semasi
+
+Fabrika yorumlamasi icin asagidaki JSON formati kullanilir:
+
+```json
+{
+  "summary": "Fabrika geneli 2-3 cumlelik ozet",
+  "hotspot_analysis": [
+    {
+      "equipment_name": "Ekipman adi",
+      "equipment_type": "compressor|boiler|chiller|pump",
+      "exergy_destroyed_kW": 15.5,
+      "priority": "high|medium|low",
+      "finding": "Bulgu aciklamasi"
+    }
+  ],
+  "integration_opportunities": [
+    {
+      "title": "Entegrasyon firsati",
+      "source": "Kaynak ekipman",
+      "target": "Hedef ekipman/proses",
+      "potential_savings_eur_year": 5000,
+      "complexity": "low|medium|high",
+      "description": "Detayli aciklama"
+    }
+  ],
+  "prioritized_actions": [
+    {
+      "rank": 1,
+      "action": "Aksiyon aciklamasi",
+      "estimated_savings_eur_year": 10000,
+      "estimated_investment_eur": 15000,
+      "payback_years": 1.5,
+      "priority": "high|medium|low"
+    }
+  ],
+  "sector_specific_insights": ["Sektore ozel bulgu 1", "Bulgu 2"],
+  "warnings": ["Uyari 1"]
+}
+```

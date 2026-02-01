@@ -363,6 +363,203 @@ class TestPumpAnalyze:
 # Equipment config endpoint
 # ===========================================================================
 
+# ===========================================================================
+# Factory API tests
+# ===========================================================================
+
+class TestFactoryAPI:
+    def _create_project(self, name="Test Fabrika", sector="textile"):
+        resp = client.post("/api/factory/projects", json={
+            "name": name,
+            "sector": sector,
+            "description": "Test aciklamasi",
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["success"] is True
+        return data["project"]["id"]
+
+    def _add_compressor(self, project_id, name="Kompresor-1"):
+        resp = client.post(f"/api/factory/projects/{project_id}/equipment", json={
+            "type": "compressor",
+            "subtype": "screw",
+            "name": name,
+            "parameters": {
+                "power_kW": 32,
+                "flow_rate_m3_min": 6.2,
+                "outlet_pressure_bar": 7.5,
+            },
+        })
+        assert resp.status_code == 200
+        return resp.json()["equipment"]["id"]
+
+    def _add_boiler(self, project_id, name="Kazan-1"):
+        resp = client.post(f"/api/factory/projects/{project_id}/equipment", json={
+            "type": "boiler",
+            "subtype": "steam_firetube",
+            "name": name,
+            "parameters": {
+                "fuel_flow_kg_h": 370,
+                "steam_flow_kg_h": 5000,
+                "steam_pressure_bar": 10,
+            },
+        })
+        assert resp.status_code == 200
+        return resp.json()["equipment"]["id"]
+
+    def test_create_project(self):
+        resp = client.post("/api/factory/projects", json={
+            "name": "Yeni Fabrika",
+            "sector": "food",
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["success"] is True
+        assert data["project"]["name"] == "Yeni Fabrika"
+        assert data["project"]["sector"] == "food"
+        assert data["project"]["id"]
+        assert data["project"]["equipment_count"] == 0
+
+    def test_list_projects(self):
+        pid = self._create_project("Liste Test")
+        resp = client.get("/api/factory/projects")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["success"] is True
+        assert isinstance(data["projects"], list)
+        assert any(p["id"] == pid for p in data["projects"])
+
+    def test_get_project(self):
+        pid = self._create_project("Get Test")
+        resp = client.get(f"/api/factory/projects/{pid}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["project"]["id"] == pid
+        assert data["project"]["name"] == "Get Test"
+
+    def test_get_project_not_found(self):
+        resp = client.get("/api/factory/projects/nonexist")
+        assert resp.status_code == 404
+
+    def test_add_equipment(self):
+        pid = self._create_project()
+        resp = client.post(f"/api/factory/projects/{pid}/equipment", json={
+            "type": "compressor",
+            "subtype": "screw",
+            "name": "Kompresör A",
+            "parameters": {
+                "power_kW": 32,
+                "flow_rate_m3_min": 6.2,
+                "outlet_pressure_bar": 7.5,
+            },
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["success"] is True
+        assert data["equipment"]["name"] == "Kompresör A"
+        assert data["equipment"]["id"]
+
+        # Verify project now has 1 equipment
+        proj = client.get(f"/api/factory/projects/{pid}").json()
+        assert proj["project"]["equipment_count"] == 1
+
+    def test_remove_equipment(self):
+        pid = self._create_project()
+        eq_id = self._add_compressor(pid)
+
+        resp = client.delete(f"/api/factory/projects/{pid}/equipment/{eq_id}")
+        assert resp.status_code == 200
+        assert resp.json()["success"] is True
+
+        # Verify equipment removed
+        proj = client.get(f"/api/factory/projects/{pid}").json()
+        assert proj["project"]["equipment_count"] == 0
+
+    def test_remove_equipment_not_found(self):
+        pid = self._create_project()
+        resp = client.delete(f"/api/factory/projects/{pid}/equipment/nonexist")
+        assert resp.status_code == 404
+
+    def test_analyze_factory(self):
+        pid = self._create_project()
+        self._add_compressor(pid)
+        self._add_boiler(pid)
+
+        resp = client.post(f"/api/factory/projects/{pid}/analyze")
+        assert resp.status_code == 200
+        data = resp.json()
+
+        assert data["success"] is True
+        assert data["project_id"] == pid
+        assert len(data["equipment_results"]) == 2
+        assert "aggregates" in data
+        assert "hotspots" in data
+        assert "integration_opportunities" in data
+        assert "sankey" in data
+
+        # Check aggregates
+        agg = data["aggregates"]
+        assert agg["equipment_count"] == 2
+        assert agg["total_exergy_input_kW"] > 0
+        assert agg["total_exergy_destroyed_kW"] > 0
+        assert 0 < agg["factory_exergy_efficiency_pct"] < 100
+
+    def test_analyze_empty_project(self):
+        pid = self._create_project()
+        resp = client.post(f"/api/factory/projects/{pid}/analyze")
+        assert resp.status_code == 400
+
+    def test_hotspots_sorted(self):
+        pid = self._create_project()
+        self._add_compressor(pid, "Small-Comp")
+        self._add_boiler(pid, "Big-Boiler")
+
+        resp = client.post(f"/api/factory/projects/{pid}/analyze")
+        data = resp.json()
+        hotspots = data["hotspots"]
+
+        assert len(hotspots) == 2
+        # Should be sorted by exergy destruction descending
+        assert hotspots[0]["exergy_destroyed_kW"] >= hotspots[1]["exergy_destroyed_kW"]
+
+    def test_sankey_data(self):
+        pid = self._create_project()
+        self._add_compressor(pid)
+        self._add_boiler(pid)
+
+        resp = client.post(f"/api/factory/projects/{pid}/analyze")
+        sankey = resp.json()["sankey"]
+
+        assert "nodes" in sankey
+        assert "links" in sankey
+        assert "summary" in sankey
+
+        # Should have: 1 input + 2 equipment + 1 useful + 1 loss = 5 nodes
+        assert len(sankey["nodes"]) == 5
+        # Should have links for each equipment (input->eq, eq->useful, eq->loss)
+        assert len(sankey["links"]) >= 4
+
+    def test_integration_opportunities(self):
+        """Compressor + boiler should detect heat recovery integration."""
+        pid = self._create_project()
+        self._add_compressor(pid)
+        self._add_boiler(pid)
+
+        resp = client.post(f"/api/factory/projects/{pid}/analyze")
+        data = resp.json()
+
+        opportunities = data["integration_opportunities"]
+        # Should detect at least compressor heat -> boiler or compressor heat -> space
+        assert len(opportunities) >= 1
+
+        # Verify opportunity structure
+        for opp in opportunities:
+            assert "type" in opp
+            assert "title" in opp
+            assert "source" in opp
+            assert "estimated_savings_EUR_year" in opp
+
+
 class TestEquipmentConfig:
     def test_compressor_config(self):
         resp = client.get("/api/equipment-types/compressor/config")

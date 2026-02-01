@@ -294,3 +294,151 @@ async def interpret_with_claude_code(
     """
     client = ClaudeCodeClient.get_instance()
     return await client.interpret(analysis_result, equipment_type, subtype, parameters)
+
+
+def _format_factory_analysis(project: dict) -> str:
+    """Format factory analysis data for AI prompt."""
+    lines = []
+    lines.append(f"**Fabrika Adi:** {project.get('name', 'N/A')}")
+    lines.append(f"**Sektor:** {project.get('sector', 'N/A')}")
+    lines.append(f"**Ekipman Sayisi:** {len(project.get('equipment', []))}")
+    lines.append("")
+
+    for eq in project.get("equipment", []):
+        result = eq.get("analysis_result")
+        if not result:
+            continue
+        lines.append(f"### {eq.get('name', 'N/A')} ({eq.get('type', '')}/{eq.get('subtype', '')})")
+        lines.append(f"- Exergy Girisi: {result.get('exergy_in_kW', 'N/A')} kW")
+        lines.append(f"- Exergy Cikisi: {result.get('exergy_out_kW', 'N/A')} kW")
+        lines.append(f"- Exergy Yikimi: {result.get('exergy_destroyed_kW', 'N/A')} kW")
+        lines.append(f"- Exergy Verimi: {result.get('exergy_efficiency_pct', 'N/A')}%")
+        annual_loss = result.get('annual_loss_EUR', 'N/A')
+        lines.append(f"- Yillik Kayip: {annual_loss} EUR")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def _fallback_factory_response() -> dict:
+    """Return a fallback response for factory interpretation."""
+    return {
+        "ai_available": False,
+        "summary": "",
+        "hotspot_analysis": [],
+        "integration_opportunities": [],
+        "prioritized_actions": [],
+        "sector_specific_insights": [],
+        "warnings": [],
+    }
+
+
+async def interpret_factory_analysis(
+    project: dict,
+    sector: str | None = None,
+) -> dict:
+    """Run Claude Code CLI to interpret factory-level analysis results."""
+    client = ClaudeCodeClient.get_instance()
+
+    analysis_summary = _format_factory_analysis(project)
+
+    sector_label = sector or project.get("sector") or "genel"
+
+    prompt = f"""Sen bir endustriyel exergy analizi uzmanisin. Asagidaki fabrika seviyesi analiz sonuclarini yorumla.
+
+## Bilgi Kaynaklari
+
+Fabrika yorumlamasi icin asagidaki knowledge dosyalarini referans al:
+- knowledge/factory/cross_equipment.md — Capraz ekipman entegrasyon firsatlari
+- knowledge/factory/prioritization.md — Yatirim onceliklendirme
+- knowledge/factory/factory_benchmarks.md — Fabrika benchmark verileri
+
+## Fabrika Verileri
+
+{analysis_summary}
+
+**Sektor:** {sector_label}
+
+## Gorev
+
+Fabrika genelindeki exergy kayiplarini, hotspot'lari, capraz ekipman entegrasyon firsatlarini ve oncelikli aksiyonlari analiz et.
+Sektore ozel bulgulari belirt. Asagidaki JSON semasina uygun yanit ver. Markdown fence kullanma, saf JSON dondur.
+
+{{
+  "summary": "Fabrika geneli 2-3 cumlelik ozet",
+  "hotspot_analysis": [
+    {{
+      "equipment_name": "Ekipman adi",
+      "equipment_type": "compressor|boiler|chiller|pump",
+      "exergy_destroyed_kW": 15.5,
+      "priority": "high|medium|low",
+      "finding": "Bulgu aciklamasi"
+    }}
+  ],
+  "integration_opportunities": [
+    {{
+      "title": "Entegrasyon firsati",
+      "source": "Kaynak ekipman",
+      "target": "Hedef ekipman/proses",
+      "potential_savings_eur_year": 5000,
+      "complexity": "low|medium|high",
+      "description": "Detayli aciklama"
+    }}
+  ],
+  "prioritized_actions": [
+    {{
+      "rank": 1,
+      "action": "Aksiyon aciklamasi",
+      "estimated_savings_eur_year": 10000,
+      "estimated_investment_eur": 15000,
+      "payback_years": 1.5,
+      "priority": "high|medium|low"
+    }}
+  ],
+  "sector_specific_insights": ["Sektore ozel bulgu 1", "Bulgu 2"],
+  "warnings": ["Uyari 1"]
+}}"""
+
+    try:
+        logger.info("Claude Code CLI called for factory interpretation")
+        process = await asyncio.create_subprocess_exec(
+            "claude",
+            "-p",
+            prompt,
+            cwd=str(client._project_root),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(), timeout=client._timeout
+        )
+
+        if process.returncode != 0:
+            logger.warning(
+                "Claude CLI exited with code %d: %s",
+                process.returncode,
+                stderr.decode(errors="replace")[:500],
+            )
+            return _fallback_factory_response()
+
+        raw_output = stdout.decode(errors="replace")
+        logger.info("Claude Code factory response received, parsing")
+
+        interpretation = client._extract_json(raw_output)
+        if interpretation is None:
+            logger.warning("Could not extract JSON from Claude factory response")
+            return _fallback_factory_response()
+
+        interpretation["ai_available"] = True
+        return interpretation
+
+    except asyncio.TimeoutError:
+        logger.warning("Claude CLI timed out for factory interpretation")
+        return _fallback_factory_response()
+    except FileNotFoundError:
+        logger.warning("Claude CLI not found in PATH")
+        return _fallback_factory_response()
+    except Exception:
+        logger.exception("Unexpected error in factory interpretation")
+        return _fallback_factory_response()
