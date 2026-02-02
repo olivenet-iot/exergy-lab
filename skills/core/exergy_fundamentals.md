@@ -140,3 +140,59 @@ I_total = I_EN_AV + I_EN_UN + I_EX_AV + I_EX_UN
 - ε* ≈ 1.0 ise bileşen zaten limitte çalışıyor
 
 Detaylı bilgi: `knowledge/factory/advanced_exergy/` dizini (18 dosya)
+
+## Exergoekonomik Temel Kavramlar
+
+### SPECO Yöntemi (Specific Exergy Costing)
+Exergy akışlarına maliyet atama metodolojisi:
+```
+Ċ = c × Ėx
+```
+- Ċ: Exergy maliyet akışı [€/saat]
+- c: Birim exergy maliyeti [€/kWh]
+- Ėx: Exergy akışı [kW]
+
+### Exergy Yıkım Maliyeti (Ċ_D)
+```
+Ċ_D,k = c_F,k × Ėx_D,k
+```
+Her bileşenin exergy yıkımının parasal karşılığı.
+
+### Exergoekonomik Faktör (f_k)
+```
+f_k = Ż_k / (Ż_k + Ċ_D,k)
+```
+- f_k < 0.25 → Exergy yıkım maliyeti baskın → Verim artır
+- f_k = 0.25-0.65 → Dengeli
+- f_k > 0.65 → Yatırım maliyeti baskın → Daha ucuz bileşen seç
+
+### Göreceli Maliyet Farkı (r_k)
+```
+r_k = (c_P,k - c_F,k) / c_F,k
+```
+- r_k yüksek → Bileşen birim exergy maliyetini çok artırıyor
+- Yüksek r_k + düşük f_k → Öncelikli iyileştirme hedefi
+
+Detaylı bilgi: `knowledge/factory/exergoeconomic/` dizini (21 dosya)
+
+## Pinch Analizi Temelleri
+
+### Minimum Enerji Gereksinimi (MER)
+Pinch analizi, bir prosesin minimum ısıtma (QH,min) ve soğutma (QC,min) ihtiyacını belirler.
+
+### Bileşik Eğriler (Composite Curves)
+Sıcak ve soğuk akışların sıcaklık-entalpi diyagramında üst üste çizilmesi:
+- İki eğrinin en yakın noktası = **Pinch noktası**
+- ΔT_min: Minimum yaklaşım sıcaklığı (genellikle 10-20°C)
+
+### Üç Altın Kural (Pinch Rules)
+1. **Pinch üzerinden ısı transferi yapma** (cross-pinch transfer)
+2. **Pinch üstünde soğutma utility kullanma**
+3. **Pinch altında ısıtma utility kullanma**
+
+İhlal durumunda: Her kW cross-pinch transfer → +1 kW ısıtma + 1 kW soğutma utility
+
+### Grand Composite Curve (GCC)
+Utility seçimi ve çoklu utility seviyesi optimizasyonu için kullanılır.
+
+Detaylı bilgi: `knowledge/factory/pinch/` dizini (18 dosya)

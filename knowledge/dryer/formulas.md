@@ -1335,6 +1335,8 @@ EXERGY GIRISI (100% - tamami elektrik)
 - `dryer/solutions/mechanical_dewatering.md` -- Mekanik on susuzlastirma
 - `dryer/solutions/solar_preheating.md` -- Gunes enerjisi on isitma
 - `factory/cross_equipment.md` -- Ekipmanlar arasi entegrasyon firsatlari (kompressor atik isisi -> kurutucu on isitma vb.)
+- `factory/entropy_generation/overview.md` -- Entropi uretim minimizasyonu (EGM) genel bakis
+- `factory/entropy_generation/dryer_egm.md` -- Kurutucu entropi uretim analizi
 
 ---
 

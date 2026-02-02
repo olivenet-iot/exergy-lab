@@ -9,16 +9,19 @@ client = TestClient(app)
 
 
 class TestEquipmentTypes:
-    def test_returns_4_types(self):
+    def test_returns_7_types(self):
         resp = client.get("/api/equipment-types")
         assert resp.status_code == 200
         types = resp.json()["equipment_types"]
-        assert len(types) == 4
+        assert len(types) == 7
         type_ids = [t["id"] for t in types]
         assert "compressor" in type_ids
         assert "boiler" in type_ids
         assert "chiller" in type_ids
         assert "pump" in type_ids
+        assert "heat_exchanger" in type_ids
+        assert "steam_turbine" in type_ids
+        assert "dryer" in type_ids
 
     def test_each_type_has_subtypes(self):
         resp = client.get("/api/equipment-types")
@@ -35,6 +38,9 @@ class TestEquipmentTypes:
         assert len(types["boiler"]["subtypes"]) == 7
         assert len(types["chiller"]["subtypes"]) == 7
         assert len(types["pump"]["subtypes"]) == 6
+        assert len(types["heat_exchanger"]["subtypes"]) == 7
+        assert len(types["steam_turbine"]["subtypes"]) == 5
+        assert len(types["dryer"]["subtypes"]) == 8
 
 
 class TestEquipmentSubtypes:
@@ -61,6 +67,33 @@ class TestEquipmentSubtypes:
         resp = client.get("/api/equipment-types/pump/subtypes")
         assert resp.status_code == 200
         assert len(resp.json()["subtypes"]) == 6
+
+    def test_heat_exchanger_subtypes(self):
+        resp = client.get("/api/equipment-types/heat_exchanger/subtypes")
+        assert resp.status_code == 200
+        subtypes = resp.json()["subtypes"]
+        assert len(subtypes) == 7
+        ids = [s["id"] for s in subtypes]
+        assert "shell_tube" in ids
+        assert "plate" in ids
+
+    def test_steam_turbine_subtypes(self):
+        resp = client.get("/api/equipment-types/steam_turbine/subtypes")
+        assert resp.status_code == 200
+        subtypes = resp.json()["subtypes"]
+        assert len(subtypes) == 5
+        ids = [s["id"] for s in subtypes]
+        assert "back_pressure" in ids
+        assert "condensing" in ids
+
+    def test_dryer_subtypes(self):
+        resp = client.get("/api/equipment-types/dryer/subtypes")
+        assert resp.status_code == 200
+        subtypes = resp.json()["subtypes"]
+        assert len(subtypes) == 8
+        ids = [s["id"] for s in subtypes]
+        assert "convective" in ids
+        assert "rotary" in ids
 
     def test_invalid_type_returns_404(self):
         resp = client.get("/api/equipment-types/turbine/subtypes")

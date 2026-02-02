@@ -182,6 +182,78 @@ BAŞLA: Buhar türbini analizi
     → Fizibilite gerekiyorsa: OKU: economics/feasibility.md
 ```
 
+## Isı Eşanjörü Analizi Karar Ağacı
+
+```
+BAŞLA: Isı eşanjörü analizi
+│
+├── Etkililik (effectiveness) < benchmark?
+│   ├── Gövde-boru: benchmark ε > 0.60
+│   ├── Plakalı: benchmark ε > 0.75
+│   └── Çift borulu: benchmark ε > 0.50
+│
+├── Etkililik düşükse:
+│   ├── U-değer tasarımdan <%70?
+│   │   └── EVET → Fouling tespit → OKU: solutions/fouling_management.md
+│   ├── Yaklaşım sıcaklığı (approach temp) > 2×ΔT_min?
+│   │   └── EVET → OKU: solutions/approach_temp_optimization.md
+│   ├── Basınç düşümü tasarımdan >%50 fazla?
+│   │   └── EVET → OKU: solutions/pressure_drop_optimization.md
+│   └── Bejan sayısı analizi
+│       ├── Be > 0.5 → Isı transfer iyileştirmesi öncelikli
+│       └── Be < 0.5 → Akış direnci azaltma öncelikli
+│
+├── Exergy verimi < 40%?
+│   ├── EVET → Termodinamik kalite düşük
+│   │   ├── Büyük ΔT (>30°C) → OKU: solutions/heat_recovery.md (Kademeli ısı değişimi)
+│   │   └── Düşük sıcaklık (<60°C) → Exergy kalitesi doğal olarak düşük
+│   └── HAYIR → Kabul edilebilir, bakım ve izleme öner
+│
+└── SONUÇ: Öneri listesi oluştur, ROI'ye göre sırala
+```
+
+## İleri Analiz Tetikleme Karar Ağacı
+
+```
+BAŞLA: Fabrika verisi alındığında ileri analiz ihtiyacını değerlendir
+│
+├── Pinch analizi gerekli mi?
+│   ├── 3+ sıcak akış VE 2+ soğuk akış var mı?
+│   │   └── EVET → Pinch analizi öner
+│   ├── Toplam ısı yükü > 500 kW?
+│   │   └── EVET → Pinch analizi öner
+│   └── Hem ısıtma hem soğutma utility kullanılıyor mu?
+│       └── EVET → Pinch analizi öner
+│       → Referans: knowledge/factory/pinch/fundamentals.md
+│
+├── İleri exergy analizi gerekli mi?
+│   ├── 3+ ekipman VE toplam I_total > 100 kW?
+│   │   └── EVET → AV/UN ve EN/EX dekompozisyon öner
+│   ├── Büyük I_total olan ekipman ama düşük iyileştirme beklentisi?
+│   │   └── EVET → θ analizi öner (kaçınılabilirlik oranı)
+│   └── Ekipmanlar arası güçlü etkileşim var mı?
+│       └── EVET → Ekzojen analiz öner
+│       → Referans: knowledge/factory/advanced_exergy/overview.md
+│
+├── Termoekonomik optimizasyon gerekli mi?
+│   ├── Toplam Ċ_D > 50.000 €/yıl?
+│   │   └── EVET → Detaylı termoekonomik analiz öner
+│   ├── f_k < 0.25 olan bileşen var mı?
+│   │   └── EVET → Verim artırma öner
+│   └── Birden fazla büyük yatırım alternatifi var mı?
+│       └── EVET → Bütünleşik optimizasyon öner
+│       → Referans: knowledge/factory/thermoeconomic_optimization/overview.md
+│
+├── EGM (Entropi üretim minimizasyonu) gerekli mi?
+│   ├── N_s > 0.5 olan ekipman var mı?
+│   │   └── EVET → EGM analizi öner
+│   └── Bejan sayısı bilgisi isteniyorsa?
+│       └── EVET → Irreversibility kaynak ayrıştırması öner
+│       → Referans: knowledge/factory/entropy_generation/overview.md
+│
+└── SONUÇ: Uygun ileri analiz yöntemlerini öner, referans dosyalara yönlendir
+```
+
 ## Fabrika Analizi Karar Ağacı
 
 ```

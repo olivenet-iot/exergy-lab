@@ -15,6 +15,9 @@ EQUIPMENT_LABELS = {
     "boiler": "Kazan",
     "chiller": "Chiller",
     "pump": "Pompa",
+    "heat_exchanger": "Isı Eşanjörü",
+    "steam_turbine": "Buhar Türbini",
+    "dryer": "Kurutma Fırını",
 }
 
 EQUIPMENT_PARAMS_TEMPLATE = {
@@ -48,6 +51,33 @@ EQUIPMENT_PARAMS_TEMPLATE = {
 - Kontrol Yöntemi: {control_method}
 - Çalışma Saati: {operating_hours} saat/yıl
 - Elektrik Fiyatı: {electricity_price_eur_kwh} €/kWh""",
+    "heat_exchanger": """- Isı Yükü: {heat_duty_kW} kW
+- Sıcak Akışkan Giriş: {hot_inlet_temp_C} °C
+- Sıcak Akışkan Çıkış: {hot_outlet_temp_C} °C
+- Soğuk Akışkan Giriş: {cold_inlet_temp_C} °C
+- Soğuk Akışkan Çıkış: {cold_outlet_temp_C} °C
+- Yüzey Alanı: {area_m2} m²
+- U Değeri: {u_value} W/(m²·K)
+- Eşanjör Tipi: {hx_type}
+- Çalışma Saati: {operating_hours} saat/yıl""",
+    "steam_turbine": """- Güç Çıkışı: {power_output_kW} kW
+- Giriş Basıncı: {inlet_pressure_bar} bar
+- Giriş Sıcaklığı: {inlet_temp_C} °C
+- Çıkış Basıncı: {outlet_pressure_bar} bar
+- Çıkış Sıcaklığı: {outlet_temp_C} °C
+- Buhar Debisi: {steam_flow_kg_h} kg/h
+- İzentropik Verim: {isentropic_efficiency_pct}%
+- Türbin Tipi: {turbine_type}
+- Çalışma Saati: {operating_hours} saat/yıl""",
+    "dryer": """- Kurutma Kapasitesi: {drying_capacity_kg_h} kg/h
+- Isı Girdisi: {heat_input_kW} kW
+- Giriş Nemi: {inlet_moisture_pct}%
+- Çıkış Nemi: {outlet_moisture_pct}%
+- Kurutma Sıcaklığı: {drying_temp_C} °C
+- Egzoz Sıcaklığı: {exhaust_temp_C} °C
+- Egzoz Bağıl Nemi: {exhaust_rh_pct}%
+- Kurutucu Tipi: {dryer_type}
+- Çalışma Saati: {operating_hours} saat/yıl""",
 }
 
 EQUIPMENT_CATEGORIES = {
@@ -55,6 +85,9 @@ EQUIPMENT_CATEGORIES = {
     "boiler": "economizer|air_preheater|oxygen_control|blowdown|condensate|steam_trap|insulation|load_optimization|combustion|feedwater",
     "chiller": "vsd|condenser|chilled_water_reset|free_cooling|sequencing|maintenance|load_reduction|delta_t|thermal_storage|heat_recovery",
     "pump": "vsd|impeller_trimming|right_sizing|parallel|system_optimization|motor_upgrade|maintenance|throttle_elimination|cavitation|control",
+    "heat_exchanger": "fouling_management|approach_temp|pressure_drop|retrofit|heat_recovery|material_selection",
+    "steam_turbine": "efficiency_improvement|maintenance|load_matching|condensate_optimization|prv_replacement|orc",
+    "dryer": "exhaust_heat_recovery|air_recirculation|heat_pump_retrofit|mechanical_dewatering|insulation|temperature_optimization",
 }
 
 
@@ -198,6 +231,9 @@ class ClaudeCodeClient:
                 "knowledge/factory/prioritization.md",
                 "knowledge/factory/factory_benchmarks.md",
                 "knowledge/factory/exergoeconomic/evaluation_criteria.md",
+                "knowledge/factory/advanced_exergy/overview.md",
+                "knowledge/factory/pinch/fundamentals.md",
+                "knowledge/factory/entropy_generation/overview.md",
             ])
             if sector:
                 files.append(f"knowledge/factory/sector_{sector}.md")
@@ -528,14 +564,22 @@ Fabrika yorumlamasi icin asagidaki knowledge dosyalarini referans al:
 ## Gorev
 
 Fabrika genelindeki exergy kayiplarini, hotspot'lari, capraz ekipman entegrasyon firsatlarini ve oncelikli aksiyonlari analiz et.
-Sektore ozel bulgulari belirt. Asagidaki JSON semasina uygun yanit ver. Markdown fence kullanma, saf JSON dondur.
+Sektore ozel bulgulari belirt.
+
+Ileri analiz yontemlerini uygun oldugunda oner:
+- 3+ sicak ve 2+ soguk akis varsa → Pinch analizi oner
+- Toplam exergy yikim maliyeti > 50.000 EUR/yil → Termoekonomik optimizasyon oner
+- 3+ ekipman ve toplam I_total > 100 kW → Ileri exergy analizi (AV/UN, EN/EX) oner
+- Yuksek entropi uretimi → EGM (Entropy Generation Minimization) oner
+
+Asagidaki JSON semasina uygun yanit ver. Markdown fence kullanma, saf JSON dondur.
 
 {{
   "summary": "Fabrika geneli 2-3 cumlelik ozet",
   "hotspot_analysis": [
     {{
       "equipment_name": "Ekipman adi",
-      "equipment_type": "compressor|boiler|chiller|pump",
+      "equipment_type": "compressor|boiler|chiller|pump|heat_exchanger|steam_turbine|dryer",
       "exergy_destroyed_kW": 15.5,
       "priority": "high|medium|low",
       "finding": "Bulgu aciklamasi"

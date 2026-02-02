@@ -40,6 +40,18 @@ Fabrika seviyesi exergy analizi:
 - Sektörel karşılaştırma
 - Önceliklendirme
 
+### Desteklenen Ekipman Tipleri (7 adet)
+
+| # | Tip | Türkçe | Tipik Exergy Verimi |
+|---|-----|--------|---------------------|
+| 1 | compressor | Kompresör | %35-55 |
+| 2 | boiler | Kazan | %25-40 |
+| 3 | chiller | Chiller | %20-35 |
+| 4 | pump | Pompa | %40-65 |
+| 5 | heat_exchanger | Isı Eşanjörü | %30-60 |
+| 6 | steam_turbine | Buhar Türbini | %50-85 |
+| 7 | dryer | Kurutma Fırını | %5-25 |
+
 ## Analiz Sırası
 
 1. **Aggregation:** Toplam exergy giriş, çıkış, kayıp
@@ -80,6 +92,41 @@ Tipik ROI: 3-5 yıl
 Potansiyel: Kondenser ısısının %15-20'si
 Kullanım: Düşük sıcaklık ısıtma, sıcak su
 Tipik ROI: 2-4 yıl
+```
+
+### Isı Eşanjörü Ağı Optimizasyonu
+```
+Potansiyel: Mevcut utility kullanımının %10-30'u
+Kullanım: Pinch tabanlı HEN retrofit ile cross-pinch transferi ortadan kaldırma
+Tipik ROI: 1-3 yıl
+```
+
+### Buhar Türbini → Proses Buharı (CHP)
+```
+Potansiyel: Kazan HP buharı → türbin → LP proses buharı + elektrik
+Kullanım: Hem elektrik hem ısı ihtiyacı olan tesislerde
+Tipik ROI: 3-6 yıl
+```
+
+### PRV → Mikro Türbin İkamesi
+```
+Potansiyel: PRV debisi > 3 ton/h ve ΔP > 10 bar ise serbest elektrik
+Kullanım: Basınç düşürme noktalarında enerji geri kazanımı
+Tipik ROI: 2-4 yıl
+```
+
+### Kurutma Fırını ← Atık Isı Kaynakları
+```
+Potansiyel: Kompresör/kazan atık ısısı → kurutma ön ısıtma (%5-15 tasarruf)
+Kullanım: Düşük sıcaklık kurutma proseslerinde
+Tipik ROI: 1.5-3 yıl
+```
+
+### Kurutma Fırını Egzozu → Isı Geri Kazanım
+```
+Potansiyel: Egzoz ısısının %15-30'u geri kazanılabilir
+Kullanım: Taze hava ön ısıtma veya absorpsiyonlu soğutma
+Tipik ROI: 1-2.5 yıl
 ```
 
 ## Önceliklendirme Kuralları
@@ -250,3 +297,14 @@ Sektör biliniyorsa mutlaka `knowledge/factory/sector_{sector}.md` oku ve:
 - Tipik enerji dağılımını referans al
 - Sektöre özel best practice'leri öner
 - BAT (Best Available Techniques) referans ver
+
+## İleri Analiz Önerileri Özet Tablosu
+
+| Koşul | Önerilen Yöntem | Referans Dizin |
+|-------|----------------|----------------|
+| 3+ sıcak/soğuk akış, toplam ısı > 500 kW | Pinch Analizi | `knowledge/factory/pinch/` |
+| 3+ ekipman, I_total > 100 kW | İleri Exergy (AV/UN, EN/EX) | `knowledge/factory/advanced_exergy/` |
+| Toplam Ċ_D > 50.000 €/yıl | Exergoekonomik Analiz | `knowledge/factory/exergoeconomic/` |
+| f_k veya r_k anomalisi | Termoekonomik Optimizasyon | `knowledge/factory/thermoeconomic_optimization/` |
+| N_s > 0.5 veya Be analizi gerekli | EGM (Entropi Üretim Min.) | `knowledge/factory/entropy_generation/` |
+| CBAM etkili sektör + CO₂ hedefi | Çok Amaçlı Optimizasyon | `knowledge/factory/thermoeconomic_optimization/multi_objective.md` |

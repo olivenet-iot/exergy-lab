@@ -577,6 +577,7 @@ Q = m × cp × DT  (sıcak veya soğuk taraftan)
 - `heat_exchanger/audit.md` — Denetim ve ölçüm metodolojisi
 - `heat_exchanger/standards.md` — TEMA, ASME standart referansları
 - `heat_exchanger/case_studies.md` — Hesaplama örnekleri ve vaka çalışmaları
+- `factory/entropy_generation/heat_exchanger_egm.md` — Isı eşanjörü entropi üretim minimizasyonu
 
 ## Referanslar
 

@@ -51,11 +51,15 @@ class TestSkillFileExistence:
         "equipment/boiler_expert.md",
         "equipment/chiller_expert.md",
         "equipment/pump_expert.md",
+        "equipment/heat_exchanger_expert.md",
+        "equipment/steam_turbine_expert.md",
+        "equipment/dryer_expert.md",
     ]
 
     FACTORY_SKILLS = [
         "factory/factory_analyst.md",
         "factory/integration_expert.md",
+        "factory/economic_advisor.md",
     ]
 
     OUTPUT_SKILLS = [
@@ -139,13 +143,34 @@ class TestSkillContentValidation:
         assert "Pompa Uzmanı" in content
         assert "Wire-to-water" in content or "wire-to-water" in content
 
+    def test_heat_exchanger_expert_content(self):
+        """Heat exchanger expert should contain key domain terms."""
+        content = (SKILLS_DIR / "equipment/heat_exchanger_expert.md").read_text(encoding="utf-8")
+        assert "Isı Eşanjörü Uzmanı" in content
+        assert "U-değer" in content or "effectiveness" in content or "etkililik" in content
+
+    def test_steam_turbine_expert_content(self):
+        """Steam turbine expert should contain key domain terms."""
+        content = (SKILLS_DIR / "equipment/steam_turbine_expert.md").read_text(encoding="utf-8")
+        assert "Buhar Türbini Uzmanı" in content
+        assert "izentropik" in content or "İzentropik" in content
+
+    def test_dryer_expert_content(self):
+        """Dryer expert should contain key domain terms."""
+        content = (SKILLS_DIR / "equipment/dryer_expert.md").read_text(encoding="utf-8")
+        assert "Kurutma" in content
+        assert "SMER" in content
+
     def test_decision_trees_has_all_equipment(self):
-        """Decision trees should cover all four equipment types."""
+        """Decision trees should cover all seven equipment types."""
         content = (SKILLS_DIR / "core/decision_trees.md").read_text(encoding="utf-8")
         assert "Kompresör" in content
         assert "Kazan" in content
         assert "Chiller" in content or "chiller" in content
         assert "Pompa" in content
+        assert "Isı Eşanjörü" in content or "eşanjör" in content
+        assert "Buhar Türbini" in content or "türbin" in content
+        assert "Kurutma" in content
 
     def test_response_format_has_json_schemas(self):
         """Response format should contain JSON schema examples."""
@@ -198,6 +223,21 @@ class TestSkillLoading:
         combined = client._load_skills("single_equipment", "pump")
         assert "Pompa Uzmanı" in combined
 
+    def test_load_skills_single_equipment_heat_exchanger(self, client):
+        """Single equipment (heat_exchanger) should load core + heat_exchanger + output skills."""
+        combined = client._load_skills("single_equipment", "heat_exchanger")
+        assert "Isı Eşanjörü Uzmanı" in combined
+
+    def test_load_skills_single_equipment_steam_turbine(self, client):
+        """Single equipment (steam_turbine) should load core + steam_turbine + output skills."""
+        combined = client._load_skills("single_equipment", "steam_turbine")
+        assert "Buhar Türbini Uzmanı" in combined
+
+    def test_load_skills_single_equipment_dryer(self, client):
+        """Single equipment (dryer) should load core + dryer + output skills."""
+        combined = client._load_skills("single_equipment", "dryer")
+        assert "Kurutma" in combined
+
     def test_load_skills_factory(self, client):
         """Factory analysis should load core + factory + output skills."""
         combined = client._load_skills("factory")
@@ -244,6 +284,24 @@ class TestKnowledgeLoading:
         knowledge = client._load_relevant_knowledge("factory", sector="food")
         assert "factory/sector_food.md" in knowledge
 
+    def test_load_knowledge_heat_exchanger(self, client):
+        """Heat exchanger should load benchmarks + formulas."""
+        knowledge = client._load_relevant_knowledge("single_equipment", "heat_exchanger")
+        assert "heat_exchanger/benchmarks.md" in knowledge
+        assert "heat_exchanger/formulas.md" in knowledge
+
+    def test_load_knowledge_steam_turbine(self, client):
+        """Steam turbine should load benchmarks + formulas."""
+        knowledge = client._load_relevant_knowledge("single_equipment", "steam_turbine")
+        assert "steam_turbine/benchmarks.md" in knowledge
+        assert "steam_turbine/formulas.md" in knowledge
+
+    def test_load_knowledge_dryer(self, client):
+        """Dryer should load benchmarks + formulas."""
+        knowledge = client._load_relevant_knowledge("single_equipment", "dryer")
+        assert "dryer/benchmarks.md" in knowledge
+        assert "dryer/formulas.md" in knowledge
+
     def test_load_knowledge_missing_sector_file(self, client):
         """Non-existent sector should not break loading."""
         knowledge = client._load_relevant_knowledge("factory", sector="nonexistent")
@@ -258,7 +316,7 @@ class TestKnowledgeLoading:
 class TestKnowledgeFrontmatter:
     """Verify knowledge files have YAML frontmatter."""
 
-    EQUIPMENT_TYPES = ["compressor", "boiler", "chiller", "pump"]
+    EQUIPMENT_TYPES = ["compressor", "boiler", "chiller", "pump", "heat_exchanger", "steam_turbine", "dryer"]
 
     @pytest.mark.parametrize("equipment_type", EQUIPMENT_TYPES)
     def test_benchmarks_has_frontmatter(self, equipment_type):

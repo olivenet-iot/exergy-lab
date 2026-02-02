@@ -95,6 +95,72 @@ type: core
 }
 ```
 
+## İleri Exergy Analizi JSON Schema
+
+```json
+{
+  "advanced_exergy": {
+    "equipment_decomposition": [
+      {
+        "equipment_name": "string",
+        "I_total_kW": number,
+        "avoidable_kW": number,
+        "unavoidable_kW": number,
+        "endogenous_kW": number,
+        "exogenous_kW": number,
+        "four_way_split": {
+          "EN_AV_kW": number,
+          "EN_UN_kW": number,
+          "EX_AV_kW": number,
+          "EX_UN_kW": number
+        },
+        "theta": number,
+        "priority": "high|medium|low"
+      }
+    ],
+    "improvement_priority_order": ["string"],
+    "method_note": "string"
+  }
+}
+```
+
+## Exergoekonomik Analiz JSON Schema
+
+```json
+{
+  "exergoeconomic": {
+    "equipment_costs": [
+      {
+        "equipment_name": "string",
+        "C_D_eur_year": number,
+        "Z_k_eur_year": number,
+        "f_k": number,
+        "r_k": number,
+        "action": "string"
+      }
+    ],
+    "total_C_D_eur_year": number,
+    "optimization_suggestion": "string"
+  }
+}
+```
+
+## Pinch Analizi JSON Schema
+
+```json
+{
+  "pinch_analysis": {
+    "pinch_temperature_C": number,
+    "QH_min_kW": number,
+    "QC_min_kW": number,
+    "current_QH_kW": number,
+    "saving_potential_pct": number,
+    "cross_pinch_violations": ["string"],
+    "recommendation": "string"
+  }
+}
+```
+
 ## Yanıt Kuralları
 
 1. **Somut ol:** "İyileştirme yapılabilir" yerine "€5,000/yıl tasarruf sağlanabilir"

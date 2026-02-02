@@ -328,6 +328,7 @@ Major overhaul (40-60K saat):
 - [Fizibilite](economics/feasibility.md) — CHP fizibilite kriterleri
 - [Kazan Benchmarkları](../boiler/benchmarks.md) — Kazan verim karşılaştırma
 - [Fabrika Benchmarkları](../factory/factory_benchmarks.md) — Fabrika sektörel benchmark
+- [İleri Exergy Analizi](../factory/advanced_exergy/overview.md) — AV/UN, EN/EX dekompozisyon
 
 ## Referanslar
 

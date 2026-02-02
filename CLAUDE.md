@@ -2,9 +2,11 @@
 
 ## Proje Özeti
 
-ExergyLab, endüstriyel ekipmanların (kompresör, kazan, chiller, pompa, ısı eşanjörü, buhar türbini, kurutma fırını) ve fabrikaların exergy analizini yapan, AI destekli yorumlar sunan bir enerji verimliliği platformudur.
+ExergyLab, 7 endüstriyel ekipman tipinin (kompresör, kazan, chiller, pompa, ısı eşanjörü, buhar türbini, kurutma fırını) ve fabrikaların exergy analizini yapan, 6 ileri analiz yöntemi ve AI destekli yorumlar sunan bir enerji verimliliği platformudur.
 
 **Temel Fark:** Enerji verimi yerine **exergy verimi** odaklı analiz — termodinamiğin 2. yasasına dayalı gerçek verimlilik ölçümü.
+
+**İstatistikler:** 305+ knowledge dosyası, 17 skill dosyası, 7 ekipman tipi, 6 ileri analiz yöntemi
 
 ## Teknoloji Stack
 
@@ -24,7 +26,8 @@ exergy-lab/
 │   │   └── interpret.py   # AI yorumlama
 │   ├── schemas/           # Pydantic modelleri
 │   └── services/          # Business logic
-│       └── claude_code_service.py  # AI entegrasyonu
+│       ├── claude_code_service.py  # AI entegrasyonu
+│       └── equipment_registry.py   # Ekipman tip kayıt defteri
 │
 ├── engine/                 # Exergy hesaplama motorları
 │   ├── compressor.py      # Kompresör analizi
@@ -43,9 +46,9 @@ exergy-lab/
 │   ├── boiler/            # 22 dosya
 │   ├── chiller/           # 24 dosya
 │   ├── pump/              # 22 dosya
-│   ├── heat_exchanger/    # 21 dosya
-│   ├── steam_turbine/     # 21 dosya
-│   ├── dryer/             # 26 dosya
+│   ├── heat_exchanger/    # 21 dosya — U-değer, etkililik, fouling, NTU
+│   ├── steam_turbine/     # 21 dosya — izentropik verim, CHP, PRV ikamesi
+│   ├── dryer/             # 26 dosya — SMER, SEC, psikrometri, tip seçimi
 │   └── factory/           # 150+ dosya
 │       ├── pinch/         # Pinch analizi (18 dosya)
 │       ├── advanced_exergy/ # İleri exergy analizi (18 dosya)
@@ -56,9 +59,23 @@ exergy-lab/
 │
 ├── skills/                 # AI Skill dosyaları (17 dosya)
 │   ├── core/              # Temel beceriler (3 dosya)
+│   │   ├── exergy_fundamentals.md  # Exergy kavramları + EGM + exergoekonomik + pinch
+│   │   ├── response_format.md      # JSON şemaları (tek ekipman, fabrika, ileri analiz)
+│   │   └── decision_trees.md       # 7 ekipman + fabrika + ileri analiz karar ağaçları
 │   ├── equipment/         # Ekipman uzmanları (7 dosya)
+│   │   ├── compressor_expert.md
+│   │   ├── boiler_expert.md
+│   │   ├── chiller_expert.md
+│   │   ├── pump_expert.md
+│   │   ├── heat_exchanger_expert.md
+│   │   ├── steam_turbine_expert.md
+│   │   └── dryer_expert.md
 │   ├── factory/           # Fabrika analizi (3 dosya)
+│   │   ├── factory_analyst.md      # Hotspot, cross-equipment, ileri analiz önerileri
+│   │   ├── integration_expert.md   # HEN optimizasyonu, pinch tabanlı eşleştirme
+│   │   └── economic_advisor.md     # Exergoekonomik değerlendirme
 │   └── output/            # Çıktı formatı (1 dosya)
+│       └── turkish_style.md
 │
 ├── frontend/               # React frontend
 │   └── src/
@@ -69,6 +86,18 @@ exergy-lab/
 ├── tests/                  # Pytest testleri
 └── CLAUDE.md              # Bu dosya
 ```
+
+## Ekipman Tipleri
+
+| # | Tip | Türkçe | Engine | Tipik Exergy Verimi |
+|---|-----|--------|--------|---------------------|
+| 1 | compressor | Kompresör | Ready | %35-55 |
+| 2 | boiler | Kazan | Ready | %25-40 |
+| 3 | chiller | Chiller | Ready | %20-35 |
+| 4 | pump | Pompa | Ready | %40-65 |
+| 5 | heat_exchanger | Isı Eşanjörü | Planned | %30-60 |
+| 6 | steam_turbine | Buhar Türbini | Planned | %50-85 |
+| 7 | dryer | Kurutma Fırını | Planned | %5-25 |
 
 ## Çalıştırma
 
@@ -91,8 +120,17 @@ npm run dev
 1. Kullanıcı ekipman/fabrika analizi yapar
 2. Engine hesaplamaları yapar (exergy, kayıp, benchmark)
 3. Sonuçlar `/api/interpret` endpoint'ine gönderilir
-4. Claude API, knowledge base'i kullanarak yorum üretir
+4. Claude API, skill ve knowledge dosyalarını kullanarak yorum üretir
 5. Yapılandırılmış JSON yanıt döner
+
+### Skill Yükleme Sırası
+
+AI yorumlama sırasında `claude_code_service.py` şu sırayla skill yükler:
+
+1. **Core skills** (her zaman): `exergy_fundamentals.md` → `response_format.md` → `decision_trees.md`
+2. **Equipment skill** (tek ekipman): `equipment/{type}_expert.md`
+3. **Factory skills** (fabrika): `factory_analyst.md` → `integration_expert.md` → `economic_advisor.md`
+4. **Output skill** (her zaman): `output/turkish_style.md`
 
 ### Knowledge Base Kullanımı
 
@@ -108,14 +146,10 @@ AI yorumlama yaparken şu dosyaları referans alır:
 - `knowledge/factory/prioritization.md` — Önceliklendirme
 - `knowledge/factory/factory_benchmarks.md` — Sektörel benchmark
 - `knowledge/factory/sector_{sector}.md` — Sektöre özel
-
-### Skill Dosyaları
-
-`/skills/` dizinindeki dosyalar AI'ın davranışını tanımlar:
-- Yanıt formatı (JSON schema)
-- Yorumlama kuralları
-- Karar ağaçları
-- Önceliklendirme mantığı
+- `knowledge/factory/advanced_exergy/overview.md` — İleri exergy analizi
+- `knowledge/factory/pinch/fundamentals.md` — Pinch analizi temelleri
+- `knowledge/factory/entropy_generation/overview.md` — EGM genel bakış
+- `knowledge/factory/exergoeconomic/evaluation_criteria.md` — Exergoekonomik değerlendirme
 
 ## Kod Konvansiyonları
 
@@ -145,6 +179,8 @@ pytest tests/ -v
 # Specific test
 pytest tests/test_api.py -v
 pytest tests/test_engine.py -v
+pytest tests/test_skills.py -v
+pytest tests/test_equipment_registry.py -v
 ```
 
 ## Önemli Notlar
@@ -157,15 +193,29 @@ pytest tests/test_engine.py -v
 
 4. **AI Yorumu:** Engine hesaplar, AI yorumlar. İkisi birbirini tamamlar.
 
+5. **7 Ekipman Tipi:** AI sistemi 7 ekipman tipini destekler, engine hesaplama ilk 4 tip için hazır.
+
 ## İleri Analiz Yöntemleri
 
-ExergyLab bilgi tabanı aşağıdaki ileri analiz yöntemlerini destekler:
+ExergyLab bilgi tabanı aşağıdaki 6 ileri analiz yöntemini destekler:
 
 1. **Pinch Analizi:** Linnhoff metodolojisi, composite curve, GCC, HEN tasarımı — `knowledge/factory/pinch/`
+   - Ne zaman: 3+ sıcak/soğuk akış, toplam ısı > 500 kW
+
 2. **İleri Exergy Analizi:** AV/UN, EN/EX, 4-yollu dekompozisyon — `knowledge/factory/advanced_exergy/`
+   - Ne zaman: 3+ ekipman, I_total > 100 kW, ekipmanlar arası güçlü etkileşim
+
 3. **Exergoekonomik Analiz:** SPECO, Ċ_D, f_k/r_k değerlendirmesi — `knowledge/factory/exergoeconomic/`
+   - Ne zaman: f_k < 0.25 veya f_k > 0.65 olan bileşenler
+
 4. **Termoekonomik Optimizasyon:** Parametrik, yapısal, çok amaçlı optimizasyon — `knowledge/factory/thermoeconomic_optimization/`
+   - Ne zaman: Toplam Ċ_D > 50.000 €/yıl, birden fazla yatırım alternatifi
+
 5. **Entropi Üretim Minimizasyonu (EGM):** Bejan sayısı, Gouy-Stodola, constructal yasa — `knowledge/factory/entropy_generation/`
+   - Ne zaman: N_s > 0.5, irreversibility kaynak analizi gerekli
+
+6. **Enerji Yönetim Sistemi:** ISO 50001, enerji denetimi — `knowledge/factory/energy_management/`
+   - Ne zaman: Sistematik enerji yönetimi gerekli
 
 ## Katkıda Bulunma
 

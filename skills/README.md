@@ -60,3 +60,38 @@ Skill dosyaları, `api/services/claude_code_service.py` tarafından AI yorumlama
 - Eşik değerleri (threshold) sayısal ve net olmalı
 - Referans bilgi tabanı dosyaları belirtilmeli
 - Türkçe başlıklar, teknik terimler parantez içinde İngilizce
+
+## Skill Seçim Mantığı
+
+AI yorumlama sırasında `claude_code_service.py` aşağıdaki akışı takip eder:
+
+```
+1. analysis_type belirleme
+   ├── "single_equipment" → Tek ekipman analizi
+   └── "factory" → Fabrika seviyesi analiz
+
+2. equipment_type belirleme (7 tip)
+   → compressor | boiler | chiller | pump | heat_exchanger | steam_turbine | dryer
+
+3. Skill yükleme sırası
+   ├── [Her zaman] core/exergy_fundamentals.md
+   ├── [Her zaman] core/response_format.md
+   ├── [Her zaman] core/decision_trees.md
+   ├── [Tek ekipman] equipment/{type}_expert.md
+   ├── [Fabrika] factory/factory_analyst.md
+   ├── [Fabrika] factory/integration_expert.md
+   ├── [Fabrika] factory/economic_advisor.md
+   └── [Her zaman] output/turkish_style.md
+
+4. Karar ağacı yürütme
+   └── decision_trees.md içindeki ilgili ağacı takip et
+
+5. İleri analiz bilgi tabanı yükleme (fabrika analizinde)
+   ├── knowledge/factory/advanced_exergy/overview.md
+   ├── knowledge/factory/pinch/fundamentals.md
+   ├── knowledge/factory/entropy_generation/overview.md
+   └── knowledge/factory/exergoeconomic/evaluation_criteria.md
+
+6. Yanıt üretme
+   └── response_format.md şemasına uygun JSON çıktı
+```

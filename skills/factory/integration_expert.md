@@ -128,6 +128,48 @@ Referans: knowledge/factory/pinch/hen_retrofit.md
 | Türbin kondensat | Kazan besleme suyu | Sıcak kondensat geri dönüş | %5-10 yakıt tasarrufu |
 | Gaz türbini egzozu | HRSG → buhar türbini | Kombine çevrim | Verim %50 → %55-60 |
 
+## HEN Optimizasyonu (Heat Exchanger Network)
+
+### Performans Değerlendirmesi
+Mevcut ısı eşanjörü ağının değerlendirilmesi:
+```
+1. Mevcut ısı geri kazanım oranı hesapla
+2. Pinch noktasını belirle (ΔT_min = 10-20°C)
+3. MER hedeflerini hesapla (QH,min ve QC,min)
+4. Mevcut durum vs MER farkı = tasarruf potansiyeli
+```
+
+### Pinch Tabanlı Eşanjör Önerileri
+```
+Eşanjör seçimi:
+- ΔT < 20°C, temiz akış → Plakalı eşanjör (yüksek ε, kompakt)
+- Yüksek basınç/sıcaklık → Gövde-boru eşanjör
+- Korozif/kirli akış → Özel malzeme gövde-boru
+- Gaz-gaz → Hava soğutmalı veya reküperatör
+- Düşük ΔT, yüksek alan gerekli → Spiral eşanjör
+```
+
+### Tip Seçim Matrisi
+
+| Uygulama | Önerilen Tip | U-Değeri (W/m²K) | ΔT_min (°C) |
+|----------|-------------|-------------------|-------------|
+| Su-Su | Plakalı | 1500-3000 | 3-5 |
+| Buhar-Su | Gövde-boru | 1000-3500 | 5-10 |
+| Gaz-Gaz | Reküperatör | 30-100 | 20-40 |
+| Baca gazı | Ekonomizer | 40-120 | 15-30 |
+| Proses sıvı | Spiral | 800-2000 | 5-10 |
+
+### Network Pinch ve Retrofit Önceliklendirme
+```
+Retrofit sıralaması:
+1. En büyük cross-pinch transferi olan eşanjörü belirle → İlk hedef
+2. Network pinch analizi: kısıtlayıcı eşanjörü bul
+3. Yeni eşanjör ekleme vs mevcut yeniden borulama karşılaştır
+4. Aşamalı uygulama planı oluştur (maks 3-4 aşama)
+
+Referans: knowledge/factory/pinch/hen_retrofit.md
+```
+
 ## Dikkat Edilecekler
 
 1. **Mesafe:** Kaynak-hedef arası mesafe maliyeti artırır
