@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class ScrewCompressorParams(BaseModel):
-    power_kW: float = Field(..., gt=0, le=1000, description="Elektrik gücü [kW]")
-    flow_rate_m3_min: float = Field(..., gt=0, le=200, description="Hava debisi [m³/min]")
-    outlet_pressure_bar: float = Field(..., gt=0, le=50, description="Çıkış basıncı [bar]")
+    power_kW: float = Field(37.0, gt=0, le=1000, description="Elektrik gücü [kW]")
+    flow_rate_m3_min: float = Field(6.2, gt=0, le=200, description="Hava debisi [m³/min]")
+    outlet_pressure_bar: float = Field(7.5, gt=0, le=50, description="Çıkış basıncı [bar]")
     inlet_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Giriş sıcaklığı [°C]")
     outlet_temp_C: Optional[float] = Field(None, ge=20, le=300, description="Çıkış sıcaklığı [°C]")
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Ortam sıcaklığı [°C]")
@@ -17,9 +17,9 @@ class ScrewCompressorParams(BaseModel):
 
 
 class PistonCompressorParams(BaseModel):
-    power_kW: float = Field(..., gt=0, le=1000, description="Elektrik gücü [kW]")
-    flow_rate_m3_min: float = Field(..., gt=0, le=200, description="Hava debisi [m³/min]")
-    outlet_pressure_bar: float = Field(..., gt=0, le=50, description="Çıkış basıncı [bar]")
+    power_kW: float = Field(37.0, gt=0, le=1000, description="Elektrik gücü [kW]")
+    flow_rate_m3_min: float = Field(6.2, gt=0, le=200, description="Hava debisi [m³/min]")
+    outlet_pressure_bar: float = Field(7.5, gt=0, le=50, description="Çıkış basıncı [bar]")
     inlet_temp_C: Optional[float] = Field(None, ge=-20, le=60)
     outlet_temp_C: Optional[float] = Field(None, ge=20, le=300)
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60)
@@ -31,9 +31,9 @@ class PistonCompressorParams(BaseModel):
 
 
 class ScrollCompressorParams(BaseModel):
-    power_kW: float = Field(..., gt=0, le=1000, description="Elektrik gücü [kW]")
-    flow_rate_m3_min: float = Field(..., gt=0, le=200, description="Hava debisi [m³/min]")
-    outlet_pressure_bar: float = Field(..., gt=0, le=50, description="Çıkış basıncı [bar]")
+    power_kW: float = Field(37.0, gt=0, le=1000, description="Elektrik gücü [kW]")
+    flow_rate_m3_min: float = Field(6.2, gt=0, le=200, description="Hava debisi [m³/min]")
+    outlet_pressure_bar: float = Field(7.5, gt=0, le=50, description="Çıkış basıncı [bar]")
     inlet_temp_C: Optional[float] = Field(None, ge=-20, le=60)
     outlet_temp_C: Optional[float] = Field(None, ge=20, le=300)
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60)
@@ -44,9 +44,9 @@ class ScrollCompressorParams(BaseModel):
 
 
 class CentrifugalCompressorParams(BaseModel):
-    power_kW: float = Field(..., gt=0, le=5000, description="Elektrik gücü [kW]")
-    flow_rate_m3_min: float = Field(..., gt=0, le=500, description="Hava debisi [m³/min]")
-    outlet_pressure_bar: float = Field(..., gt=0, le=50, description="Çıkış basıncı [bar]")
+    power_kW: float = Field(37.0, gt=0, le=5000, description="Elektrik gücü [kW]")
+    flow_rate_m3_min: float = Field(6.2, gt=0, le=500, description="Hava debisi [m³/min]")
+    outlet_pressure_bar: float = Field(7.5, gt=0, le=50, description="Çıkış basıncı [bar]")
     inlet_temp_C: Optional[float] = Field(None, ge=-20, le=60)
     outlet_temp_C: Optional[float] = Field(None, ge=20, le=300)
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60)
@@ -60,9 +60,9 @@ class CentrifugalCompressorParams(BaseModel):
 # --- Boiler params ---
 
 class BoilerParams(BaseModel):
-    fuel_flow_kg_h: float = Field(..., gt=0, le=50000, description="Yakıt debisi [kg/h]")
-    steam_flow_kg_h: float = Field(..., gt=0, le=100000, description="Buhar/su debisi [kg/h]")
-    steam_pressure_bar: float = Field(..., gt=0, le=100, description="Buhar basıncı [bar]")
+    fuel_flow_kg_h: float = Field(100.0, gt=0, le=50000, description="Yakıt debisi [kg/h]")
+    steam_flow_kg_h: float = Field(2000.0, gt=0, le=100000, description="Buhar/su debisi [kg/h]")
+    steam_pressure_bar: float = Field(10.0, gt=0, le=100, description="Buhar basıncı [bar]")
     steam_temp_C: Optional[float] = Field(None, ge=50, le=600, description="Buhar sıcaklığı [°C]")
     feedwater_temp_C: float = Field(80.0, ge=5, le=200, description="Besleme suyu sıcaklığı [°C]")
     flue_gas_temp_C: float = Field(180.0, ge=50, le=500, description="Baca gazı sıcaklığı [°C]")
@@ -80,8 +80,8 @@ class BoilerParams(BaseModel):
 # --- Chiller params (vapor compression) ---
 
 class VaporCompressionChillerParams(BaseModel):
-    cooling_capacity_kW: float = Field(..., gt=0, le=10000, description="Soğutma kapasitesi [kW]")
-    compressor_power_kW: float = Field(..., gt=0, le=5000, description="Kompresör gücü [kW]")
+    cooling_capacity_kW: float = Field(350.0, gt=0, le=10000, description="Soğutma kapasitesi [kW]")
+    compressor_power_kW: float = Field(70.0, gt=0, le=5000, description="Kompresör gücü [kW]")
     chw_supply_temp_C: float = Field(7.0, ge=-10, le=25, description="Soğuk su çıkış sıcaklığı [°C]")
     chw_return_temp_C: float = Field(12.0, ge=0, le=30, description="Soğuk su dönüş sıcaklığı [°C]")
     cw_supply_temp_C: float = Field(30.0, ge=10, le=50, description="Kondenser suyu giriş sıcaklığı [°C]")
@@ -93,8 +93,8 @@ class VaporCompressionChillerParams(BaseModel):
 
 
 class AbsorptionChillerParams(BaseModel):
-    cooling_capacity_kW: float = Field(..., gt=0, le=10000, description="Soğutma kapasitesi [kW]")
-    generator_heat_kW: float = Field(..., gt=0, le=20000, description="Jeneratör ısısı [kW]")
+    cooling_capacity_kW: float = Field(350.0, gt=0, le=10000, description="Soğutma kapasitesi [kW]")
+    generator_heat_kW: float = Field(500.0, gt=0, le=20000, description="Jeneratör ısısı [kW]")
     generator_temp_C: float = Field(90.0, ge=60, le=200, description="Jeneratör sıcaklığı [°C]")
     compressor_power_kW: float = Field(0.0, ge=0, le=100, description="Çözelti pompası gücü [kW]")
     chw_supply_temp_C: float = Field(7.0, ge=-10, le=25, description="Soğuk su çıkış sıcaklığı [°C]")
@@ -109,9 +109,9 @@ class AbsorptionChillerParams(BaseModel):
 # --- Pump params ---
 
 class PumpParams(BaseModel):
-    motor_power_kW: float = Field(..., gt=0, le=5000, description="Motor gücü [kW]")
-    flow_rate_m3_h: float = Field(..., gt=0, le=50000, description="Debi [m³/h]")
-    total_head_m: float = Field(..., gt=0, le=1000, description="Toplam basma yüksekliği [m]")
+    motor_power_kW: float = Field(15.0, gt=0, le=5000, description="Motor gücü [kW]")
+    flow_rate_m3_h: float = Field(50.0, gt=0, le=50000, description="Debi [m³/h]")
+    total_head_m: float = Field(40.0, gt=0, le=1000, description="Toplam basma yüksekliği [m]")
     fluid_density_kg_m3: float = Field(1000.0, ge=500, le=2000, description="Akışkan yoğunluğu [kg/m³]")
     control_method: Literal["none", "throttle", "vsd", "bypass"] = Field("none", description="Kontrol yöntemi")
     throttle_loss_pct: float = Field(0.0, ge=0, le=50, description="Vana kaybı [%]")

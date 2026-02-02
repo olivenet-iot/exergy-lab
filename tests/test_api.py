@@ -94,12 +94,12 @@ class TestAnalyze:
         })
         assert resp.status_code == 422
 
-    def test_missing_required_fields(self):
+    def test_partial_params_uses_defaults(self):
         resp = client.post("/api/analyze", json={
             "compressor_type": "screw",
             "parameters": {"power_kW": 32},
         })
-        assert resp.status_code == 422
+        assert resp.status_code == 200
 
     def test_sankey_in_response(self):
         resp = client.post("/api/analyze", json={
