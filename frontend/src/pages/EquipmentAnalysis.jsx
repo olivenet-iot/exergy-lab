@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Wind, Flame, Snowflake, Droplets } from 'lucide-react';
+import { Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun } from 'lucide-react';
 import { getEquipmentConfig } from '../services/api';
 import { useAnalysis } from '../hooks/useAnalysis';
 import SubtypeSelector from '../components/equipment/SubtypeSelector';
@@ -16,6 +16,9 @@ const EQUIPMENT_META = {
   boiler: { name: 'Kazan', icon: Flame, color: 'text-orange-600' },
   chiller: { name: 'Chiller', icon: Snowflake, color: 'text-cyan-600' },
   pump: { name: 'Pompa', icon: Droplets, color: 'text-emerald-600' },
+  heat_exchanger: { name: 'Isı Eşanjörü', icon: ArrowLeftRight, color: 'text-purple-600' },
+  steam_turbine: { name: 'Buhar Türbini', icon: Zap, color: 'text-yellow-600' },
+  dryer: { name: 'Kurutma Fırını', icon: Sun, color: 'text-red-600' },
 };
 
 const EquipmentAnalysis = () => {

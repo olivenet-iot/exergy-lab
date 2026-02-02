@@ -1,4 +1,4 @@
-import { AlertTriangle, Wind, Flame, Snowflake, Droplets } from 'lucide-react';
+import { AlertTriangle, Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun } from 'lucide-react';
 import { formatNumber, formatCurrency } from '../../utils/formatters';
 
 const PRIORITY_STYLES = {
@@ -18,6 +18,9 @@ const EQUIPMENT_ICONS = {
   boiler: Flame,
   chiller: Snowflake,
   pump: Droplets,
+  heat_exchanger: ArrowLeftRight,
+  steam_turbine: Zap,
+  dryer: Sun,
 };
 
 const HotspotList = ({ hotspots }) => {

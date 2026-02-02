@@ -21,6 +21,9 @@ const EQUIPMENT_TYPE_LABELS = {
   boiler: 'Kazan',
   chiller: 'Chiller',
   pump: 'Pompa',
+  heat_exchanger: 'Isı Eşanjörü',
+  steam_turbine: 'Buhar Türbini',
+  dryer: 'Kurutma Fırını',
 };
 
 const FactoryWizard = () => {

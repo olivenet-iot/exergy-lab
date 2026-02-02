@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Wind, Flame, Snowflake, Droplets, ArrowRight, Factory } from 'lucide-react';
+import { Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun, ArrowRight, Factory } from 'lucide-react';
 
 const equipmentCards = [
   {
@@ -41,6 +41,36 @@ const equipmentCards = [
     color: 'text-emerald-600',
     bg: 'bg-emerald-50',
     border: 'border-emerald-200',
+  },
+  {
+    type: 'heat_exchanger',
+    name: 'Isı Eşanjörü',
+    description: 'Isı eşanjörlerinin ekserji analizi',
+    subtypes: 7,
+    icon: ArrowLeftRight,
+    color: 'text-purple-600',
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
+  },
+  {
+    type: 'steam_turbine',
+    name: 'Buhar Türbini',
+    description: 'Buhar türbinlerinin ekserji analizi',
+    subtypes: 5,
+    icon: Zap,
+    color: 'text-yellow-600',
+    bg: 'bg-yellow-50',
+    border: 'border-yellow-200',
+  },
+  {
+    type: 'dryer',
+    name: 'Kurutma Fırını',
+    description: 'Kurutma fırınlarının ekserji analizi',
+    subtypes: 8,
+    icon: Sun,
+    color: 'text-red-600',
+    bg: 'bg-red-50',
+    border: 'border-red-200',
   },
 ];
 

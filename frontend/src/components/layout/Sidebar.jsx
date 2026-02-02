@@ -6,6 +6,9 @@ import {
   Flame,
   Snowflake,
   Droplets,
+  ArrowLeftRight,
+  Zap,
+  Sun,
   Factory,
   FolderOpen,
   Plus,
@@ -17,6 +20,9 @@ const equipmentLinks = [
   { to: '/equipment/boiler', label: 'Kazan', icon: Flame },
   { to: '/equipment/chiller', label: 'Chiller', icon: Snowflake },
   { to: '/equipment/pump', label: 'Pompa', icon: Droplets },
+  { to: '/equipment/heat_exchanger', label: 'Isı Eşanjörü', icon: ArrowLeftRight },
+  { to: '/equipment/steam_turbine', label: 'Buhar Türbini', icon: Zap },
+  { to: '/equipment/dryer', label: 'Kurutma Fırını', icon: Sun },
 ];
 
 const factoryLinks = [

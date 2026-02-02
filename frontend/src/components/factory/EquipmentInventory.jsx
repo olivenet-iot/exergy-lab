@@ -1,10 +1,13 @@
-import { Trash2, Wind, Flame, Snowflake, Droplets } from 'lucide-react';
+import { Trash2, Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun } from 'lucide-react';
 
 const EQUIPMENT_ICONS = {
   compressor: Wind,
   boiler: Flame,
   chiller: Snowflake,
   pump: Droplets,
+  heat_exchanger: ArrowLeftRight,
+  steam_turbine: Zap,
+  dryer: Sun,
 };
 
 const EQUIPMENT_LABELS = {
@@ -12,6 +15,9 @@ const EQUIPMENT_LABELS = {
   boiler: 'Kazan',
   chiller: 'Chiller',
   pump: 'Pompa',
+  heat_exchanger: 'Isı Eşanjörü',
+  steam_turbine: 'Buhar Türbini',
+  dryer: 'Kurutma Fırını',
 };
 
 const EquipmentInventory = ({ equipment, onRemove }) => {

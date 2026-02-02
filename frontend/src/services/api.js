@@ -87,6 +87,18 @@ export const analyzeEquipment = async (equipmentType, subtype, parameters) => {
       hydraulic_power_kW: data.metrics.hydraulic_power_kW,
       wire_to_water_efficiency_pct: data.metrics.wire_to_water_efficiency_pct,
       throttle_loss_kW: data.metrics.throttle_loss_kW,
+      // Heat exchanger-specific
+      heat_duty_kW: data.metrics.heat_duty_kW,
+      lmtd_K: data.metrics.lmtd_K,
+      effectiveness: data.metrics.effectiveness,
+      bejan_number: data.metrics.bejan_number,
+      // Steam turbine-specific
+      shaft_power_kW: data.metrics.shaft_power_kW,
+      electrical_power_kW: data.metrics.electrical_power_kW,
+      chp_exergy_efficiency_pct: data.metrics.chp_exergy_efficiency_pct,
+      // Dryer-specific
+      water_removed_kg_h: data.metrics.water_removed_kg_h,
+      specific_energy_kJ_kg_water: data.metrics.specific_energy_kJ_kg_water,
     },
     heat_recovery: {
       potential_kW: data.heat_recovery?.heat_recovery_potential_kW,

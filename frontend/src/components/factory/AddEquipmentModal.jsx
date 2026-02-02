@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, ArrowRight, ArrowLeft, Check, Wind, Flame, Snowflake, Droplets } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Check, Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun } from 'lucide-react';
 import { getEquipmentConfig } from '../../services/api';
 
 const EQUIPMENT_TYPES = [
@@ -7,6 +7,9 @@ const EQUIPMENT_TYPES = [
   { id: 'boiler', label: 'Kazan', icon: Flame, color: 'text-orange-600 bg-orange-50 border-orange-200' },
   { id: 'chiller', label: 'Chiller', icon: Snowflake, color: 'text-cyan-600 bg-cyan-50 border-cyan-200' },
   { id: 'pump', label: 'Pompa', icon: Droplets, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
+  { id: 'heat_exchanger', label: 'Isı Eşanjörü', icon: ArrowLeftRight, color: 'text-purple-600 bg-purple-50 border-purple-200' },
+  { id: 'steam_turbine', label: 'Buhar Türbini', icon: Zap, color: 'text-yellow-600 bg-yellow-50 border-yellow-200' },
+  { id: 'dryer', label: 'Kurutma Fırını', icon: Sun, color: 'text-red-600 bg-red-50 border-red-200' },
 ];
 
 const AddEquipmentModal = ({ onAdd, onClose }) => {

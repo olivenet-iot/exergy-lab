@@ -4,11 +4,32 @@ import MetricsCard from './MetricsCard';
 import SankeyDiagram from './SankeyDiagram';
 import BenchmarkChart from './BenchmarkChart';
 
+const EXTRA_METRICS = {
+  // Heat exchanger
+  lmtd_K:          { label: 'LMTD', unit: 'K' },
+  effectiveness:   { label: 'Isıl Etkinlik', unit: '%', scale: 100 },
+  bejan_number:    { label: 'Bejan Sayısı', unit: '' },
+  heat_duty_kW:    { label: 'Isı Yükü', unit: 'kW' },
+  // Steam turbine
+  shaft_power_kW:  { label: 'Şaft Gücü', unit: 'kW' },
+  electrical_power_kW: { label: 'Elektrik Gücü', unit: 'kW' },
+  chp_exergy_efficiency_pct: { label: 'CHP Exergy Verimi', unit: '%' },
+  // Dryer
+  water_removed_kg_h: { label: 'Su Uzaklaştırma', unit: 'kg/h' },
+  specific_energy_kJ_kg_water: { label: 'Spesifik Enerji', unit: 'kJ/kg-su' },
+  // Shared
+  thermal_efficiency_pct: { label: 'Termal Verim', unit: '%' },
+};
+
 const ResultsPanel = ({ data }) => {
   console.log('[ResultsPanel] rendering with data:', data);
   if (!data) return null;
 
   const { metrics = {}, heat_recovery = {}, benchmark = {}, sankey } = data;
+
+  const extraMetricEntries = Object.entries(EXTRA_METRICS).filter(
+    ([key]) => metrics[key] != null
+  );
 
   return (
     <div className="space-y-6">
@@ -40,6 +61,23 @@ const ResultsPanel = ({ data }) => {
           icon="x-circle"
         />
       </div>
+
+      {/* Equipment-specific Extra Metrics */}
+      {extraMetricEntries.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Ekipman Detay Metrikleri</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {extraMetricEntries.map(([key, meta]) => (
+              <MetricsCard
+                key={key}
+                title={meta.label}
+                value={meta.scale ? metrics[key] * meta.scale : metrics[key]}
+                unit={meta.unit}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Sankey Diagram */}
       <Card title="Exergy Akis Diyagrami">
