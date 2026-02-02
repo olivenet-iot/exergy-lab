@@ -11,6 +11,9 @@ class EquipmentTypeEnum(str, Enum):
     boiler = "boiler"
     chiller = "chiller"
     pump = "pump"
+    heat_exchanger = "heat_exchanger"
+    steam_turbine = "steam_turbine"
+    dryer = "dryer"
 
 
 class EquipmentItemRequest(BaseModel):

@@ -8,6 +8,9 @@ from .compressor import CompressorResult
 from .boiler import BoilerResult, generate_boiler_sankey_data
 from .chiller import ChillerResult, generate_chiller_sankey_data
 from .pump import PumpResult, generate_pump_sankey_data
+from .heat_exchanger import HeatExchangerResult, generate_heat_exchanger_sankey_data
+from .steam_turbine import SteamTurbineResult, generate_steam_turbine_sankey_data
+from .dryer import DryerResult, generate_dryer_sankey_data
 from .core import DeadState, heat_exergy
 
 
@@ -30,6 +33,12 @@ def generate_sankey_data(result, equipment_subtype: str = "screw") -> dict:
         return generate_chiller_sankey_data(result, equipment_subtype)
     elif isinstance(result, PumpResult):
         return generate_pump_sankey_data(result, equipment_subtype)
+    elif isinstance(result, HeatExchangerResult):
+        return generate_heat_exchanger_sankey_data(result, equipment_subtype)
+    elif isinstance(result, SteamTurbineResult):
+        return generate_steam_turbine_sankey_data(result, equipment_subtype)
+    elif isinstance(result, DryerResult):
+        return generate_dryer_sankey_data(result, equipment_subtype)
     else:
         # Default: compressor sankey (original code)
         return _generate_compressor_sankey_data(result, equipment_subtype)

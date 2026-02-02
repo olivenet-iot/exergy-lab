@@ -23,4 +23,19 @@ from .pump import (
     PumpInput, PumpResult, analyze_pump,
     get_pump_recommendations,
 )
+from .heat_exchanger import (
+    HeatExchangerInput, HeatExchangerResult,
+    analyze_heat_exchanger, get_heat_exchanger_recommendations,
+    generate_heat_exchanger_sankey_data,
+)
+from .steam_turbine import (
+    SteamTurbineInput, SteamTurbineResult,
+    analyze_steam_turbine, get_steam_turbine_recommendations,
+    generate_steam_turbine_sankey_data,
+)
+from .dryer import (
+    DryerInput, DryerResult,
+    analyze_dryer, get_dryer_recommendations,
+    generate_dryer_sankey_data,
+)
 from .sankey import generate_sankey_data

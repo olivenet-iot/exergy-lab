@@ -12,6 +12,9 @@ from engine.compressor import (
 from engine.boiler import BoilerInput, analyze_boiler
 from engine.chiller import ChillerInput, analyze_chiller
 from engine.pump import PumpInput, analyze_pump
+from engine.heat_exchanger import HeatExchangerInput, analyze_heat_exchanger
+from engine.steam_turbine import SteamTurbineInput, analyze_steam_turbine
+from engine.dryer import DryerInput, analyze_dryer
 from engine.sankey import generate_sankey_data
 from api.schemas.requests import (
     AnalysisRequest, ScrewCompressorParams,
@@ -19,6 +22,7 @@ from api.schemas.requests import (
     CentrifugalCompressorParams,
     BoilerParams, VaporCompressionChillerParams,
     AbsorptionChillerParams, PumpParams,
+    HeatExchangerParams, SteamTurbineParams, DryerParams,
 )
 from api.schemas.responses import (
     AnalysisResponse, MetricsResponse, HeatRecoveryResponse,
@@ -68,6 +72,25 @@ _PUMP_SUBTYPES = {
     "vertical_turbine", "booster", "vacuum",
 }
 
+# Heat exchanger subtypes
+_HE_SUBTYPES = {
+    "shell_tube", "plate", "air_cooled", "double_pipe",
+    "spiral", "economizer", "recuperator", "finned_tube",
+}
+
+# Steam turbine subtypes
+_ST_SUBTYPES = {
+    "back_pressure", "condensing", "extraction", "orc", "micro_turbine",
+    "backpressure",
+}
+
+# Dryer subtypes
+_DRYER_SUBTYPES = {
+    "convective", "rotary", "fluidized_bed", "spray",
+    "belt", "heat_pump", "infrared", "drum",
+    "conveyor", "tray", "microwave",
+}
+
 
 @router.get("/equipment-types")
 async def list_equipment_types():
@@ -110,6 +133,12 @@ async def analyze(request: AnalysisRequest):
         return _analyze_chiller(subtype, request.parameters)
     elif equipment_type == "pump":
         return _analyze_pump(subtype, request.parameters)
+    elif equipment_type == "heat_exchanger":
+        return _analyze_heat_exchanger(subtype, request.parameters)
+    elif equipment_type == "steam_turbine":
+        return _analyze_steam_turbine(subtype, request.parameters)
+    elif equipment_type == "dryer":
+        return _analyze_dryer(subtype, request.parameters)
     else:
         raise HTTPException(status_code=422, detail=f"Unsupported equipment type: {equipment_type}")
 
@@ -306,6 +335,154 @@ def _analyze_pump(subtype: str, parameters: dict) -> AnalysisResponse:
     )
 
 
+def _analyze_heat_exchanger(subtype: str, parameters: dict) -> AnalysisResponse:
+    """Heat exchanger analysis dispatch."""
+    if subtype not in _HE_SUBTYPES:
+        raise HTTPException(status_code=422, detail=f"Unknown heat exchanger type: {subtype}")
+
+    try:
+        validated = HeatExchangerParams(**parameters)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=e.errors())
+
+    params = validated.model_dump(exclude_none=False)
+    engine_kwargs = {k: v for k, v in params.items() if v is not None}
+    engine_kwargs["hx_type"] = subtype
+
+    input_data = HeatExchangerInput(**engine_kwargs)
+    result = analyze_heat_exchanger(input_data)
+
+    api_dict = result.to_api_dict(subtype)
+    sankey_data = generate_sankey_data(result, subtype)
+
+    return AnalysisResponse(
+        compressor_type=subtype,
+        metrics=MetricsResponse(
+            exergy_input_kW=api_dict["exergy_input_kW"],
+            exergy_output_kW=api_dict["exergy_output_kW"],
+            exergy_destroyed_kW=api_dict["exergy_destroyed_kW"],
+            exergy_efficiency_pct=api_dict["exergy_efficiency_pct"],
+            heat_duty_kW=api_dict.get("heat_duty_kW"),
+            lmtd_K=api_dict.get("lmtd_K"),
+            effectiveness=api_dict.get("effectiveness"),
+            bejan_number=api_dict.get("bejan_number"),
+        ),
+        heat_recovery=HeatRecoveryResponse(
+            annual_loss_kWh=api_dict.get("annual_loss_kWh"),
+            annual_loss_EUR=api_dict.get("annual_loss_EUR"),
+        ),
+        benchmark=BenchmarkDetailResponse(
+            benchmark_comparison=api_dict.get("benchmark_comparison"),
+            benchmark_percentile=api_dict.get("benchmark_percentile"),
+            comparison_text=api_dict.get("comparison_text"),
+        ),
+        sankey=SankeyResponse(**sankey_data),
+    )
+
+
+def _analyze_steam_turbine(subtype: str, parameters: dict) -> AnalysisResponse:
+    """Steam turbine analysis dispatch."""
+    if subtype not in _ST_SUBTYPES:
+        raise HTTPException(status_code=422, detail=f"Unknown steam turbine type: {subtype}")
+
+    try:
+        validated = SteamTurbineParams(**parameters)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=e.errors())
+
+    params = validated.model_dump(exclude_none=False)
+    engine_kwargs = {k: v for k, v in params.items() if v is not None}
+    # Map registry subtype to engine turbine_type
+    turbine_type_map = {
+        "back_pressure": "backpressure",
+        "backpressure": "backpressure",
+        "condensing": "condensing",
+        "extraction": "extraction",
+        "orc": "backpressure",
+        "micro_turbine": "backpressure",
+    }
+    engine_kwargs["turbine_type"] = turbine_type_map.get(subtype, "backpressure")
+
+    input_data = SteamTurbineInput(**engine_kwargs)
+    result = analyze_steam_turbine(input_data)
+
+    api_dict = result.to_api_dict(engine_kwargs["turbine_type"])
+    sankey_data = generate_sankey_data(result, subtype)
+
+    return AnalysisResponse(
+        compressor_type=subtype,
+        metrics=MetricsResponse(
+            exergy_input_kW=api_dict["exergy_input_kW"],
+            exergy_output_kW=api_dict["exergy_output_kW"],
+            exergy_destroyed_kW=api_dict["exergy_destroyed_kW"],
+            exergy_efficiency_pct=api_dict["exergy_efficiency_pct"],
+            shaft_power_kW=api_dict.get("shaft_power_kW"),
+            electrical_power_kW=api_dict.get("electrical_power_kW"),
+            chp_exergy_efficiency_pct=api_dict.get("chp_exergy_efficiency_pct"),
+        ),
+        heat_recovery=HeatRecoveryResponse(
+            annual_loss_kWh=api_dict.get("annual_loss_kWh"),
+            annual_loss_EUR=api_dict.get("annual_loss_EUR"),
+        ),
+        benchmark=BenchmarkDetailResponse(
+            benchmark_comparison=api_dict.get("benchmark_comparison"),
+            benchmark_percentile=api_dict.get("benchmark_percentile"),
+            comparison_text=api_dict.get("comparison_text"),
+        ),
+        sankey=SankeyResponse(**sankey_data),
+    )
+
+
+def _analyze_dryer(subtype: str, parameters: dict) -> AnalysisResponse:
+    """Dryer analysis dispatch."""
+    if subtype not in _DRYER_SUBTYPES:
+        raise HTTPException(status_code=422, detail=f"Unknown dryer type: {subtype}")
+
+    try:
+        validated = DryerParams(**parameters)
+    except ValidationError as e:
+        raise HTTPException(status_code=422, detail=e.errors())
+
+    params = validated.model_dump(exclude_none=False)
+    engine_kwargs = {k: v for k, v in params.items() if v is not None}
+    # Map registry subtype to engine dryer_type
+    dryer_type_map = {
+        "convective": "conveyor",
+        "belt": "conveyor",
+        "heat_pump": "conveyor",
+    }
+    engine_kwargs["dryer_type"] = dryer_type_map.get(subtype, subtype)
+
+    input_data = DryerInput(**engine_kwargs)
+    result = analyze_dryer(input_data)
+
+    api_dict = result.to_api_dict(engine_kwargs["dryer_type"])
+    sankey_data = generate_sankey_data(result, subtype)
+
+    return AnalysisResponse(
+        compressor_type=subtype,
+        metrics=MetricsResponse(
+            exergy_input_kW=api_dict["exergy_input_kW"],
+            exergy_output_kW=api_dict["exergy_output_kW"],
+            exergy_destroyed_kW=api_dict["exergy_destroyed_kW"],
+            exergy_efficiency_pct=api_dict["exergy_efficiency_pct"],
+            thermal_efficiency_pct=api_dict.get("thermal_efficiency_pct"),
+            water_removed_kg_h=api_dict.get("water_removed_kg_h"),
+            specific_energy_kJ_kg_water=api_dict.get("specific_energy_kJ_kg_water"),
+        ),
+        heat_recovery=HeatRecoveryResponse(
+            annual_loss_kWh=api_dict.get("annual_loss_kWh"),
+            annual_loss_EUR=api_dict.get("annual_loss_EUR"),
+        ),
+        benchmark=BenchmarkDetailResponse(
+            benchmark_comparison=api_dict.get("benchmark_comparison"),
+            benchmark_percentile=api_dict.get("benchmark_percentile"),
+            comparison_text=api_dict.get("comparison_text"),
+        ),
+        sankey=SankeyResponse(**sankey_data),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Equipment config endpoint
 # ---------------------------------------------------------------------------
@@ -324,6 +501,12 @@ async def get_equipment_config(equipment_type: str):
         return _get_chiller_config()
     elif equipment_type == "pump":
         return _get_pump_config()
+    elif equipment_type == "heat_exchanger":
+        return _get_heat_exchanger_config()
+    elif equipment_type == "steam_turbine":
+        return _get_steam_turbine_config()
+    elif equipment_type == "dryer":
+        return _get_dryer_config()
     else:
         raise HTTPException(status_code=404, detail=f"No config for: {equipment_type}")
 
@@ -483,6 +666,113 @@ def _get_pump_config() -> EquipmentTypeConfigResponse:
         ))
 
     return EquipmentTypeConfigResponse(equipment_type="pump", subtypes=subtypes)
+
+
+def _get_heat_exchanger_config() -> EquipmentTypeConfigResponse:
+    """Heat exchanger config with field definitions."""
+    common_fields = [
+        CompressorFieldResponse(name="hot_fluid", label="Sicak Akiskan", type="select", required=False, default="water", options=[
+            {"value": "water", "label": "Su"},
+            {"value": "steam", "label": "Buhar"},
+            {"value": "air", "label": "Hava"},
+            {"value": "flue_gas", "label": "Baca Gazi"},
+            {"value": "thermal_oil", "label": "Termal Yag"},
+        ]),
+        CompressorFieldResponse(name="hot_inlet_temp_C", label="Sicak Giris", type="number", required=False, default=90, min=0, max=800, unit="C"),
+        CompressorFieldResponse(name="hot_outlet_temp_C", label="Sicak Cikis", type="number", required=False, default=70, min=0, max=800, unit="C"),
+        CompressorFieldResponse(name="hot_mass_flow_kg_s", label="Sicak Debi", type="number", required=True, default=2.0, min=0.01, max=500, unit="kg/s"),
+        CompressorFieldResponse(name="cold_fluid", label="Soguk Akiskan", type="select", required=False, default="water", options=[
+            {"value": "water", "label": "Su"},
+            {"value": "air", "label": "Hava"},
+            {"value": "glycol_30", "label": "Glikol %30"},
+        ]),
+        CompressorFieldResponse(name="cold_inlet_temp_C", label="Soguk Giris", type="number", required=False, default=20, min=-20, max=500, unit="C"),
+        CompressorFieldResponse(name="cold_outlet_temp_C", label="Soguk Cikis", type="number", required=False, default=50, min=-20, max=500, unit="C"),
+        CompressorFieldResponse(name="cold_mass_flow_kg_s", label="Soguk Debi", type="number", required=True, default=1.5, min=0.01, max=500, unit="kg/s"),
+        CompressorFieldResponse(name="operating_hours", label="Yillik Calisma Saati", type="number", required=False, default=6000, min=0, max=8760, unit="saat/yil"),
+        CompressorFieldResponse(name="fuel_price_eur_kwh", label="Yakit Fiyati", type="number", required=False, default=0.06, min=0, max=1, unit="EUR/kWh"),
+    ]
+
+    hx_names = {
+        "shell_tube": "Govde-Boru",
+        "plate": "Plakali",
+        "air_cooled": "Hava Sogutmali",
+        "double_pipe": "Cift Borulu",
+        "spiral": "Spiral",
+        "economizer": "Ekonomizer",
+        "recuperator": "Rekuperator",
+    }
+    subtypes = [
+        EquipmentSubtypeConfig(id=st_id, name=st_name, description=f"{st_name} isi esanjoru exergy analizi", fields=common_fields)
+        for st_id, st_name in hx_names.items()
+    ]
+
+    return EquipmentTypeConfigResponse(equipment_type="heat_exchanger", subtypes=subtypes)
+
+
+def _get_steam_turbine_config() -> EquipmentTypeConfigResponse:
+    """Steam turbine config with field definitions."""
+    common_fields = [
+        CompressorFieldResponse(name="inlet_temp_C", label="Giris Sicakligi", type="number", required=True, default=400, min=100, max=650, unit="C"),
+        CompressorFieldResponse(name="inlet_pressure_bar", label="Giris Basinci", type="number", required=True, default=40, min=1, max=200, unit="bar"),
+        CompressorFieldResponse(name="mass_flow_kg_s", label="Buhar Debisi", type="number", required=True, default=5, min=0.1, max=500, unit="kg/s"),
+        CompressorFieldResponse(name="outlet_pressure_bar", label="Cikis Basinci", type="number", required=True, default=2.0, min=0.01, max=100, unit="bar"),
+        CompressorFieldResponse(name="isentropic_efficiency", label="Izentropik Verim", type="number", required=False, default=0.80, min=0.3, max=0.98),
+        CompressorFieldResponse(name="is_chp", label="CHP Modu", type="boolean", required=False, default=0),
+        CompressorFieldResponse(name="heat_recovery_fraction", label="Isi Geri Kazanim Orani", type="number", required=False, default=0.60, min=0, max=1.0),
+        CompressorFieldResponse(name="operating_hours", label="Yillik Calisma Saati", type="number", required=False, default=7000, min=0, max=8760, unit="saat/yil"),
+        CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyati", type="number", required=False, default=0.10, min=0, max=1, unit="EUR/kWh"),
+    ]
+
+    st_names = {
+        "back_pressure": "Karsi Basincli",
+        "condensing": "Yogusmali",
+        "extraction": "Ara Cekisli",
+        "orc": "ORC",
+        "micro_turbine": "Mikro Turbin",
+    }
+    subtypes = [
+        EquipmentSubtypeConfig(id=st_id, name=st_name, description=f"{st_name} buhar turbini exergy analizi", fields=common_fields)
+        for st_id, st_name in st_names.items()
+    ]
+
+    return EquipmentTypeConfigResponse(equipment_type="steam_turbine", subtypes=subtypes)
+
+
+def _get_dryer_config() -> EquipmentTypeConfigResponse:
+    """Dryer config with field definitions."""
+    common_fields = [
+        CompressorFieldResponse(name="product_mass_flow_kg_h", label="Urun Debisi", type="number", required=True, default=1000, min=1, max=100000, unit="kg/h"),
+        CompressorFieldResponse(name="moisture_in_pct", label="Giris Nem", type="number", required=True, default=60, min=1, max=99, unit="%"),
+        CompressorFieldResponse(name="moisture_out_pct", label="Cikis Nem", type="number", required=True, default=10, min=0.1, max=90, unit="%"),
+        CompressorFieldResponse(name="supply_temp_C", label="Besleme Sicakligi", type="number", required=False, default=200, min=50, max=800, unit="C"),
+        CompressorFieldResponse(name="heat_source", label="Isi Kaynagi", type="select", required=False, default="natural_gas", options=[
+            {"value": "natural_gas", "label": "Dogalgaz"},
+            {"value": "steam", "label": "Buhar"},
+            {"value": "electrical", "label": "Elektrik"},
+            {"value": "hot_air", "label": "Sicak Hava"},
+        ]),
+        CompressorFieldResponse(name="air_outlet_temp_C", label="Hava Cikis Sicakligi", type="number", required=False, default=80, min=20, max=400, unit="C"),
+        CompressorFieldResponse(name="operating_hours", label="Yillik Calisma Saati", type="number", required=False, default=5000, min=0, max=8760, unit="saat/yil"),
+        CompressorFieldResponse(name="fuel_price_eur_kwh", label="Yakit Fiyati", type="number", required=False, default=0.05, min=0, max=1, unit="EUR/kWh"),
+    ]
+
+    dryer_names = {
+        "convective": "Konvektif",
+        "rotary": "Doner Tamburlu",
+        "fluidized_bed": "Akiskan Yatak",
+        "spray": "Spreyli",
+        "belt": "Bantli",
+        "heat_pump": "Isi Pompali",
+        "infrared": "Kizilotesi",
+        "drum": "Silindir",
+    }
+    subtypes = [
+        EquipmentSubtypeConfig(id=st_id, name=st_name, description=f"{st_name} kurutucu exergy analizi", fields=common_fields)
+        for st_id, st_name in dryer_names.items()
+    ]
+
+    return EquipmentTypeConfigResponse(equipment_type="dryer", subtypes=subtypes)
 
 
 # ---------------------------------------------------------------------------

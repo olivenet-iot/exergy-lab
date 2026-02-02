@@ -23,6 +23,19 @@ class MetricsResponse(BaseModel):
     hydraulic_power_kW: Optional[float] = None
     wire_to_water_efficiency_pct: Optional[float] = None
     throttle_loss_kW: Optional[float] = None
+    # Heat exchanger-specific
+    heat_duty_kW: Optional[float] = None
+    lmtd_K: Optional[float] = None
+    effectiveness: Optional[float] = None
+    bejan_number: Optional[float] = None
+    # Steam turbine-specific
+    shaft_power_kW: Optional[float] = None
+    electrical_power_kW: Optional[float] = None
+    exhaust_exergy_kW: Optional[float] = None
+    chp_exergy_efficiency_pct: Optional[float] = None
+    # Dryer-specific
+    water_removed_kg_h: Optional[float] = None
+    specific_energy_kJ_kg_water: Optional[float] = None
 
 
 class HeatRecoveryResponse(BaseModel):

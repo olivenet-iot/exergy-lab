@@ -21,6 +21,9 @@ from .compressor import (
 from .boiler import BoilerInput, analyze_boiler
 from .chiller import ChillerInput, analyze_chiller
 from .pump import PumpInput, analyze_pump
+from .heat_exchanger import HeatExchangerInput, analyze_heat_exchanger
+from .steam_turbine import SteamTurbineInput, analyze_steam_turbine
+from .dryer import DryerInput, analyze_dryer
 
 
 # ---------------------------------------------------------------------------
@@ -32,6 +35,9 @@ class EquipmentType(str, Enum):
     BOILER = "boiler"
     CHILLER = "chiller"
     PUMP = "pump"
+    HEAT_EXCHANGER = "heat_exchanger"
+    STEAM_TURBINE = "steam_turbine"
+    DRYER = "dryer"
 
 
 @dataclass
@@ -80,6 +86,22 @@ _PUMP_SUBTYPES = {
     "vertical_turbine", "booster", "vacuum",
 }
 
+_HEAT_EXCHANGER_SUBTYPES = {
+    "shell_tube", "plate", "air_cooled", "double_pipe",
+    "spiral", "economizer", "recuperator", "finned_tube",
+}
+
+_STEAM_TURBINE_SUBTYPES = {
+    "back_pressure", "condensing", "extraction", "orc", "micro_turbine",
+    "backpressure",  # alias
+}
+
+_DRYER_SUBTYPES = {
+    "convective", "rotary", "fluidized_bed", "spray",
+    "belt", "heat_pump", "infrared", "drum",
+    "conveyor", "tray", "microwave",
+}
+
 
 # ---------------------------------------------------------------------------
 # Equipment analysis dispatcher
@@ -108,6 +130,12 @@ def analyze_equipment_item(item: EquipmentItem) -> dict:
         return _analyze_chiller_item(subtype, params)
     elif eq_type == "pump":
         return _analyze_pump_item(subtype, params)
+    elif eq_type == "heat_exchanger":
+        return _analyze_heat_exchanger_item(subtype, params)
+    elif eq_type == "steam_turbine":
+        return _analyze_steam_turbine_item(subtype, params)
+    elif eq_type == "dryer":
+        return _analyze_dryer_item(subtype, params)
     else:
         raise ValueError(f"Unknown equipment type: {eq_type}")
 
@@ -157,6 +185,51 @@ def _analyze_pump_item(subtype: str, params: dict) -> dict:
 
     input_data = PumpInput(**engine_kwargs)
     result = analyze_pump(input_data)
+    return result.to_dict()
+
+
+def _analyze_heat_exchanger_item(subtype: str, params: dict) -> dict:
+    """Dispatch heat exchanger analysis."""
+    engine_kwargs = _filter_params(params, HeatExchangerInput)
+    engine_kwargs["hx_type"] = subtype
+
+    input_data = HeatExchangerInput(**engine_kwargs)
+    result = analyze_heat_exchanger(input_data)
+    return result.to_dict()
+
+
+def _analyze_steam_turbine_item(subtype: str, params: dict) -> dict:
+    """Dispatch steam turbine analysis."""
+    engine_kwargs = _filter_params(params, SteamTurbineInput)
+    # Map registry subtype names to engine turbine_type
+    turbine_type_map = {
+        "back_pressure": "backpressure",
+        "backpressure": "backpressure",
+        "condensing": "condensing",
+        "extraction": "extraction",
+        "orc": "backpressure",
+        "micro_turbine": "backpressure",
+    }
+    engine_kwargs["turbine_type"] = turbine_type_map.get(subtype, "backpressure")
+
+    input_data = SteamTurbineInput(**engine_kwargs)
+    result = analyze_steam_turbine(input_data)
+    return result.to_dict()
+
+
+def _analyze_dryer_item(subtype: str, params: dict) -> dict:
+    """Dispatch dryer analysis."""
+    engine_kwargs = _filter_params(params, DryerInput)
+    # Map registry subtype names to engine dryer_type
+    dryer_type_map = {
+        "convective": "conveyor",
+        "belt": "conveyor",
+        "heat_pump": "conveyor",
+    }
+    engine_kwargs["dryer_type"] = dryer_type_map.get(subtype, subtype)
+
+    input_data = DryerInput(**engine_kwargs)
+    result = analyze_dryer(input_data)
     return result.to_dict()
 
 
@@ -350,6 +423,9 @@ def _detect_integration_opportunities(
     boilers = [r for r in results if r["equipment_type"] == "boiler"]
     chillers = [r for r in results if r["equipment_type"] == "chiller"]
     pumps = [r for r in results if r["equipment_type"] == "pump"]
+    heat_exchangers = [r for r in results if r["equipment_type"] == "heat_exchanger"]
+    steam_turbines = [r for r in results if r["equipment_type"] == "steam_turbine"]
+    dryers = [r for r in results if r["equipment_type"] == "dryer"]
 
     # Helper: get compressor thermal power from first principles
     # ~90% of electrical input becomes heat, ~75% is recoverable via oil cooler / aftercooler
@@ -488,6 +564,106 @@ def _detect_integration_opportunities(
                 "description": f"{pump['name']} kisma vanasi kontrolunden VSD'ye gecis.",
             })
 
+    # Pattern 6: Dryer exhaust → HX for air preheating
+    if dryers and heat_exchangers:
+        for dryer in dryers:
+            da = dryer["analysis"]
+            exhaust_ex = da.get("exhaust_exergy_kW", 0) or 0
+            if exhaust_ex > 5:
+                hours = _get_operating_hours(dryer, 5000)
+                usable = exhaust_ex * 0.5
+                savings = usable * hours * 0.05
+                investment = 12000
+                for hx in heat_exchangers:
+                    opportunities.append({
+                        "type": "dryer_exhaust_to_hx",
+                        "title": "Kurutucu Egzoz → Isi Esanjoru On Isitma",
+                        "source": dryer["name"],
+                        "target": hx["name"],
+                        "potential_recovery_kW": round(usable, 1),
+                        "estimated_savings_EUR_year": round(savings, 0),
+                        "estimated_investment_EUR": investment,
+                        "roi_years": round(investment / savings, 1) if savings > 0 else 99,
+                        "complexity": "medium",
+                        "description": f"{dryer['name']} egzoz isisi ile {hx['name']} giris havasini on isitma.",
+                    })
+                    break
+
+    # Pattern 7: Steam turbine exhaust → absorption chiller
+    if steam_turbines and chillers:
+        for st in steam_turbines:
+            sa = st["analysis"]
+            exhaust_ex = sa.get("exhaust_exergy_kW", 0) or 0
+            if exhaust_ex > 50:
+                hours = _get_operating_hours(st, 6000)
+                cooling_potential = exhaust_ex * 0.4 * 0.7
+                electricity_saved = cooling_potential / 4.0
+                savings = electricity_saved * hours * 0.12
+                investment = 60000
+                for chiller in chillers:
+                    opportunities.append({
+                        "type": "turbine_exhaust_to_absorption",
+                        "title": "Buhar Turbini Egzoz → Absorpsiyonlu Chiller",
+                        "source": st["name"],
+                        "target": chiller["name"],
+                        "potential_recovery_kW": round(cooling_potential, 1),
+                        "estimated_savings_EUR_year": round(savings, 0),
+                        "estimated_investment_EUR": investment,
+                        "roi_years": round(investment / savings, 1) if savings > 0 else 99,
+                        "complexity": "high",
+                        "description": f"{st['name']} egzoz buhari ile {chiller['name']} yerine absorpsiyonlu sogutma.",
+                    })
+                    break
+
+    # Pattern 8: Boiler flue gas → HX economizer for feedwater
+    if boilers and heat_exchangers:
+        for boiler in boilers:
+            ba = boiler["analysis"]
+            flue_gas_loss = ba.get("flue_gas_loss_kW", 0) or 0
+            if flue_gas_loss > 10:
+                hours = _get_operating_hours(boiler, 6000)
+                usable = flue_gas_loss * 0.45
+                savings = usable * hours * 0.05
+                investment = 18000
+                for hx in heat_exchangers:
+                    opportunities.append({
+                        "type": "boiler_flue_to_hx_economizer",
+                        "title": "Kazan Baca Gazi → Ekonomizer (HX)",
+                        "source": boiler["name"],
+                        "target": hx["name"],
+                        "potential_recovery_kW": round(usable, 1),
+                        "estimated_savings_EUR_year": round(savings, 0),
+                        "estimated_investment_EUR": investment,
+                        "roi_years": round(investment / savings, 1) if savings > 0 else 99,
+                        "complexity": "medium",
+                        "description": f"{boiler['name']} baca gazi isisi ile {hx['name']} kullanarak besleme suyu on isitma.",
+                    })
+                    break
+
+    # Pattern 9: Steam turbine CHP → plant heating
+    for st in steam_turbines:
+        sa = st["analysis"]
+        heat_recovered = sa.get("heat_recovered_kW", 0) or 0
+        if heat_recovered == 0:
+            exhaust_ex = sa.get("exhaust_exergy_kW", 0) or 0
+            if exhaust_ex > 100:
+                hours = _get_operating_hours(st, 6000)
+                usable = exhaust_ex * 0.5
+                savings = usable * hours * 0.04
+                investment = 40000
+                opportunities.append({
+                    "type": "turbine_chp_heating",
+                    "title": "Buhar Turbini CHP → Tesis Isitma",
+                    "source": st["name"],
+                    "target": "Tesis Isitma Sistemi",
+                    "potential_recovery_kW": round(usable, 1),
+                    "estimated_savings_EUR_year": round(savings, 0),
+                    "estimated_investment_EUR": investment,
+                    "roi_years": round(investment / savings, 1) if savings > 0 else 99,
+                    "complexity": "medium",
+                    "description": f"{st['name']} egzoz buharindan CHP ile tesis isitma.",
+                })
+
     return opportunities
 
 
@@ -535,6 +711,9 @@ def _generate_factory_sankey(results: List[dict], aggregates: dict) -> dict:
         "boiler": "Kazan",
         "chiller": "Chiller",
         "pump": "Pompa",
+        "heat_exchanger": "Isi Esanjoru",
+        "steam_turbine": "Buhar Turbini",
+        "dryer": "Kurutma Firini",
     }
 
     for i, r in enumerate(results):

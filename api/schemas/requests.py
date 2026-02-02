@@ -123,6 +123,70 @@ class PumpParams(BaseModel):
     electricity_price_eur_kwh: float = Field(0.12, ge=0, le=1, description="Elektrik fiyatı [€/kWh]")
 
 
+# --- Heat Exchanger params ---
+
+class HeatExchangerParams(BaseModel):
+    hot_fluid: Literal["water", "steam", "air", "flue_gas", "thermal_oil", "glycol_30", "glycol_50"] = Field(
+        "water", description="Sicak taraf akiskan"
+    )
+    hot_inlet_temp_C: float = Field(90.0, ge=0, le=800, description="Sicak giris sicakligi [C]")
+    hot_outlet_temp_C: float = Field(70.0, ge=0, le=800, description="Sicak cikis sicakligi [C]")
+    hot_mass_flow_kg_s: float = Field(2.0, gt=0, le=500, description="Sicak taraf kutle debisi [kg/s]")
+    hot_pressure_drop_kPa: float = Field(10.0, ge=0, le=500, description="Sicak taraf basinc dususu [kPa]")
+    cold_fluid: Literal["water", "steam", "air", "flue_gas", "thermal_oil", "glycol_30", "glycol_50"] = Field(
+        "water", description="Soguk taraf akiskan"
+    )
+    cold_inlet_temp_C: float = Field(20.0, ge=-20, le=500, description="Soguk giris sicakligi [C]")
+    cold_outlet_temp_C: float = Field(50.0, ge=-20, le=500, description="Soguk cikis sicakligi [C]")
+    cold_mass_flow_kg_s: float = Field(1.5, gt=0, le=500, description="Soguk taraf kutle debisi [kg/s]")
+    cold_pressure_drop_kPa: float = Field(15.0, ge=0, le=500, description="Soguk taraf basinc dususu [kPa]")
+    heat_duty_kW: Optional[float] = Field(None, gt=0, le=100000, description="Isi gorev gucu [kW]")
+    ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Ortam sicakligi [C]")
+    operating_hours: float = Field(6000, ge=0, le=8760, description="Yillik calisma saati")
+    fuel_price_eur_kwh: float = Field(0.06, ge=0, le=1, description="Yakit fiyati [EUR/kWh]")
+    design_heat_duty_kW: Optional[float] = Field(None, gt=0, le=100000, description="Tasarim isi gucu [kW]")
+
+
+# --- Steam Turbine params ---
+
+class SteamTurbineParams(BaseModel):
+    inlet_temp_C: float = Field(400.0, ge=100, le=650, description="Giris buhar sicakligi [C]")
+    inlet_pressure_bar: float = Field(40.0, gt=0, le=200, description="Giris basinci [bar]")
+    mass_flow_kg_s: float = Field(5.0, gt=0, le=500, description="Buhar kutle debisi [kg/s]")
+    outlet_pressure_bar: float = Field(0.1, gt=0, le=100, description="Cikis basinci [bar]")
+    outlet_temp_C: Optional[float] = Field(None, ge=0, le=600, description="Cikis sicakligi [C]")
+    isentropic_efficiency: float = Field(0.80, ge=0.3, le=0.98, description="Izentropik verim")
+    mechanical_efficiency: float = Field(0.98, ge=0.80, le=1.0, description="Mekanik verim")
+    generator_efficiency: float = Field(0.97, ge=0.80, le=1.0, description="Jenerator verimi")
+    is_chp: bool = Field(False, description="CHP modu")
+    heat_recovery_temp_C: Optional[float] = Field(None, ge=50, le=400, description="Isi geri kazanim sicakligi [C]")
+    heat_recovery_fraction: float = Field(0.60, ge=0, le=1.0, description="Isi geri kazanim orani")
+    ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Ortam sicakligi [C]")
+    operating_hours: float = Field(7000, ge=0, le=8760, description="Yillik calisma saati")
+    electricity_price_eur_kwh: float = Field(0.10, ge=0, le=1, description="Elektrik fiyati [EUR/kWh]")
+    fuel_price_eur_kwh: float = Field(0.04, ge=0, le=1, description="Yakit fiyati [EUR/kWh]")
+
+
+# --- Dryer params ---
+
+class DryerParams(BaseModel):
+    product_mass_flow_kg_h: float = Field(1000.0, gt=0, le=100000, description="Urun debisi [kg/h]")
+    moisture_in_pct: float = Field(60.0, ge=1, le=99, description="Giris nem orani [%]")
+    moisture_out_pct: float = Field(10.0, ge=0.1, le=90, description="Cikis nem orani [%]")
+    product_inlet_temp_C: float = Field(25.0, ge=-10, le=200, description="Urun giris sicakligi [C]")
+    product_outlet_temp_C: float = Field(60.0, ge=10, le=300, description="Urun cikis sicakligi [C]")
+    heat_source: Literal["natural_gas", "steam", "electrical", "hot_air"] = Field(
+        "natural_gas", description="Isi kaynagi"
+    )
+    supply_temp_C: float = Field(200.0, ge=50, le=800, description="Besleme sicakligi [C]")
+    heat_input_kW: Optional[float] = Field(None, gt=0, le=50000, description="Isi girisi [kW]")
+    air_outlet_temp_C: float = Field(80.0, ge=20, le=400, description="Hava cikis sicakligi [C]")
+    ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Ortam sicakligi [C]")
+    ambient_humidity_pct: float = Field(50.0, ge=5, le=100, description="Ortam nemi [%]")
+    operating_hours: float = Field(5000, ge=0, le=8760, description="Yillik calisma saati")
+    fuel_price_eur_kwh: float = Field(0.05, ge=0, le=1, description="Yakit fiyati [EUR/kWh]")
+
+
 class AnalysisRequest(BaseModel):
     equipment_type: Optional[str] = Field(None, description="Ekipman tipi")
     subtype: Optional[str] = Field(None, description="Ekipman alt tipi")

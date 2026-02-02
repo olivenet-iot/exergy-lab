@@ -87,7 +87,7 @@ EQUIPMENT_TYPES = {
         ],
         "knowledge_path": "knowledge/heat_exchanger",
         "engine_module": "engine.heat_exchanger",
-        "engine_ready": False,
+        "engine_ready": True,
     },
     "steam_turbine": {
         "id": "steam_turbine",
@@ -103,7 +103,7 @@ EQUIPMENT_TYPES = {
         ],
         "knowledge_path": "knowledge/steam_turbine",
         "engine_module": "engine.steam_turbine",
-        "engine_ready": False,
+        "engine_ready": True,
     },
     "dryer": {
         "id": "dryer",
@@ -122,7 +122,7 @@ EQUIPMENT_TYPES = {
         ],
         "knowledge_path": "knowledge/dryer",
         "engine_module": "engine.dryer",
-        "engine_ready": False,
+        "engine_ready": True,
     },
 }
 
