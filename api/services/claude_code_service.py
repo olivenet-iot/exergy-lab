@@ -6,7 +6,7 @@ import logging
 import re
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -422,6 +422,203 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
             "action_plan": {"immediate": [], "short_term": [], "medium_term": []},
             "warnings": [],
         }
+
+    def _format_analysis_for_chat(self, analysis_data: dict) -> str:
+        """Format analysis metrics into a readable Turkish text block for chat context."""
+        if not analysis_data:
+            return "Analiz verisi mevcut değil."
+
+        lines: list[str] = []
+        metrics = analysis_data.get("metrics", {})
+        benchmark = analysis_data.get("benchmark", {})
+        heat_recovery = analysis_data.get("heat_recovery", {})
+        radar = analysis_data.get("radar_data", {})
+
+        if metrics:
+            eff = metrics.get("exergy_efficiency_percent") or metrics.get("exergy_efficiency_pct")
+            lines.append(f"- Exergy Verimi: {eff}%" if eff is not None else "")
+            lines.append(f"- Exergy Girişi: {metrics.get('exergy_input_kW', 'N/A')} kW")
+            lines.append(f"- Faydalı Exergy: {metrics.get('exergy_output_kW', 'N/A')} kW")
+            lines.append(f"- Exergy Yıkımı: {metrics.get('exergy_destroyed_kW', 'N/A')} kW")
+            if metrics.get("annual_loss_kWh"):
+                lines.append(f"- Yıllık Kayıp: {metrics['annual_loss_kWh']} kWh")
+            if metrics.get("annual_cost_eur"):
+                lines.append(f"- Yıllık Maliyet: {metrics['annual_cost_eur']} €")
+            av = metrics.get("exergy_destroyed_avoidable_kW")
+            if av is not None:
+                lines.append(f"- Önlenebilir Yıkım: {av} kW")
+                lines.append(f"- Önlenemez Yıkım: {metrics.get('exergy_destroyed_unavoidable_kW', 'N/A')} kW")
+                lines.append(f"- Önlenebilir Oran: {metrics.get('avoidable_ratio_pct', 'N/A')}%")
+
+        if benchmark:
+            lines.append(f"- Benchmark: {benchmark.get('rating', 'N/A')}")
+            lines.append(f"- Yüzdelik: {benchmark.get('percentile', 'N/A')}")
+
+        if heat_recovery:
+            if heat_recovery.get("potential_kW"):
+                lines.append(f"- Isı Geri Kazanım Potansiyeli: {heat_recovery['potential_kW']} kW")
+
+        if radar:
+            grade = radar.get("grade") or radar.get("grade_letter")
+            if grade:
+                lines.append(f"- Radar Notu: {grade}")
+
+        return "\n".join(line for line in lines if line)
+
+    async def chat(
+        self,
+        equipment_type: str,
+        subtype: Optional[str],
+        question: str,
+        analysis_data: Optional[dict] = None,
+        history: Optional[List[dict]] = None,
+    ) -> dict:
+        """Run Claude Code CLI for interactive knowledge-powered chat.
+
+        Args:
+            equipment_type: Equipment type (e.g. 'compressor').
+            subtype: Equipment subtype (e.g. 'screw').
+            question: User's question text.
+            analysis_data: Current analysis result data (optional).
+            history: Previous chat messages as list of {role, content} dicts.
+
+        Returns:
+            Dict with answer, knowledge_sources, follow_up_suggestions, ai_available.
+        """
+        from api.services.knowledge_router import route_knowledge, get_knowledge_summary
+
+        fallback = {
+            "answer": "Üzgünüm, şu anda yanıt üretemiyorum. Lütfen daha sonra tekrar deneyin.",
+            "knowledge_sources": [],
+            "follow_up_suggestions": [],
+            "ai_available": False,
+        }
+
+        try:
+            # 1. Route knowledge files
+            knowledge_files = route_knowledge(question, equipment_type, subtype)
+            logger.info("Chat knowledge routed: %s", get_knowledge_summary(knowledge_files))
+
+            # 2. Load knowledge file contents
+            knowledge_parts: list[str] = []
+            for f in knowledge_files:
+                content = self._load_knowledge_file(f)
+                if content:
+                    knowledge_parts.append(f"## {f}\n\n{content}")
+            knowledge_block = "\n\n---\n\n".join(knowledge_parts) if knowledge_parts else ""
+
+            # 3. Load skills
+            skills_content = self._load_skills("single_equipment", equipment_type)
+
+            # 4. Format analysis data
+            analysis_block = self._format_analysis_for_chat(analysis_data) if analysis_data else ""
+
+            # 5. Format history (last 5 turns / 10 messages)
+            history_block = ""
+            if history:
+                recent = history[-10:]
+                history_lines: list[str] = []
+                for msg in recent:
+                    role_label = "Kullanıcı" if msg.get("role") == "user" else "Asistan"
+                    history_lines.append(f"{role_label}: {msg.get('content', '')}")
+                history_block = "\n".join(history_lines)
+
+            # 6. Build prompt
+            prompt = f"""Sen ExergyLab AI danışmanısın. Kullanıcı, ekipman exergy analiz sonuçları hakkında soru soruyor.
+Türkçe yanıt ver. Teknik terimlerin İngilizce karşılığını parantez içinde belirt.
+
+## Beceri ve Kurallar
+
+{skills_content}
+
+## Bilgi Kaynakları (Knowledge Base)
+
+{knowledge_block}
+
+## Mevcut Analiz Verileri
+
+{analysis_block}
+
+## Sohbet Geçmişi
+
+{history_block}
+
+## Kurallar
+
+1. Sadece bilgi kaynaklarındaki ve analiz verilerindeki bilgileri kullan.
+2. Yanıtını Türkçe ver, teknik terimler parantez içinde İngilizce olsun.
+3. Somut ve pratik öneriler sun.
+4. Kullanıcının analiz verilerini referans alarak kişiselleştirilmiş yanıt ver.
+5. Yanıtı kısa ve öz tut (maks 300 kelime).
+
+## Kullanıcının Sorusu
+
+{question}
+
+## Görev
+
+Yukarıdaki bilgileri kullanarak soruyu yanıtla. Markdown fence kullanma, saf JSON döndür.
+
+{{
+  "answer": "Yanıt metni (Türkçe, markdown formatında)",
+  "knowledge_sources": ["Kullanılan bilgi kaynaklarının dosya adları"],
+  "follow_up_suggestions": ["İlgili takip sorusu 1", "İlgili takip sorusu 2", "İlgili takip sorusu 3"]
+}}"""
+
+            # 7. Call Claude CLI
+            logger.info("Claude Code CLI called for chat")
+            process = await asyncio.create_subprocess_exec(
+                "claude",
+                "-p",
+                prompt,
+                cwd=str(self._project_root),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=self._timeout
+            )
+
+            if process.returncode != 0:
+                logger.warning(
+                    "Claude CLI chat exited with code %d: %s",
+                    process.returncode,
+                    stderr.decode(errors="replace")[:500],
+                )
+                return fallback
+
+            raw_output = stdout.decode(errors="replace")
+            logger.info("Claude Code chat response received, parsing")
+
+            # 8. Parse JSON
+            result = self._extract_json(raw_output)
+            if result is None:
+                logger.warning("Could not extract JSON from Claude chat response")
+                # Use raw output as answer text
+                return {
+                    "answer": raw_output.strip()[:2000],
+                    "knowledge_sources": [f.split("/")[-1] for f in knowledge_files],
+                    "follow_up_suggestions": [],
+                    "ai_available": True,
+                }
+
+            # Ensure required fields
+            result.setdefault("answer", "")
+            result.setdefault("knowledge_sources", [f.split("/")[-1] for f in knowledge_files])
+            result.setdefault("follow_up_suggestions", [])
+            result["ai_available"] = True
+            return result
+
+        except asyncio.TimeoutError:
+            logger.warning("Claude CLI chat timed out after %ds", self._timeout)
+            return fallback
+        except FileNotFoundError:
+            logger.warning("Claude CLI not found in PATH (chat)")
+            return fallback
+        except Exception:
+            logger.exception("Unexpected error in Claude CLI chat")
+            return fallback
 
     async def interpret(
         self,

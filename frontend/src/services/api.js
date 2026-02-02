@@ -164,6 +164,17 @@ export const compareScenarios = async ({ equipment_type, subtype, baseline_param
   return response.data;
 };
 
+export const chatWithAI = async ({ equipment_type, subtype, question, analysis_data, history }) => {
+  const response = await api.post('/chat', {
+    equipment_type,
+    subtype,
+    question,
+    analysis_data,
+    history,
+  });
+  return response.data;
+};
+
 export const getEquipmentTypes = async () => {
   const response = await api.get('/equipment-types');
   return response.data;

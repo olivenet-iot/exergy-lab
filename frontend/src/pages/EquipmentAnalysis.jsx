@@ -10,6 +10,7 @@ import SolutionsList from '../components/results/SolutionsList';
 import AIInterpretation from '../components/results/AIInterpretation';
 import ScenarioEditor from '../components/whatif/ScenarioEditor';
 import ComparisonPanel from '../components/whatif/ComparisonPanel';
+import ChatPanel from '../components/chat/ChatPanel';
 import Card from '../components/common/Card';
 import LoadingSpinner from '../components/common/Loading';
 
@@ -34,6 +35,9 @@ const EquipmentAnalysis = () => {
   const [formValues, setFormValues] = useState({});
 
   const { result, solutions, loading, error, analyze, reset, interpretation, aiLoading } = useAnalysis();
+
+  // Chat state
+  const [chatOpen, setChatOpen] = useState(false);
 
   // What-If state
   const [whatIfMode, setWhatIfMode] = useState(false);
@@ -187,16 +191,33 @@ const EquipmentAnalysis = () => {
                 <SolutionsList solutions={solutions} />
               )}
 
-              {/* What-If Scenario Mode */}
+              {/* Action buttons: What-If + AI Chat */}
               {!whatIfMode && (
-                <div className="flex justify-center">
+                <div className="flex justify-center gap-4">
                   <button
                     onClick={handleWhatIfToggle}
                     className="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium shadow-sm"
                   >
                     What-If Senaryo Modu
                   </button>
+                  <button
+                    onClick={() => setChatOpen(prev => !prev)}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm"
+                  >
+                    {chatOpen ? 'Sohbeti Kapat' : 'AI Danismana Sor'}
+                  </button>
                 </div>
+              )}
+
+              {/* AI Chat Panel */}
+              {chatOpen && (
+                <ChatPanel
+                  equipmentType={equipmentType}
+                  subtype={selectedSubtype}
+                  analysisData={result}
+                  isVisible={chatOpen}
+                  onClose={() => setChatOpen(false)}
+                />
               )}
 
               {whatIfMode && (
