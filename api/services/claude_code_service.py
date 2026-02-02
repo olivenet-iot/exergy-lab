@@ -495,15 +495,20 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
         }
 
         try:
+            prompt_len = 0
+
             # 1. Route knowledge files
             knowledge_files = route_knowledge(question, equipment_type, subtype)
             logger.info("Chat knowledge routed: %s", get_knowledge_summary(knowledge_files))
 
-            # 2. Load knowledge file contents
+            # 2. Load knowledge file contents (truncated for chat context)
             knowledge_parts: list[str] = []
             for f in knowledge_files:
                 content = self._load_knowledge_file(f)
                 if content:
+                    lines = content.split("\n")
+                    if len(lines) > 150:
+                        content = "\n".join(lines[:150]) + "\n\n[...truncated...]"
                     knowledge_parts.append(f"## {f}\n\n{content}")
             knowledge_block = "\n\n---\n\n".join(knowledge_parts) if knowledge_parts else ""
 
@@ -513,14 +518,17 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
             # 4. Format analysis data
             analysis_block = self._format_analysis_for_chat(analysis_data) if analysis_data else ""
 
-            # 5. Format history (last 5 turns / 10 messages)
+            # 5. Format history (last 3 turns / 6 messages, truncated)
             history_block = ""
             if history:
-                recent = history[-10:]
+                recent = history[-6:]
                 history_lines: list[str] = []
                 for msg in recent:
                     role_label = "Kullanıcı" if msg.get("role") == "user" else "Asistan"
-                    history_lines.append(f"{role_label}: {msg.get('content', '')}")
+                    content = msg.get("content", "")
+                    if len(content) > 300:
+                        content = content[:300] + "..."
+                    history_lines.append(f"{role_label}: {content}")
                 history_block = "\n".join(history_lines)
 
             # 6. Build prompt
@@ -566,7 +574,13 @@ Yukarıdaki bilgileri kullanarak soruyu yanıtla. Markdown fence kullanma, saf J
 }}"""
 
             # 7. Call Claude CLI
-            logger.info("Claude Code CLI called for chat")
+            prompt_len = len(prompt)
+            logger.info(
+                "Claude Code CLI called for chat — prompt length: %d chars, history: %d msgs, knowledge files: %d",
+                prompt_len,
+                len(history or []),
+                len(knowledge_files),
+            )
             process = await asyncio.create_subprocess_exec(
                 "claude",
                 "-p",
@@ -582,8 +596,9 @@ Yukarıdaki bilgileri kullanarak soruyu yanıtla. Markdown fence kullanma, saf J
 
             if process.returncode != 0:
                 logger.warning(
-                    "Claude CLI chat exited with code %d: %s",
+                    "Claude CLI chat exited with code %d (prompt_len=%d): %s",
                     process.returncode,
+                    prompt_len,
                     stderr.decode(errors="replace")[:500],
                 )
                 return fallback
@@ -611,7 +626,11 @@ Yukarıdaki bilgileri kullanarak soruyu yanıtla. Markdown fence kullanma, saf J
             return result
 
         except asyncio.TimeoutError:
-            logger.warning("Claude CLI chat timed out after %ds", self._timeout)
+            logger.warning(
+                "Claude CLI chat timed out after %ds (prompt_len=%d)",
+                self._timeout,
+                prompt_len,
+            )
             return fallback
         except FileNotFoundError:
             logger.warning("Claude CLI not found in PATH (chat)")
