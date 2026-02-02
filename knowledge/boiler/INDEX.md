@@ -1,3 +1,13 @@
+---
+title: "Kazan Bilgi Tabanı İndeks (Boiler Knowledge Base Index)"
+category: reference
+equipment_type: boiler
+keywords: [kazan, buhar, sıcak su, indeks, navigasyon]
+related_files: [knowledge/INDEX.md, knowledge/boiler/formulas.md, knowledge/boiler/benchmarks.md]
+use_when: ["Kazan bilgi tabanı navigasyonu gerektiğinde"]
+priority: high
+last_updated: 2026-02-02
+---
 # Kazan Bilgi Tabanı İndeks
 
 ## Genel Bakış
@@ -44,3 +54,10 @@ Buhar ve sıcak su kazanları exergy analizi için kapsamlı bilgi tabanı.
 2. Alt tip biliniyorsa `equipment/{subtype}.md` oku
 3. Yakıt bilgisi gerekirse `equipment/fuels.md` referans al
 4. Benchmark sonucuna göre ilgili `solutions/*.md` dosyalarına git
+
+## Referanslar
+
+1. Basu, P. (2015). *Circulating Fluidized Bed Boilers: Design, Operation and Maintenance*. Springer.
+2. Ganapathy, V. (2003). *Industrial Boilers and Heat Recovery Steam Generators*. Marcel Dekker.
+3. Kotas, T.J. (1985). *The Exergy Method of Thermal Plant Analysis*. Butterworths.
+4. ASME PTC 4 (2013). *Fired Steam Generators Performance Test Code*.

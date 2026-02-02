@@ -272,7 +272,7 @@ Burada:
 - CO limiti asildigi anda hava otomatik artirilir
 - Ek maliyet: EUR 3,000-8,000 (CO analizoru)
 
-## Ilgili Dosyalar
+## İlgili Dosyalar
 - Kazan yakitlari ve ozellikleri: `equipment/boiler_fuels.md`
 - Ates borulu buhar kazanlari: `equipment/boiler_steam_firetube.md`
 - Su borulu buhar kazanlari: `equipment/boiler_steam_watertube.md`

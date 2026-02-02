@@ -255,7 +255,7 @@ Dogalgaz yakitli, 10 bar buhar basincli ates borulu kazanlarda kapasiteye gore t
 | Brulor arizasi | Kirli nozul, fotohucre arizasi | Brulor bakimi, yedek parca degisimi |
 | Basinc dalgalanmasi | Ani yuk degisimleri, kontrol valf | PID ayari, yuk yonetimi |
 
-## Ilgili Dosyalar
+## İlgili Dosyalar
 
 - Su borulu kazan: `equipment/boiler_steam_watertube.md`
 - Yakit bilgileri: `equipment/boiler_fuels.md`

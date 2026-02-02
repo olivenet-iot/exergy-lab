@@ -135,7 +135,7 @@ Kural:      En uzak vana ≥ %90 açık olana kadar DP_setpoint düşür
 **Gerçek dünya sonuçları:**
 - DP setpoint'i 5 PSI → 2 PSI'a düşürüldüğünde pompa gücü 0.70 kW → 0.30 kW (%57 azalma)
 - DP setpoint'i 8 PSI → 4 PSI'a düzeltildiğinde pompa gücü 4.5 kW → 0.80 kW (%82 azalma)
-- Yıllık tasarruf: 22,000 kWh ($2,600/yıl) — tek bir pompa grubu için
+- Yıllık tasarruf: 22,000 kWh (€2.400/yıl) — tek bir pompa grubu için
 
 ## Hidrofor (Paket Pompa) Sistemleri İçin Özel Öneriler
 

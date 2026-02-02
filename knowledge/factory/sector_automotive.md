@@ -454,6 +454,24 @@ Tasarruf = 884 - 442 = 442 kW (%50 yakıt azalma)
 Yıllık = 442 × 3.6 × 4,800 / 34,500 × 0.40 = 88,600 €/yıl
 ```
 
+### Isı Eşanjörü Uygulamaları (Heat Exchanger Applications)
+
+Otomotiv sektöründe ısı eşanjörleri üretim süreçlerinin kritik bileşenleridir:
+
+| Eşanjör Uygulaması | Proses | Tipik Tip | Referans Dosya |
+|---------------------|--------|-----------|----------------|
+| Boya kabini hava ısıtma | Boya kurutma/pişirme | Gaz-gaz reküperatör | `../../heat_exchanger/equipment/recuperator.md` |
+| Proses soğutma suyu | CNC, kaynak, döküm soğutma | Plakalı eşanjör | `../../heat_exchanger/equipment/plate.md` |
+| Kompresör ara soğutma | Basınçlı hava sistemi | Hava soğutmalı HX | `../../heat_exchanger/equipment/air_cooled.md` |
+| Baca gazı ısı geri kazanım | Fırın/kazan egzozu | Ekonomizer | `../../heat_exchanger/equipment/economizer.md` |
+| Hidrolik yağ soğutma | Pres, enjeksiyon | Gövde-boru HX | `../../heat_exchanger/equipment/shell_and_tube.md` |
+
+**Exergy optimizasyon fırsatları:**
+- Boya fırını egzoz ısısı geri kazanımı → taze hava ön ısıtma (%20-35 tasarruf)
+- Proses soğutma suyu ısısı → kış ısıtma veya kazan besleme suyu ön ısıtma
+- Kompresör atık ısısı → eşanjör → bina ısıtma: `../../heat_exchanger/solutions/heat_recovery.md`
+- Eşanjör kirlenme yönetimi (cutting oil kontaminasyonu): `../../heat_exchanger/solutions/fouling_management.md`
+
 ## İlgili Dosyalar
 
 - [Exergy Temelleri](exergy_fundamentals.md) -- Fabrika exergy analiz metodolojisi

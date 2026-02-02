@@ -3,10 +3,10 @@ title: "Isı Entegrasyonu ve Kaynak-Kullanım Eşleştirme (Heat Integration and
 category: factory
 equipment_type: factory
 keywords: [ısı entegrasyonu, pinch, fabrika]
-related_files: [factory/pinch_analysis.md, factory/waste_heat_recovery.md, factory/cross_equipment.md]
-use_when: ["Isı entegrasyonu değerlendirilirken", "Proses ısı alışverişi optimize edilirken"]
+related_files: [factory/pinch_analysis.md, factory/waste_heat_recovery.md, factory/cross_equipment.md, factory/pinch/INDEX.md, factory/pinch/fundamentals.md, factory/pinch/composite_curves.md, factory/pinch/hen_design.md, factory/pinch/hen_retrofit.md, factory/pinch/stream_data.md]
+use_when: ["Isı entegrasyonu değerlendirilirken", "Proses ısı alışverişi optimize edilirken", "Pinch tabanlı ısı entegrasyon tasarımı yapılırken"]
 priority: high
-last_updated: 2026-01-31
+last_updated: 2026-02-01
 ---
 # Isı Entegrasyonu ve Kaynak-Kullanım Eşleştirme (Heat Integration and Source-Sink Matching)
 
@@ -30,7 +30,8 @@ Endüstriyel tesislerde ısı kayıpları çeşitli noktalarda oluşur. Aşağı
 | Kompresör soğutma havası | 60–80 | 500–5,000 m³/h | 15–100 | Sürekli |
 | Kondenser atık ısısı (chiller) | 35–45 | 5–50 m³/h | 50–500 | Mevsimsel/sürekli |
 | Proses soğutma suyu | 40–60 | 5–100 m³/h | 30–500 | Proses bağımlı |
-| Kurutma makinesi egzozu | 80–150 | 2,000–15,000 m³/h | 50–800 | Vardiya bazlı |
+| Kurutma fırını egzozu (konvektif) | 80–150 | 2,000–15,000 m³/h | 50–800 | Vardiya bazlı |
+| Kurutma fırını egzozu (sprey) | 70–100 | 5,000–50,000 m³/h | 100–2,000 | Sürekli |
 | Buhar kondensat dönüşü | 80–100 | 1–10 m³/h | 20–200 | Sürekli |
 | Proses atık suyu | 30–60 | 2–50 m³/h | 10–200 | Proses bağımlı |
 
@@ -44,7 +45,7 @@ Endüstriyel tesislerde ısı kayıpları çeşitli noktalarda oluşur. Aşağı
 | Proses sıcak su | 50–90 | 20–500 | Proses bağımlı |
 | Hammadde ön ısıtma | 20–60 | 10–200 | Proses bağımlı |
 | Boyama banyosu ısıtma | 60–100 | 100–1,000 | Kesikli |
-| Kurutma havası ön ısıtma | 40–80 | 50–400 | Vardiya bazlı |
+| Kurutma havası ön ısıtma | 40–150 | 50–2,000 | Vardiya bazlı |
 | Yakma havası ön ısıtma | 100–300 | 50–500 | Sürekli |
 | Sıcak kullanım suyu (DWH) | 45–60 | 5–50 | Sürekli |
 
@@ -437,6 +438,17 @@ Kural 3: Chiller kondenser ısısı (35-45°C)
   → Düşük sıcaklık ön ısıtma (öncelik 2)
   Detay: ../chiller/solutions/ dizini
 
+Kural 5: Kurutma fırını egzozu (80-150°C)
+  → Kazan besleme suyu ön ısıtma (öncelik 1)
+  → Kurutma havası ön ısıtma / geri devir (öncelik 2)
+  → Bina ısıtma (öncelik 3, kış ayları)
+  Detay: ../dryer/solutions/exhaust_heat_recovery.md, cross_equipment.md
+
+Kural 6: Kazan/fırın → Kurutma havası ön ısıtma
+  → Kazan baca gazı (150-250°C) → kurutma havası ön ısıtma
+  → Kiln/fırın egzozu (250-600°C) → kurutma havası (seramik sektörü)
+  Detay: cross_equipment.md (kurutma entegrasyonu), ../dryer/solutions/
+
 Kural 4: Yüksek sıcaklık kaynaklar (>200°C)
   → ORC ile güç üretimi (büyük kapasite)
   → Buhar üretimi (orta kapasite)
@@ -445,6 +457,16 @@ Kural 4: Yüksek sıcaklık kaynaklar (>200°C)
 
 ## İlgili Dosyalar
 
+### Pinch Analizi Detaylı Bilgi Tabanı (`pinch/`)
+- [Pinch Bilgi Tabanı İndeks](pinch/INDEX.md) — 18 dosyalık detaylı pinch analizi bilgi tabanı navigasyonu
+- [Pinch Temelleri](pinch/fundamentals.md) — Linnhoff metodolojisi, MER hedefleri, 3 altın kural
+- [Bileşik Eğriler](pinch/composite_curves.md) — Hot/Cold composite curve oluşturma
+- [HEN Tasarımı](pinch/hen_design.md) — Grid diyagramı, CP kuralları, akış bölme
+- [HEN Retrofit](pinch/hen_retrofit.md) — Cross-pinch tespiti, aşamalı retrofit
+- [Akış Verisi](pinch/stream_data.md) — Akış verisi çıkarma, ExergyLab entegrasyonu
+- [Utility Sistemleri](pinch/utility_systems.md) — Çoklu utility, CHP, ısı pompası yerleştirme
+
+### Diğer İlgili Dosyalar
 - [Atık Isı Geri Kazanım Teknolojileri](waste_heat_recovery.md) — WHR teknoloji detayları
 - [Kojenerasyon Sistemleri](cogeneration.md) — CHP/CCHP entegrasyonu
 - [Proses Entegrasyonu](process_integration.md) — Pinch analizi ve proses düzeyinde entegrasyon
@@ -453,6 +475,12 @@ Kural 4: Yüksek sıcaklık kaynaklar (>200°C)
 - [Kazan Çözümleri](../boiler/solutions/) — Kazan tarafı ısı geri kazanım
 - [Kompresör Benchmarkları](../compressor/benchmarks.md) — Kompresör atık ısı verileri
 - [Chiller Çözümleri](../chiller/solutions/) — Chiller tarafı ısı geri kazanım
+- [Kurutma Formülleri](../dryer/formulas.md) — Kurutma exergy hesaplamaları
+- [Kurutma Egzoz Isı Geri Kazanımı](../dryer/solutions/exhaust_heat_recovery.md) — Kurutma WHR
+- [Kurutma Hava Geri Deviri](../dryer/solutions/air_recirculation.md) — Hava geri devir optimizasyonu
+- [Kurutma Benchmarkları](../dryer/benchmarks.md) — Kurutma performans referansları
+- [Isı Eşanjörü Bilgi Tabanı](../heat_exchanger/INDEX.md) — Eşanjör tipleri, formüller, benchmarklar
+- [Fouling Yönetimi](../heat_exchanger/solutions/fouling_management.md) — Kirlenme tespiti ve çözümleri
 - [Exergy Temelleri](exergy_fundamentals.md) — Exergy analizi temelleri
 - [KPI Tanımları](kpi_definitions.md) — Performans göstergeleri
 

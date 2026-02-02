@@ -268,7 +268,7 @@ Geri ödeme süresi:
 | Alfa Laval | CB serisi plakalı esanjör | Yüksek verimli, kompakt |
 | Gestra (Flowserve) | BK serisi blowdown sistemi | Alman kalitesi, endüstriyel standart |
 
-## Ilgili Dosyalar
+## İlgili Dosyalar
 
 - Buhar sistemleri genel bakis: `equipment/steam_systems_overview.md`
 - Kazan yakitlari: `equipment/boiler_fuels.md`

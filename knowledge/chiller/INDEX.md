@@ -1,3 +1,13 @@
+---
+title: "Chiller Bilgi Tabanı İndeks (Chiller Knowledge Base Index)"
+category: reference
+equipment_type: chiller
+keywords: [chiller, soğutma, indeks, navigasyon]
+related_files: [knowledge/INDEX.md, knowledge/chiller/formulas.md, knowledge/chiller/benchmarks.md]
+use_when: ["Chiller bilgi tabanı navigasyonu gerektiğinde"]
+priority: high
+last_updated: 2026-02-02
+---
 # Chiller Bilgi Tabanı İndeks
 
 ## Genel Bakış
@@ -46,3 +56,10 @@ Soğutma sistemleri exergy analizi için kapsamlı bilgi tabanı.
 2. Alt tip biliniyorsa `equipment/{subtype}.md` oku
 3. Soğutma tipi (hava/su) bilgisi `equipment/air_cooled.md` veya `water_cooled.md`
 4. Benchmark sonucuna göre ilgili `solutions/*.md` dosyalarına git
+
+## Referanslar
+
+1. ASHRAE (2020). *ASHRAE Handbook — HVAC Systems and Equipment*. ASHRAE.
+2. Dincer, I. & Kanoglu, M. (2010). *Refrigeration Systems and Applications*. 2nd ed., Wiley.
+3. Kotas, T.J. (1985). *The Exergy Method of Thermal Plant Analysis*. Butterworths.
+4. ARI Standard 550/590 (2015). *Water-Chilling Packages Using the Vapor Compression Cycle*.

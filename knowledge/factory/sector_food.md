@@ -22,7 +22,7 @@ Gıda ve içecek sektörü, Türkiye sanayisinin en büyük alt sektörlerinden 
 
 - Toplam tesis sayısı: ~35,000 (kayıtlı gıda üretim tesisi)
 - İstihdam: ~500,000 doğrudan çalışan
-- Yıllık ihracat: ~22-25 milyar USD
+- Yıllık ihracat: ~20-23 milyar EUR
 - Enerji maliyetinin üretim maliyetindeki payı: %5-12
 - Türkiye, dünya gıda üretiminde ilk 10 içinde yer almakta
 - Başlıca üretim merkezleri: İstanbul, İzmir, Bursa, Mersin, Gaziantep
@@ -403,6 +403,24 @@ COP_gerçek = 4.5 (ticari ısı pompası)
 Tasarruf: 1 kWh elektrik ile 4.5 kWh ısı
 Doğalgaz eşdeğeri: 4.5 / 0.88 = 5.11 kWh doğalgaz tasarrufu
 ```
+
+### Kurutma Fırını Uygulamaları (Dryer Applications)
+
+Gıda sektöründe kurutma fırınları kritik proses ekipmanlarıdır:
+
+| Kurutma Tipi | Uygulama | Tipik Kapasite | Referans Dosya |
+|-------------|----------|----------------|----------------|
+| Sprey kurutucu (Spray dryer) | Süt tozu, kahve, baharat | 500-5.000 kg/h | `../../dryer/equipment/spray_dryer.md` |
+| Bant kurutucu (Belt dryer) | Meyve, sebze kurutma | 200-2.000 kg/h | `../../dryer/equipment/belt_dryer.md` |
+| Akışkan yataklı (Fluidized bed) | Granül ürünler, şeker | 100-1.000 kg/h | `../../dryer/equipment/fluidized_bed.md` |
+| Silindir kurutucu (Drum dryer) | Püre, bebek maması | 50-500 kg/h | `../../dryer/equipment/drum_dryer.md` |
+| Dondurarak kurutma (Freeze drying) | Yüksek değerli ürünler | 10-200 kg/batch | — |
+
+**Exergy optimizasyon fırsatları:**
+- Sprey kurutucu egzoz ısısı geri kazanımı → %15-25 enerji tasarrufu
+- Mekanik ön su alma (santrifüj, pres) → termal yükü %30-50 azaltır
+- Kazan buharı → kurutma entegrasyonu: `../../dryer/solutions/exhaust_heat_recovery.md`
+- Sektörel rehber: `../../dryer/sectors/food_drying.md`
 
 ## İlgili Dosyalar
 

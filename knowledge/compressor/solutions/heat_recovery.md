@@ -192,6 +192,7 @@ Sıcak bölgelerde (Bölge 4-5) yaz aylarında HRU'dan elde edilen sıcak su ile
 - Vidalı kompresör: `equipment/compressor_screw.md`
 - Benchmark verileri: `benchmarks/compressor_benchmarks.md` (Bölüm 7)
 - Exergy formülleri: `formulas/compressor_exergy.md` (Bölüm 1.7)
+- Isı eşanjörü ısı geri kazanım rehberi: `../heat_exchanger/solutions/heat_recovery.md`
 
 ## Referanslar
 - Atlas Copco, "Compressed Air Manual," 9th Edition — Heat Recovery Chapter

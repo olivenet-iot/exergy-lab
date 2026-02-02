@@ -427,6 +427,23 @@ Yıllık üretim = 4,000 × 7,500 × 0.90 / 1,000 = 27,000 MWh/yıl
 Yıllık gelir = 27,000 × €0.10/kWh = 2,700,000 €/yıl
 ```
 
+### Isı Eşanjörü Uygulamaları (Heat Exchanger Applications)
+
+Çimento sektöründe ısı eşanjörleri enerji geri kazanımının temel bileşenleridir:
+
+| Eşanjör Uygulaması | Proses | Tipik Tip | Referans Dosya |
+|---------------------|--------|-----------|----------------|
+| Klinker soğutucu (Clinker cooler) | Klinker soğutma + hava ön ısıtma | Grate/tüp soğutucu | `../../heat_exchanger/equipment/recuperator.md` |
+| Ön ısıtıcı (Preheater tower) | Hammadde ön ısıtma | Siklon tipi gaz-katı HX | `../../heat_exchanger/equipment/recuperator.md` |
+| Baca gazı ısı geri kazanım | WHR elektrik üretimi | Ekonomizer + HRSG | `../../heat_exchanger/equipment/economizer.md` |
+| Farin değirmeni soğutma | Değirmen çıkış havası | Hava soğutmalı HX | `../../heat_exchanger/equipment/air_cooled.md` |
+
+**Exergy optimizasyon fırsatları:**
+- Klinker soğutucu optimizasyonu → ikincil/tersiyer hava sıcaklığı artışı (%5-10 yakıt tasarrufu)
+- Ön ısıtıcı kademesi ekleme → spesifik ısı tüketimi azalma
+- Baca gazı WHR → ORC veya buhar türbini ile elektrik üretimi: `../../steam_turbine/equipment/orc.md`
+- Eşanjör yaklaşım sıcaklığı optimizasyonu: `../../heat_exchanger/solutions/approach_temp.md`
+
 ## İlgili Dosyalar
 
 - [Exergy Temelleri](exergy_fundamentals.md) -- Fabrika exergy analiz metodolojisi

@@ -22,7 +22,7 @@ Kimya sektörü, endüstriyel enerji tüketiminin en yüksek olduğu sektörlerd
 
 - Toplam tesis sayısı: ~12,000 (kayıtlı kimya ve petrokimya tesisi)
 - İstihdam: ~200,000 doğrudan çalışan
-- Yıllık üretim değeri: ~35-40 milyar USD
+- Yıllık üretim değeri: ~32-37 milyar EUR
 - Enerji maliyetinin üretim maliyetindeki payı: %15-40 (alt sektöre göre)
 - Başlıca üretim merkezleri: Kocaeli, İstanbul, İzmir, Adana, Mersin (Ceyhan)
 - Türkiye'de petrokimya ithalat bağımlılığı yüksek (%60-70)

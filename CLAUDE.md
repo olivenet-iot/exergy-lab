@@ -2,7 +2,7 @@
 
 ## Proje Özeti
 
-ExergyLab, endüstriyel ekipmanların (kompresör, kazan, chiller, pompa) ve fabrikaların exergy analizini yapan, AI destekli yorumlar sunan bir enerji verimliliği platformudur.
+ExergyLab, endüstriyel ekipmanların (kompresör, kazan, chiller, pompa, ısı eşanjörü, buhar türbini, kurutma fırını) ve fabrikaların exergy analizini yapan, AI destekli yorumlar sunan bir enerji verimliliği platformudur.
 
 **Temel Fark:** Enerji verimi yerine **exergy verimi** odaklı analiz — termodinamiğin 2. yasasına dayalı gerçek verimlilik ölçümü.
 
@@ -31,22 +31,34 @@ exergy-lab/
 │   ├── boiler.py          # Kazan analizi
 │   ├── chiller.py         # Chiller analizi
 │   ├── pump.py            # Pompa analizi
+│   ├── heat_exchanger.py  # Isı eşanjörü analizi
+│   ├── steam_turbine.py   # Buhar türbini analizi
+│   ├── dryer.py           # Kurutma fırını analizi
 │   ├── factory.py         # Fabrika aggregation
 │   └── sankey.py          # Sankey diyagramı verisi
 │
-├── knowledge/              # AI Knowledge Base (124 dosya)
+├── knowledge/              # AI Knowledge Base (305+ dosya)
 │   ├── INDEX.md           # Navigasyon haritası
 │   ├── compressor/        # 18 dosya
 │   ├── boiler/            # 22 dosya
 │   ├── chiller/           # 24 dosya
 │   ├── pump/              # 22 dosya
-│   └── factory/           # 33 dosya
+│   ├── heat_exchanger/    # 21 dosya
+│   ├── steam_turbine/     # 21 dosya
+│   ├── dryer/             # 26 dosya
+│   └── factory/           # 150+ dosya
+│       ├── pinch/         # Pinch analizi (18 dosya)
+│       ├── advanced_exergy/ # İleri exergy analizi (18 dosya)
+│       ├── exergoeconomic/ # Exergoekonomik analiz (21 dosya)
+│       ├── thermoeconomic_optimization/ # Termoekonomik opt. (16 dosya)
+│       ├── entropy_generation/ # Entropi üretim min. (19 dosya)
+│       └── energy_management/ # Enerji yönetimi
 │
-├── skills/                 # AI Skill dosyaları
-│   ├── core/              # Temel beceriler
-│   ├── equipment/         # Ekipman uzmanları
-│   ├── factory/           # Fabrika analizi
-│   └── output/            # Çıktı formatı
+├── skills/                 # AI Skill dosyaları (17 dosya)
+│   ├── core/              # Temel beceriler (3 dosya)
+│   ├── equipment/         # Ekipman uzmanları (7 dosya)
+│   ├── factory/           # Fabrika analizi (3 dosya)
+│   └── output/            # Çıktı formatı (1 dosya)
 │
 ├── frontend/               # React frontend
 │   └── src/
@@ -144,6 +156,16 @@ pytest tests/test_engine.py -v
 3. **Sektörel Benchmark:** Her sektörün farklı exergy profili var (gıda vs çimento).
 
 4. **AI Yorumu:** Engine hesaplar, AI yorumlar. İkisi birbirini tamamlar.
+
+## İleri Analiz Yöntemleri
+
+ExergyLab bilgi tabanı aşağıdaki ileri analiz yöntemlerini destekler:
+
+1. **Pinch Analizi:** Linnhoff metodolojisi, composite curve, GCC, HEN tasarımı — `knowledge/factory/pinch/`
+2. **İleri Exergy Analizi:** AV/UN, EN/EX, 4-yollu dekompozisyon — `knowledge/factory/advanced_exergy/`
+3. **Exergoekonomik Analiz:** SPECO, Ċ_D, f_k/r_k değerlendirmesi — `knowledge/factory/exergoeconomic/`
+4. **Termoekonomik Optimizasyon:** Parametrik, yapısal, çok amaçlı optimizasyon — `knowledge/factory/thermoeconomic_optimization/`
+5. **Entropi Üretim Minimizasyonu (EGM):** Bejan sayısı, Gouy-Stodola, constructal yasa — `knowledge/factory/entropy_generation/`
 
 ## Katkıda Bulunma
 

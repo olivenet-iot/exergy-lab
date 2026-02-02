@@ -87,6 +87,78 @@ Statik head / Toplam head oranı:
 | Motor upgrade (IE3→IE4) | %2-4 | €100-200/kW | 3-5 yıl |
 | Boru sistemi optimizasyonu | %5-15 | Değişken | 1-3 yıl |
 
+## EGM Bazlı Tasarım Kuralları
+
+### Optimum Boru Çapı
+Bejan'ın boru akışı optimizasyonundan:
+```
+D_opt ∝ (ṁ × f / Nu)^(1/6)
+```
+İzotermik (yalıtımlı) boru için basitleştirme:
+- Sürtünme entropi üretimi: S_gen = ṁ × ΔP / (ρ × T)
+- Büyük çap → düşük S_gen ama yüksek yatırım
+- Küçük çap → yüksek S_gen ama düşük yatırım
+- Optimum: dC_total/dD = 0
+
+### Throttle Valve — Tamamen İrreversibl
+Kısma vanası termodinamiğin en verimsiz kontrol yöntemidir:
+```
+S_gen_vana = ṁ × ΔP / (ρ × T)    [kW/K]
+```
+Bu entropi üretiminin %100'ü kayıptır — hiçbir faydalı iş üretilmez.
+**Her zaman VSD veya bypass ile değiştirmeyi değerlendir.**
+
+### Vana Kayıpları Entropi Karşılığı
+| Vana/Fitting Tipi | K (kayıp katsayısı) | 10 kg/s, DN100'de S_gen (W/K) |
+|-------------------|---------------------|-------------------------------|
+| Küresel vana (tam açık) | 0.05-0.1 | 0.01-0.02 |
+| Sürgülü vana (tam açık) | 0.1-0.2 | 0.02-0.04 |
+| Kelebek vana (tam açık) | 0.2-0.5 | 0.04-0.10 |
+| Çekvalf (yaylı) | 1.0-2.5 | 0.20-0.50 |
+| 90° dirsek (standart) | 0.3-0.6 | 0.06-0.12 |
+| 90° dirsek (uzun radius) | 0.15-0.25 | 0.03-0.05 |
+| T-bağlantı (dal akış) | 1.0-1.5 | 0.20-0.30 |
+| Kısma vanası (%50 açık) | 5-15 | 1.0-3.0 |
+
+**Pratik kural:** Kısma vanası, açık bir küresel vanaya göre 50-150 kat daha fazla entropi üretir.
+
+### Pompa Sistemi Bejan Sayısı
+- Be < 0.3 (tipik) — sürtünme baskın → boru/vana optimizasyonu öncelikli
+- Pompa sistemlerinde ısı transferi irreversibility genellikle düşüktür
+
+Detaylı bilgi: `knowledge/factory/entropy_generation/pipe_flow_egm.md`
+
+## İleri Exergy Referans Değerleri
+
+### Kaçınılamaz Koşullar (Pompa)
+| Parametre | Kaçınılamaz Değer | Kaynak |
+|-----------|-------------------|--------|
+| Hidrolik verim (η_h) — Santrifüj | 0.85-0.90 | BAT santrifüj pompa |
+| Hidrolik verim (η_h) — Pozitif deplasman | 0.80-0.88 | BAT referansı |
+| Mekanik verim (η_mech) | 0.98-0.99 | Modern mekanik sızdırmazlık |
+| Motor verimi (η_motor) | 0.96-0.97 | IE4 sınıfı |
+| Kısma vanası | YOK (VSD kontrol) | Vana = tamamen kaçınılabilir |
+
+### Tipik 4-Yollu Dekompozisyon (Santrifüj Pompa)
+| Kategori | Tipik Oran (vanalı) | Tipik Oran (VSD'li) |
+|----------|---------------------|---------------------|
+| I_EN_AV | %45-60 | %20-30 |
+| I_EN_UN | %20-30 | %40-55 |
+| I_EX_AV | %8-15 | %10-15 |
+| I_EX_UN | %5-10 | %10-15 |
+
+### Göreceli Kaçınılabilirlik (θ)
+- Pompa + kısma vanası tipik θ: 0.55-0.75 → YÜKSEK
+- Pompa + VSD tipik θ: 0.25-0.40 → ORTA
+- **Kısma vanası θ = 1.0** (tamamen kaçınılabilir — izentalpik genleşme)
+- θ > 0.5 → Kısma vanası var mı kontrol et, VSD retrofit planla
+- θ < 0.3 → Pompa zaten optimize (muhtemelen VSD mevcut)
+
+### Önemli Not
+Pompa I_total küçük olabilir (5-15 kW) ama θ çok yüksek olabilir (0.55-0.75). Bu, pompanın yatırım başına en verimli iyileştirme hedefi olabileceğini gösterir. Mutlak değer ile göreceli θ'yı birlikte değerlendir.
+
+Detaylı bilgi: `knowledge/factory/advanced_exergy/equipment_specific/pump_advanced.md`
+
 ## Throttle Analizi
 
 ```

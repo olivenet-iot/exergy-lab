@@ -22,7 +22,7 @@ Tekstil sektörü, Türkiye'nin en büyük sanayi kollarından biri olup toplam 
 
 - Toplam tesis sayısı: ~45,000 (kayıtlı tekstil işletmesi)
 - İstihdam: ~1,000,000 doğrudan çalışan
-- Yıllık ihracat: ~18-20 milyar USD
+- Yıllık ihracat: ~17-18 milyar EUR
 - Enerji maliyetinin üretim maliyetindeki payı: %8-15
 - Başlıca üretim merkezleri: Bursa, Denizli, Gaziantep, İstanbul, Adana, Kahramanmaraş
 

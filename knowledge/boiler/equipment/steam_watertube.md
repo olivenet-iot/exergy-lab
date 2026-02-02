@@ -244,7 +244,7 @@ Burada:
 | Buhar kacak onarimi | %1-3 | 5.000 - 20.000 | <0.5 yil |
 | Yakma sistemi modernizasyonu | %2-4 | 100.000 - 500.000 | 2-4 yil |
 
-## Ilgili Dosyalar
+## İlgili Dosyalar
 - Ates borulu buhar kazani: `equipment/boiler_steam_firetube.md`
 - Yakit verileri ve isil degerler: `fuels/fuel_properties.md`
 - Kazan benchmark verileri: `benchmarks/boiler_benchmarks.md`

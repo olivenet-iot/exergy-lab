@@ -1,3 +1,13 @@
+---
+title: "Kompresör Bilgi Tabanı İndeks (Compressor Knowledge Base Index)"
+category: reference
+equipment_type: compressor
+keywords: [kompresör, basınçlı hava, indeks, navigasyon]
+related_files: [knowledge/INDEX.md, knowledge/compressor/formulas.md, knowledge/compressor/benchmarks.md]
+use_when: ["Kompresör bilgi tabanı navigasyonu gerektiğinde"]
+priority: high
+last_updated: 2026-02-02
+---
 # Kompresör Bilgi Tabanı İndeks
 
 ## Genel Bakış
@@ -40,3 +50,9 @@ Basınçlı hava sistemleri exergy analizi için kapsamlı bilgi tabanı.
 2. Alt tip biliniyorsa `equipment/{subtype}.md` oku
 3. Benchmark sonucuna göre ilgili `solutions/*.md` dosyalarına git
 4. Audit planlanıyorsa `audit.md` ek referans olarak kullan
+
+## Referanslar
+
+1. Compressed Air & Gas Institute (CAGI). *Compressed Air and Gas Handbook*. 7th ed.
+2. Saidur, R., Rahim, N.A. & Hasanuzzaman, M. (2010). "A review on compressed-air energy use and energy savings." *Renewable and Sustainable Energy Reviews*, 14(4), 1135-1153.
+3. Kotas, T.J. (1985). *The Exergy Method of Thermal Plant Analysis*. Butterworths.

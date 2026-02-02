@@ -491,6 +491,128 @@ Buhar sistemi entegrasyon fırsatları:
    - Geri ödeme: 3–12 ay
 ```
 
+## 6A. Kurutma Fırını Entegrasyonları (Dryer Cross-Equipment Integration)
+
+### 6A.1 Kazan Baca Gazı → Kurutma Havası Ön Isıtma
+
+```
+Çalışma prensibi:
+Kazan baca gazı (150-250°C) ısı eşanjörü ile kurutma giriş havasını
+ön ısıtmak için kullanılır. Kurutma fırınları büyük hacimde sıcak
+hava tükettiğinden, bu entegrasyon önemli yakıt tasarrufu sağlar.
+
+Konfigürasyon:
+Baca gazı → Ekonomizer/eşanjör → Kurutma havası ön ısıtma
+
+Hesaplama:
+- Baca gazı: 200°C, 5,000 Nm³/h
+- Geri kazanılabilir ısı: Q̇ = 120 kW (200°C → 140°C soğutma)
+- Kurutma havası debisi: 8,000 m³/h
+- Hava sıcaklık artışı: ΔT = Q̇ / (ṁ_hava × Cp)
+  = 120 / (8,000/3,600 × 1.2 × 1.005) = 44.5°C
+  → Ortam 20°C → 64.5°C ön ısıtma
+
+Yakıt tasarrufu:
+E_tasarruf = 120 × 6,000 / 0.88 = 818,182 kWh/yıl
+C_tasarruf = 818,182 × €0.045 = €36,818/yıl
+
+Yatırım: €25,000 (gaz-hava eşanjör + kanal + kontrol)
+SPP = 25,000 / 36,818 = 0.68 yıl
+
+Dikkat:
+- Baca gazı tarafı korozyona dayanıklı malzeme (asit çiğ noktası)
+- Kurutma havası kontaminasyon riski → dolaylı eşanjör tercih
+- Baca gazı basınç düşüşü → ID fan güç artışı hesaplanmalı
+```
+
+### 6A.2 Kompresör Atık Isısı → Düşük Sıcaklık Kurutma
+
+```
+Çalışma prensibi:
+Kompresör atık ısısı (70-90°C) düşük sıcaklık kurutma uygulamalarında
+(kereste, gıda, tekstil ön kurutma) hava ön ısıtma için kullanılabilir.
+
+Uygun kurutma tipleri:
+- Kereste kurutma fırını (50-80°C)
+- Gıda kurutma (40-70°C)
+- Isı pompalı kurutucu destek ısıtma
+
+Hesaplama:
+- Kompresör: 55 kW, su soğutmalı, %75 yük
+- Q̇_geri = 55 × 0.75 × 0.70 = 28.9 kW
+- Kurutma havası: 3,000 m³/h
+- ΔT = 28.9 / (3,000/3,600 × 1.2 × 1.005) = 28.8°C
+  → 20°C → 48.8°C (kereste kurutma için yeterli başlangıç)
+
+Yıllık tasarruf: 28.9 × 6,000 / 0.88 × €0.045 = €8,873/yıl
+Yatırım: €12,000 (eşanjör + fan-coil + boru + kontrol)
+SPP = 12,000 / 8,873 = 1.35 yıl
+```
+
+### 6A.3 Kurutma Egzozu → Kazan Besleme Suyu Ön Isıtma
+
+```
+Çalışma prensibi:
+Kurutma fırını egzoz havası (80-150°C) kazan besleme suyunu
+ön ısıtmak için kullanılabilir. Egzoz havası nemli olduğundan
+yoğuşmalı ısı geri kazanımı ile gizli ısı da alınabilir.
+
+Hesaplama:
+- Kurutma egzozu: 120°C, 6,000 m³/h, %40 bağıl nem
+- Eşanjör ile soğutma: 120°C → 70°C
+- Q̇_geri = 6,000/3,600 × 1.1 × 1.02 × (120 - 70) × 0.65 = 60 kW
+  (gizli ısı dahil edilirse: ~80 kW)
+
+Besleme suyu etkisi:
+- Kazan 6 ton/h buhar, besleme suyu 15°C
+- ΔT = 80 / (6,000/3,600 × 4.18) = 11.5°C (15°C → 26.5°C)
+
+Yıllık tasarruf: 80 × 5,000 / 0.88 × €0.045 = €20,455/yıl
+Yatırım: €18,000 (hava-su eşanjör + boru + pompa + kontrol)
+SPP = 18,000 / 20,455 = 0.88 yıl
+
+Dikkat:
+- Egzoz havası toz/partikül içerebilir → ön filtre gerekli
+- Yoğuşma suyu drenajı → korozyon önleme
+- Kurutma ile kazan çalışma saatleri eşzamanlı olmalı
+```
+
+### 6A.4 Fırın/Kiln Egzozu → Kurutma Havası (Seramik Sektörü)
+
+```
+Çalışma prensibi:
+Seramik ve tuğla sektöründe, pişirme fırını (kiln) egzozu
+250-600°C sıcaklığındadır. Bu yüksek sıcaklık, kurutma
+fırınına doğrudan veya dolaylı olarak aktarılabilir.
+Bu entegrasyon seramik sektöründe yaygın ve yüksek tasarruf sağlar.
+
+Hesaplama:
+- Kiln egzozu: 400°C, 8,000 Nm³/h
+- Kurutma ihtiyacı: 150°C hava, 6,000 m³/h
+- Karışım/eşanjör ile: 400°C gaz → 200°C soğutma
+- Q̇_transfer = 350 kW
+
+Yakıt tasarrufu: Kurutma fırını yakıtının %50-80'i karşılanabilir
+Yıllık tasarruf: 350 × 5,000 / 0.88 × €0.045 = €89,489/yıl
+Yatırım: €50,000-80,000 (eşanjör + kanal + fan + kontrol)
+SPP = 65,000 / 89,489 = 0.73 yıl
+
+Uygulamalar:
+- Tuğla fabrikası: Tünel kiln → kurutma odası
+- Seramik karo: Roller kiln → kurutma fırını
+- Çimento: Klinker soğutucu → hammadde kurutma
+```
+
+### 6A.5 Kurutma Entegrasyon Karar Matrisi
+
+| No | Kaynak (Source) | Hedef (Target) | Uyumluluk | T_kaynak [°C] | Tipik Tasarruf [€/yıl] | Yatırım [€] | SPP [yıl] |
+|---|---|---|---|---|---|---|---|
+| 17 | Kazan baca gazı | Kurutma havası ön ısıtma | +++ | 150-250 | 20,000-80,000 | 15,000-40,000 | 0.5-1.5 |
+| 18 | Kompresör atık ısı | Düşük sıcaklık kurutma | ++ | 70-90 | 5,000-15,000 | 8,000-15,000 | 1.0-2.5 |
+| 19 | Kurutma egzozu | Kazan besleme suyu | ++ | 80-150 | 10,000-30,000 | 12,000-25,000 | 0.8-2.0 |
+| 20 | Fırın/kiln egzozu | Kurutma havası | +++ | 250-600 | 40,000-150,000 | 40,000-100,000 | 0.5-1.5 |
+| 21 | Kurutma egzozu | Bina ısıtma (kış) | + | 80-120 | 3,000-10,000 | 5,000-15,000 | 1.5-3.0 |
+
 ## 7. Karar Matrisi — Ekipmanlar Arası Entegrasyon (Decision Matrix)
 
 ### 7.1 Kapsamlı Kaynak-Hedef Kombinasyonları
@@ -513,6 +635,9 @@ Buhar sistemi entegrasyon fırsatları:
 | 14 | Kazan kondensat | Besleme suyu geri dönüş | +++ | 80–100 | 5,000–20,000 | 5,000–15,000 | 0.5–1.5 | 67–200 |
 | 15 | Chiller + kompresör | Ortak soğutma kulesi | ++ | — | 3,000–10,000 | 8,000–20,000 | 1.5–3.0 | 33–67 |
 | 16 | CHP egzoz | Kazan besleme suyu | +++ | 450–550 | 20,000–80,000 | 30,000–80,000 | 1.0–2.5 | 40–100 |
+| 17 | Türbin exhaust buhar | Proses ısıtma (BP CHP) | +++ | 120–200 | 30,000–200,000 | 300,000–2,000,000 | 3.0–6.0 | 17–33 |
+| 18 | CHP elektrik | Fabrika ekipman besleme | +++ | — | 50,000–500,000 | 300,000–3,000,000 | 3.0–7.0 | 14–33 |
+| 19 | Proses/motor atık ısı | ORC ile elektrik üretimi | ++ | 80–350 | 15,000–100,000 | 200,000–2,000,000 | 4.0–7.0 | 14–25 |
 
 ### 7.2 Uyumluluk Puanlama Kriterleri
 
@@ -786,6 +911,14 @@ IF kazan_kapasite > minimum_ihtiyaç × 1.3
 THEN öneri: "Fazla buhar → Absorpsiyon chiller (CCHP)"
   Q̇_abs = Q̇_buhar_fazlası × COP_abs
   SPP_tahmini = 4–6 yıl
+
+Kural Seti 8 — PRV Değiştirme (Buhar Türbini):
+IF PRV_mevcut = TRUE AND ṁ_buhar > 3 ton/h
+  AND ΔP_PRV > 10 bar AND çalışma_süresi > 4,000 h/yıl
+THEN öneri: "PRV yerine mikro/küçük buhar türbini kur"
+  Ẇ_potansiyel = ṁ × (h_HP - h_LP) × η_is × η_mek × η_jen
+  Referans: steam_turbine/equipment/micro_turbine.md
+  SPP_tahmini = 2–5 yıl
 ```
 
 ### 9.3 Entegrasyon Çakışma Yönetimi
@@ -1028,6 +1161,18 @@ Faz 3 (6–12 ay): Kompresör ısı geri kazanım + chiller desuperheater (€22
 - [Chiller Çözümleri](../chiller/solutions/) — Chiller optimizasyon önerileri
 - [Pompa Formülleri](../pump/formulas.md) — Pompa enerji hesaplamaları
 - [Pompa Çözümleri](../pump/solutions/) — Pompa optimizasyon önerileri
+- [Kurutma Formülleri](../dryer/formulas.md) — Kurutma exergy hesaplamaları
+- [Kurutma Benchmarkları](../dryer/benchmarks.md) — Kurutma performans referansları
+- [Kurutma Çözümleri](../dryer/solutions/) — Kurutma optimizasyon önerileri
+- [Kurutma Egzoz Isı Geri Kazanımı](../dryer/solutions/exhaust_heat_recovery.md) — Egzoz WHR detayları
+- [Buhar Türbini Formülleri](../steam_turbine/formulas.md) — Türbin exergy hesaplamaları
+- [Buhar Türbini Benchmarkları](../steam_turbine/benchmarks.md) — Türbin verim karşılaştırma
+- [Buhar Türbini CHP](../steam_turbine/systems/steam_turbine_chp.md) — CHP konfigürasyonları
+- [ORC](../steam_turbine/equipment/orc.md) — Atık ısıdan elektrik (düşük T)
+- [Mikro Türbin PRV](../steam_turbine/equipment/micro_turbine.md) — PRV ikamesi
+- [CHP Fizibilite](../steam_turbine/economics/feasibility.md) — CHP yatırım fizibilitesi
+- [Isı Eşanjörü Benchmarklar](../heat_exchanger/benchmarks.md) — Eşanjör performans verileri
+- [Isı Eşanjörü Çözümleri](../heat_exchanger/solutions/heat_recovery.md) — Isı geri kazanım detayları
 - [Exergy Temelleri](exergy_fundamentals.md) — Exergy analizi temelleri
 - [Sistem Sınırları](system_boundaries.md) — Entegrasyon sınır tanımları
 

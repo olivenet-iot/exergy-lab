@@ -151,6 +151,7 @@ class ClaudeCodeClient:
             for factory_skill in [
                 "factory/factory_analyst.md",
                 "factory/integration_expert.md",
+                "factory/economic_advisor.md",
             ]:
                 content = self._load_skill(factory_skill)
                 if content:
@@ -196,6 +197,7 @@ class ClaudeCodeClient:
                 "knowledge/factory/cross_equipment.md",
                 "knowledge/factory/prioritization.md",
                 "knowledge/factory/factory_benchmarks.md",
+                "knowledge/factory/exergoeconomic/evaluation_criteria.md",
             ])
             if sector:
                 files.append(f"knowledge/factory/sector_{sector}.md")

@@ -68,6 +68,79 @@ Kondenser approach temperature:
 - > 5°C: Temizlik/bakım gerekli
 ```
 
+## EGM Bazlı Tasarım Kuralları
+
+### Genleşme Vanası — En Büyük Entropi Kaynağı
+Buhar sıkıştırmalı soğutma çevriminde genleşme vanası toplam S_gen'in %30-40'ını oluşturur:
+```
+S_gen_exp = ṁ_ref × (s_out - s_in)   [kW/K]
+```
+İzentalpik genleşme (h_in = h_out) tamamen irreversible bir süreçtir. Azaltma yolları:
+- Ejektör: Genleşme enerjisinin %15-20'sini geri kazanır → S_gen %15-20 azalır
+- Turbo-ekspander: Mil işi olarak geri kazanım → S_gen %30-50 azalır
+- Ekonomizer (subcooling): Flash gaz oranını düşürür → etkin S_gen azalır
+- Kaskad sistem: Basınç farkını kademelere böler
+
+### Optimum Evaporatör/Kondenser Approach Temperature
+```
+Approach_opt: min(S_gen_ΔT + S_gen_ΔP) → tipik 3-5°C
+```
+- Her 1°C kondenser approach azalması → COP %2-3 artar
+- Her 1°C evaporatör approach azalması → COP %2-4 artar
+- Kondenser optimizasyonu genellikle daha etkilidir (ortam sıcaklığına yakın, büyük ΔT)
+
+### Bejan Sayısı — Chiller Bileşenleri
+| Bileşen | Tipik Be | Baskın Kaynak | Aksiyon |
+|---------|----------|---------------|---------|
+| Kondenser | 0.60-0.80 | Isı transferi | Approach temp düşür, temizle |
+| Evaporatör | 0.50-0.70 | Isı transferi | Approach temp düşür |
+| Kompresör | 0.25-0.45 | Sürtünme | Verimli kompresör seç |
+| Genleşme vanası | N/A | Throttling | Ejektör/subcooling değerlendir |
+
+### Soğutucu Akışkan ve EGM
+- R-134a: Dengeli performans, yaygın
+- R-1234yf/ze: Düşük GWP, benzer S_gen profili
+- R-290 (propan): Yüksek COP → düşük S_gen, ama yanıcılık riski
+- R-744 (CO₂): Transkritik çevrimde yüksek throttling S_gen, kompakt ekipman
+
+Detaylı bilgi: `knowledge/factory/entropy_generation/refrigeration_egm.md`
+
+## İleri Exergy Referans Değerleri
+
+### Kaçınılamaz Koşullar (Chiller)
+| Parametre | Kaçınılamaz Değer | Kaynak |
+|-----------|-------------------|--------|
+| COP referansı | COP_Carnot × 0.60-0.70 | Morosuk & Tsatsaronis 2011 |
+| Kompresör η_is — Santrifüj | 0.82-0.88 | BAT referansı |
+| Kompresör η_is — Vidalı | 0.78-0.84 | BAT referansı |
+| Kondenser approach ΔT | 2-3°C | Shell&tube minimum |
+| Evaporatör approach ΔT | 2-3°C | Shell&tube minimum |
+| Genleşme | İzentalpik (vana) | Termodinamik limit |
+
+### Tipik 4-Yollu Dekompozisyon (Santrifüj Chiller)
+| Kategori | Tipik Oran | Açıklama |
+|----------|-----------|----------|
+| I_EN_AV | %28-38 | Kompresör verimi, approach temp iyileştirme |
+| I_EN_UN | %35-45 | Termodinamik limit (Carnot) |
+| I_EX_AV | %10-18 | Soğutma kulesi, kondenser suyu etkisi |
+| I_EX_UN | %6-12 | Sistem yapısal limiti |
+
+### Göreceli Kaçınılabilirlik (θ)
+- Chiller tipik θ: 0.40-0.55 → ORTA-YÜKSEK
+- Santrifüj θ ≈ 0.45-0.55, Vidalı θ ≈ 0.40-0.50, Scroll θ ≈ 0.35-0.45
+- θ > 0.5 → Kondenser temizliği, VSD retrofit, soğutma kulesi optimizasyonu
+- θ < 0.35 → Chiller iyi durumda, sistem entegrasyonuna odaklan
+
+### Alt Bileşen Bazında θ
+| Alt Bileşen | Tipik θ | En Etkili Aksiyon |
+|-------------|---------|-------------------|
+| Kompresör | 0.35-0.45 | VSD, verimli motor |
+| Kondenser | 0.40-0.55 | Temizlik, soğutma kulesi opt. |
+| Evaporatör | 0.25-0.40 | Approach temp azaltma |
+| Genleşme vanası | 0.30-0.40 | Ejektör retrofit (ileri) |
+
+Detaylı bilgi: `knowledge/factory/advanced_exergy/equipment_specific/chiller_advanced.md`
+
 ## Tipik Öneriler ve ROI
 
 | Öneri | Tasarruf | Yatırım | ROI |

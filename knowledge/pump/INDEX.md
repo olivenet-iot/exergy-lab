@@ -1,3 +1,13 @@
+---
+title: "Pompa Bilgi Tabanı İndeks (Pump Knowledge Base Index)"
+category: reference
+equipment_type: pump
+keywords: [pompa, pompalama, indeks, navigasyon]
+related_files: [knowledge/INDEX.md, knowledge/pump/formulas.md, knowledge/pump/benchmarks.md]
+use_when: ["Pompa bilgi tabanı navigasyonu gerektiğinde"]
+priority: high
+last_updated: 2026-02-02
+---
 # Pompa Bilgi Tabanı İndeks
 
 ## Genel Bakış
@@ -45,3 +55,10 @@ Pompalama sistemleri exergy analizi için kapsamlı bilgi tabanı.
 3. Motor bilgisi için `equipment/motors_drives.md` referans al
 4. Benchmark sonucuna göre ilgili `solutions/*.md` dosyalarına git
 5. Throttle kontrol varsa `solutions/throttle_elimination.md` öncelikli
+
+## Referanslar
+
+1. Europump & Hydraulic Institute (2004). *Variable Speed Pumping: A Guide to Successful Applications*. Elsevier.
+2. Karassik, I.J. et al. (2008). *Pump Handbook*. 4th ed., McGraw-Hill.
+3. Kotas, T.J. (1985). *The Exergy Method of Thermal Plant Analysis*. Butterworths.
+4. ISO 9906 (2012). *Rotodynamic pumps — Hydraulic performance acceptance tests*.

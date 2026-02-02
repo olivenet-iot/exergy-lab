@@ -294,7 +294,7 @@ Tesis: 10 ton/saat buhar kazani, dogalgaz, 6,000 saat/yil
 | Silika birikimi | Ozellikle yuksek basincli kazanlarda | RO veya demineralizasyon, silika izleme |
 | Kondensat kontaminasyonu | Proses kaynakli kirlilik kazan suyuna karismasi | Kondensat kalite izleme, otomatik divert |
 
-## Ilgili Dosyalar
+## İlgili Dosyalar
 - Kazan benchmark verileri: `benchmarks/boiler_benchmarks.md`
 - Buhar kazani (firetube): `equipment/boiler_steam_firetube.md`
 - Buhar kazani (watertube): `equipment/boiler_steam_watertube.md`

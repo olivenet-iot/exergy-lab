@@ -296,7 +296,7 @@ Burada:
 
 **Not:** Hava on isiticide ekserji verimi enerji veriminden onemli olcude dusuktur; cunku dusuk sicaklikli akiskanlar arasindaki isi transferi tersinmezdir.
 
-## Ilgili Dosyalar
+## İlgili Dosyalar
 
 - Kazan yakitlari ve ozellikleri: `equipment/boiler_fuels.md`
 - Buhar sistemleri genel bakis: `equipment/steam_systems_overview.md`

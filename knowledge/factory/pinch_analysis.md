@@ -3,10 +3,10 @@ title: "Pinch Analizi ve Isı Entegrasyonu (Pinch Analysis and Heat Integration)
 category: factory
 equipment_type: factory
 keywords: [pinch analizi, ısı değiştirici, entegrasyon]
-related_files: [factory/heat_integration.md, factory/process_integration.md, factory/waste_heat_recovery.md]
-use_when: ["Pinch analizi yapılırken", "Isı değiştirici ağı optimize edilirken"]
+related_files: [factory/heat_integration.md, factory/process_integration.md, factory/waste_heat_recovery.md, factory/pinch/INDEX.md, factory/pinch/fundamentals.md, factory/pinch/composite_curves.md, factory/pinch/problem_table.md, factory/pinch/grand_composite.md, factory/pinch/hen_design.md, factory/pinch/targeting.md, factory/pinch/delta_t_min.md]
+use_when: ["Pinch analizi yapılırken", "Isı değiştirici ağı optimize edilirken", "Detaylı pinch metodolojisi gerektiğinde"]
 priority: medium
-last_updated: 2026-01-31
+last_updated: 2026-02-01
 ---
 # Pinch Analizi ve Isı Entegrasyonu (Pinch Analysis and Heat Integration)
 
@@ -793,6 +793,52 @@ Pinch Analizi Kontrol Listesi:
 □ Uygulama risk değerlendirmesi yapıldı mı?
 □ Operasyonel esneklik değerlendirildi mi?
 ```
+
+## 15. Detaylı Bilgi Tabanı (Pinch Knowledge Base)
+
+Bu dosya pinch analizinin temellerini ve hesaplama örneklerini içerir. Daha kapsamlı ve ileri düzey bilgi için `pinch/` alt dizinindeki 18 dosyalık bilgi tabanını kullanın:
+
+### Çekirdek Dosyalar (Faz 1)
+| Dosya | Konu | Öncelik |
+|-------|------|---------|
+| [pinch/INDEX.md](pinch/INDEX.md) | Navigasyon haritası, yükleme kuralları | HIGH |
+| [pinch/fundamentals.md](pinch/fundamentals.md) | Linnhoff metodolojisi, MER hedefleri, 3 altın kural, exergy bağlantısı | HIGH |
+| [pinch/composite_curves.md](pinch/composite_curves.md) | Hot/Cold composite curve oluşturma, sıcaklık aralığı yöntemi | HIGH |
+| [pinch/problem_table.md](pinch/problem_table.md) | PTA algoritması, sıcaklık kaydırma, kaskad, düzeltilmiş kaskad | HIGH |
+| [pinch/grand_composite.md](pinch/grand_composite.md) | GCC oluşturma, ısı cebi, utility yerleştirme, CHP potansiyeli | HIGH |
+
+### Tasarım ve Hedefleme Dosyaları (Faz 2)
+| Dosya | Konu | Öncelik |
+|-------|------|---------|
+| [pinch/hen_design.md](pinch/hen_design.md) | Grid diyagramı, CP kuralları, akış bölme, tick-off, döngü kırma | HIGH |
+| [pinch/targeting.md](pinch/targeting.md) | Enerji/alan/maliyet/eşanjör sayısı hedefleri, Bath formülü | HIGH |
+| [pinch/delta_t_min.md](pinch/delta_t_min.md) | ΔTmin seçimi, süperhedefleme, TAC optimizasyonu, sektörel değerler | HIGH |
+
+### Pratik ve İleri Dosyalar (Faz 3)
+| Dosya | Konu | Öncelik |
+|-------|------|---------|
+| [pinch/stream_data.md](pinch/stream_data.md) | Akış verisi çıkarma, yumuşak/katı akışlar, faz değişimi | MEDIUM |
+| [pinch/hen_retrofit.md](pinch/hen_retrofit.md) | Cross-pinch tespiti, network pinch, aşamalı retrofit | MEDIUM |
+| [pinch/utility_systems.md](pinch/utility_systems.md) | Çoklu utility seviyeleri, GCC ile yerleştirme, CHP, ısı pompası | MEDIUM |
+| [pinch/cost_estimation.md](pinch/cost_estimation.md) | Eşanjör maliyet modelleri, Bath formülü, TAC, NPV, IRR | MEDIUM |
+| [pinch/batch_integration.md](pinch/batch_integration.md) | Zaman dilimi/ortalama modeli, TES, üretim programı optimizasyonu | MEDIUM |
+| [pinch/total_site.md](pinch/total_site.md) | Total Site Analysis, site profilleri, buhar seviye optimizasyonu | MEDIUM |
+| [pinch/practical_guide.md](pinch/practical_guide.md) | Proje yönetimi, veri toplama, uygulama, devreye alma, kontrol listesi | MEDIUM |
+| [pinch/common_mistakes.md](pinch/common_mistakes.md) | Veri/metodoloji/tasarım/uygulama hataları, tespit yöntemleri | MEDIUM |
+
+### Referans Dosyaları (Faz 4)
+| Dosya | Konu | Öncelik |
+|-------|------|---------|
+| [pinch/software_tools.md](pinch/software_tools.md) | Ticari/akademik/açık kaynak araçlar, Python implementasyonu | LOW |
+| [pinch/case_studies.md](pinch/case_studies.md) | 7 sektörel vaka çalışması, karşılaştırma tablosu | LOW |
+
+### Yükleme Kuralları
+- **Temel pinch sorusu:** `pinch/fundamentals.md` yükle
+- **Enerji hedefleme:** `pinch/composite_curves.md` + `pinch/problem_table.md` + `pinch/targeting.md`
+- **HEN tasarımı:** `pinch/hen_design.md` + `pinch/fundamentals.md`
+- **Retrofit analizi:** `pinch/hen_retrofit.md` + `pinch/practical_guide.md`
+- **Utility optimizasyonu:** `pinch/utility_systems.md` + `pinch/grand_composite.md`
+- **Ekonomik analiz:** `pinch/cost_estimation.md` + `pinch/delta_t_min.md`
 
 ## İlgili Dosyalar
 

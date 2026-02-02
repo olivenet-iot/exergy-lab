@@ -196,6 +196,7 @@ Yıllık_yakıt_tasarrufu = 1,163,793 × 4.5 / 100 = €52,371/yıl
 - Baca gazı ısı kaybı formülleri: `formulas/boiler_exergy.md`
 - Kazan bakım optimizasyonu: `solutions/boiler_maintenance.md`
 - Kazan yoğuşma ısı geri kazanımı: `solutions/boiler_condensate_recovery.md`
+- Isı eşanjörü ekonomizer detayları: `../heat_exchanger/equipment/economizer.md`
 
 ## Referanslar
 - ASME PTC 4, "Fired Steam Generators — Performance Test Codes"

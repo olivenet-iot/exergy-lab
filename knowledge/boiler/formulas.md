@@ -803,7 +803,7 @@ Maliyet_tasarrufu = 114,400 x 0.44 = 50,336 EUR/yil
    isi transferi tersinmezligi basitlestirilmis modelle hesaplanmistir.
    Detayli CFD analizi daha dogru sonuc verebilir.
 
-## Ilgili Dosyalar
+## İlgili Dosyalar
 
 - `knowledge/formulas/compressor_exergy.md` - Kompresor exergy hesaplamalari
 - `knowledge/equipment/compressed_air_systems.md` - Basinclı hava sistemleri

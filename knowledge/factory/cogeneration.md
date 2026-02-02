@@ -495,6 +495,16 @@ Teşvikler:
 - [Chiller Formülleri](../chiller/formulas.md) — Absorpsiyon chiller hesaplamaları (CCHP)
 - [Kompresör Formülleri](../compressor/formulas.md) — Basınçlı hava enerji hesaplamaları
 - [Exergy Temelleri](exergy_fundamentals.md) — CHP exergy analizi temelleri
+- [Buhar Türbini Formülleri](../steam_turbine/formulas.md) — Türbin exergy hesaplamaları, izentropik verim, CHP formülleri
+- [Buhar Türbini Benchmarkları](../steam_turbine/benchmarks.md) — Türbin verim karşılaştırma, sektörel benchmark
+- [Buhar Türbini CHP](../steam_turbine/systems/steam_turbine_chp.md) — BP/extraction/condensing CHP konfigürasyonları
+- [Gaz Türbini CHP](../steam_turbine/systems/gas_turbine_chp.md) — GT + HRSG CHP, kombine çevrim
+- [Motor CHP](../steam_turbine/systems/engine_chp.md) — Gaz motoru CHP, ısı geri kazanım katmanları
+- [Trijenerasyon](../steam_turbine/systems/trigeneration.md) — CCHP absorpsiyon chiller entegrasyonu
+- [HRSG](../steam_turbine/systems/hrsg.md) — HRSG türbin perspektifinden, basınç seçimi
+- [ORC](../steam_turbine/equipment/orc.md) — Organic Rankine Cycle, düşük sıcaklık kaynaklardan elektrik
+- [Mikro Türbin PRV](../steam_turbine/equipment/micro_turbine.md) — PRV ikamesi ile güç üretimi
+- [CHP Fizibilite](../steam_turbine/economics/feasibility.md) — CHP yatırım fizibilitesi, NPV/IRR
 
 ## Referanslar
 

@@ -322,6 +322,9 @@ Burada:
 - Gaz türbini ekserji analizi: `equipment/gas_turbine.md`
 - Buhar türbini ekserji analizi: `equipment/steam_turbine.md`
 - Kombine çevrim enerji santralleri: `systems/combined_cycle.md`
+- HRSG türbin perspektifinden: `../../steam_turbine/systems/hrsg.md` — Basınç seçimi, pinch/approach optimizasyonu, duct firing exergy etkisi
+- Gaz türbini CHP: `../../steam_turbine/systems/gas_turbine_chp.md` — GT + HRSG kombine çevrim CHP konfigürasyonları
+- Buhar türbini formülleri: `../../steam_turbine/formulas.md` — Türbin exergy hesaplamaları
 
 ## Referanslar
 - Ganapathy, V. (2003). *Industrial Boilers and Heat Recovery Steam Generators: Design, Applications, and Calculations*, Marcel Dekker.

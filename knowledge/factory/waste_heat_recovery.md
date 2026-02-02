@@ -609,6 +609,65 @@ Ekonomik değerlendirme:
 | Teknik risk | Yüksek | Orta | Düşük | Minimal | — |
 | Entegrasyon kolaylığı | Zor | Orta | Kolay | Plug-and-play | — |
 
+## 8A. Kurutma Fırını Atık Isı Geri Kazanımı (Dryer WHR)
+
+### 8A.1 Kurutma Egzoz Havası Geri Kazanımı
+
+```
+Kurutma fırınları, toplam enerji girişinin %35-50'sini egzoz
+havası ile kaybeder. Bu kayıp, en büyük tek enerji kaybı
+kaynağıdır ve geri kazanım potansiyeli yüksektir.
+
+Egzoz özellikleri:
+- Sıcaklık: 80-150°C (konvektif kurutucular)
+- Nem: %20-80 bağıl nem (kurutulan ürüne bağlı)
+- Debi: 2,000-50,000 m³/h
+- İçerik: Toz, lif, VOC (ürüne bağlı)
+
+WHR teknoloji seçimi:
+
+1. Hava-hava plakalı eşanjör (Air-to-air plate HX):
+   - Verimlilik: %50-70
+   - Yatırım: 20-40 €/kW
+   - Avantaj: Basit, düşük bakım, kontaminasyon yok
+   - Dezavantaj: Fouling riski, boyut
+
+2. Isı tekeri (Rotary heat wheel):
+   - Verimlilik: %70-85
+   - Yatırım: 30-60 €/kW
+   - Avantaj: Kompakt, yüksek verim, nem transferi mümkün
+   - Dezavantaj: Çapraz kontaminasyon (%1-5), kaçak
+
+3. Runaround coil (dolaylı):
+   - Verimlilik: %40-60
+   - Yatırım: 40-80 €/kW
+   - Avantaj: Kaynak-kullanıcı ayrı, kontaminasyon yok
+   - Dezavantaj: Çift ΔT kaybı, pompa güç tüketimi
+
+4. Isı pompası (yoğuşmalı geri kazanım):
+   - Verimlilik: COP 3-5 (nem yoğuşturma + ısı geri kazanım)
+   - Yatırım: 200-500 €/kW
+   - Avantaj: En yüksek enerji geri kazanımı, kapalı döngü
+   - Dezavantaj: Yüksek yatırım, bakım
+
+Seçim kriterleri:
+- Egzoz T > 100°C, temiz hava → Plakalı HX veya ısı tekeri
+- Egzoz T > 100°C, kirli hava → Runaround coil
+- Egzoz T < 80°C → Isı pompası (yoğuşmalı)
+- Kurutma T < 80°C → Isı pompalı kurutucu retrofit
+```
+
+### 8A.2 Kurutma WHR Performans Tablosu
+
+| Kurutucu Tipi | Egzoz T [°C] | WHR Teknoloji | Geri Kazanım [%] | Yatırım [€] | SPP [yıl] |
+|---|---|---|---|---|---|
+| Tünel kurutucu | 100-150 | Plakalı HX / ısı tekeri | 15-25 | 20,000-60,000 | 1.0-2.0 |
+| Bant kurutucu | 80-120 | Plakalı HX + geri devir | 10-20 | 15,000-40,000 | 0.8-1.5 |
+| Döner kurutucu | 100-180 | Runaround coil | 10-20 | 25,000-70,000 | 1.5-2.5 |
+| Sprey kurutucu | 70-100 | Isı tekeri / plakalı HX | 10-15 | 30,000-80,000 | 1.5-3.0 |
+| Silindir kurutucu | 80-120 | Kondensat optimizasyonu | 5-10 | 10,000-30,000 | 0.5-1.5 |
+| Stenter (tekstil) | 120-180 | Plakalı HX + VOC geri kazanım | 15-25 | 40,000-100,000 | 1.5-3.0 |
+
 ## 9. ExergyLab Platformunda WHR Değerlendirmesi
 
 ### 9.1 Platform Algoritması
@@ -620,6 +679,7 @@ ExergyLab WHR değerlendirme süreci:
    - Kazan: baca gazı sıcaklığı → economizer potansiyeli
    - Kompresör: soğutma sistemi → ısı geri kazanım potansiyeli
    - Chiller: kondenser → desuperheater, ısı pompası
+   - Kurutma fırını: egzoz havası → HX, ısı tekeri, geri devir, ısı pompası
 
 2. Her kaynak için uygun WHR teknolojilerini listele
    - Sıcaklık bazlı filtreleme
@@ -648,6 +708,13 @@ ExergyLab WHR değerlendirme süreci:
 - [Kompresör Çözümleri](../compressor/solutions/) — Kompresör ısı geri kazanım
 - [Chiller Formülleri](../chiller/formulas.md) — Chiller performans hesaplamaları
 - [Chiller Çözümleri](../chiller/solutions/) — Kondenser ısı geri kazanım
+- [Kurutma Formülleri](../dryer/formulas.md) — Kurutma exergy hesaplamaları
+- [Kurutma Egzoz Isı Geri Kazanımı](../dryer/solutions/exhaust_heat_recovery.md) — Kurutma WHR detayları
+- [Kurutma Hava Geri Deviri](../dryer/solutions/air_recirculation.md) — Kurutma hava optimizasyonu
+- [Kurutma Isı Pompası Retrofit](../dryer/solutions/heat_pump_retrofit.md) — HP kurutucu dönüşüm
+- [Isı Eşanjörü Bilgi Tabanı](../heat_exchanger/INDEX.md) — Eşanjör tip seçimi ve performans
+- [Eşanjör Isı Geri Kazanım](../heat_exchanger/solutions/heat_recovery.md) — Eşanjör bazlı WHR detayları
+- [Reküperatörler](../heat_exchanger/equipment/recuperator.md) — Baca gazı ısı geri kazanım eşanjörleri
 - [Exergy Temelleri](exergy_fundamentals.md) — Exergy analizi temelleri
 
 ## Referanslar

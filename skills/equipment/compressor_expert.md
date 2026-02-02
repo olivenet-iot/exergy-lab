@@ -75,6 +75,69 @@ Geri kazanılabilir ısı = Motor gücü × 0.90 × 0.75
 
 ## Yanıt Örneği
 
+## EGM Bazlı Tasarım Kuralları
+
+### Optimum Basınç Oranı / Kademe
+Çok kademeli kompresörlerde her kademenin basınç oranı eşit olmalıdır:
+```
+r_opt = (P_out/P_in)^(1/n)
+```
+- n: kademe sayısı
+- Eşit basınç oranı → minimum toplam S_gen
+
+### Ara Soğutma Sıcaklığı (Intercooling)
+İki kademeli kompresörde optimal ara soğutma sıcaklığı:
+```
+T_inter = √(T_in × T_out)
+```
+Geometrik ortalama → her kademede eşit entropi üretimi.
+
+### Entropi Üretim Kaynakları
+| Kaynak | S_gen Payı | Bejan Sayısı |
+|--------|-----------|--------------|
+| Mekanik sürtünme | %30-40 | Be < 0.5 |
+| Gaz sıkıştırma ısısı | %25-35 | Be > 0.5 |
+| Karışma/sızıntı | %15-25 | — |
+| Motor kayıpları | %10-15 | — |
+
+### Pratik EGM Kuralları
+- VSD ile kısmi yükte S_gen %30-50 azaltılabilir (yük/boşta döngüsüne kıyasla)
+- Ara soğutma: 2 kademe için S_gen %15-25 azalır (tek kademeye göre)
+- Atık ısı geri kazanımı S_gen'i azaltmaz ama sistem genelinde exergy yıkımını düşürür
+- Kaçaklar: her %1 kaçak ≈ %1 ilave S_gen (gereksiz sıkıştırma)
+
+Detaylı bilgi: `knowledge/factory/entropy_generation/power_cycles_egm.md`
+
+## İleri Exergy Referans Değerleri
+
+### Kaçınılamaz Koşullar (Kompresör)
+| Parametre | Kaçınılamaz Değer | Kaynak |
+|-----------|-------------------|--------|
+| İzentropik verim (η_is) — Vidalı | 0.92 | Tsatsaronis & Morosuk 2008 |
+| İzentropik verim (η_is) — Santrifüj | 0.95 | Kelly et al. 2009 |
+| İzentropik verim (η_is) — Pistonlu | 0.90 | Morosuk & Tsatsaronis 2011 |
+| Mekanik verim (η_mech) | 0.98-0.99 | BAT referansı |
+| Motor verimi (η_motor) | 0.96-0.97 | IE4 sınıfı |
+| Aftercooler ΔT | 5°C | Plate HX minimum |
+| Ara soğutucu ΔP | 0.05-0.10 bar | Minimum akış direnci |
+
+### Tipik 4-Yollu Dekompozisyon (Vidalı Kompresör)
+| Kategori | Tipik Oran | Açıklama |
+|----------|-----------|----------|
+| I_EN_AV | %25-35 | VSD, kademeli sıkıştırma ile azaltılabilir |
+| I_EN_UN | %45-55 | Sıkıştırma termodinamik limiti |
+| I_EX_AV | %5-10 | Soğutma sistemi etkileşimi |
+| I_EX_UN | %8-12 | Sistem yapısal limiti |
+
+### Göreceli Kaçınılabilirlik (θ)
+- Vidalı kompresör tipik θ: 0.30-0.40
+- θ > 0.4 → VSD retrofit ve/veya kademeli sıkıştırma öner
+- θ < 0.25 → Kompresör zaten iyi durumda, sistem optimizasyonuna odaklan
+
+Detaylı bilgi: `knowledge/factory/advanced_exergy/equipment_specific/compressor_advanced.md`
+
+## Yanıt Örneği
+
 ```json
 {
   "summary": "37 kW vidalı kompresör %58 exergy verimi ile kabul edilebilir seviyede çalışıyor ancak atık ısı geri kazanım potansiyeli değerlendirilmeli.",

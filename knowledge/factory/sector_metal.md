@@ -420,6 +420,24 @@ Yıllık enerji (EAF çalışma saati 6,000 h, ortalama %40 kapasitede):
 = 45,864 × €0.10/kWh = 4,586,400 €/yıl
 ```
 
+### Kurutma Fırını Uygulamaları (Dryer Applications)
+
+Metal sektöründe kurutma fırınları kaplama ve yüzey işlem süreçlerinde kullanılır:
+
+| Kurutma Uygulaması | Proses | Tipik Tip | Referans Dosya |
+|---------------------|--------|-----------|----------------|
+| Boya kurutma/pişirme | Toz boya, sıvı boya | Tünel/konveyör kurutucu | `../../dryer/equipment/tunnel_dryer.md` |
+| Yüzey ön kurutma | Yıkama sonrası su uzaklaştırma | Kızılötesi kurutucu | `../../dryer/equipment/infrared_dryer.md` |
+| Kaplama kurutma | Galvaniz, krom, anodize | Bant kurutucu | `../../dryer/equipment/belt_dryer.md` |
+| Döküm kalıp kurutma | Hassas döküm kalıpları | Döner/tünel kurutucu | `../../dryer/equipment/rotary_dryer.md` |
+
+**Exergy optimizasyon fırsatları:**
+- Boya fırını egzoz ısısı → taze hava ön ısıtma (%20-30 tasarruf)
+- Kızılötesi kurutma → konvektif kurutmaya göre %30-50 daha hızlı
+- IR + konvektif hibrit kurutma → optimum enerji ve kalite dengesi
+- Kurutma sıcaklık optimizasyonu: `../../dryer/solutions/temperature_optimization.md`
+- Yalıtım iyileştirmesi: `../../dryer/solutions/insulation.md`
+
 ## İlgili Dosyalar
 
 - [Exergy Temelleri](exergy_fundamentals.md) -- Fabrika exergy analiz metodolojisi

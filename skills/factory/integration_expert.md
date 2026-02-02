@@ -12,6 +12,12 @@ knowledge_files:
   - knowledge/factory/heat_integration.md
   - knowledge/factory/waste_heat_recovery.md
   - knowledge/factory/pinch_analysis.md
+  - knowledge/factory/pinch/INDEX.md
+  - knowledge/factory/pinch/fundamentals.md
+  - knowledge/factory/pinch/hen_design.md
+  - knowledge/factory/pinch/hen_retrofit.md
+  - knowledge/factory/pinch/utility_systems.md
+  - knowledge/factory/pinch/stream_data.md
 ---
 
 # Entegrasyon Uzmanı
@@ -58,6 +64,69 @@ Besleme suyu: 20°C → 60°C
 | Heat recovery unit | €200-400 | /kW |
 | Absorption chiller | €300-500 | /kW soğutma |
 | ORC sistemi | €2000-4000 | /kW elektrik |
+
+## Pinch Tabanlı Eşleştirme Kuralları
+
+### Golden Rule Kontrolü (Altın Kural)
+
+```
+Pinch üstü eşleştirme:
+- CP_hot ≤ CP_cold (sıcak akış CP'si soğuk akıştan küçük veya eşit olmalı)
+- Aksi halde akış bölme (stream splitting) gerekli
+- Sıcak akış sayısı ≤ soğuk akış sayısı
+
+Pinch altı eşleştirme:
+- CP_cold ≤ CP_hot (soğuk akış CP'si sıcak akıştan küçük veya eşit olmalı)
+- Aksi halde akış bölme gerekli
+- Soğuk akış sayısı ≤ sıcak akış sayısı
+```
+
+### Cross-Pinch Transfer Tespiti ve Uyarı
+
+```
+Cross-pinch transfer kontrolü:
+1. Mevcut eşanjörler pinch sıcaklığının her iki tarafında mı çalışıyor?
+2. Cross-pinch transfer miktarı = QH,mevcut - QH,min
+3. Cross-pinch > %10 ise → "Pinch ihlali tespit edildi" uyarısı ver
+
+Uyarı mesajı:
+"Bu eşanjör pinch noktası üzerinden ısı transfer ediyor.
+ Cross-pinch transfer: X kW → Toplam utility artışı: 2×X kW
+ Referans: pinch/hen_retrofit.md"
+```
+
+### HEN Retrofit Değerlendirmesi
+
+```
+Retrofit önceliklendirme:
+1. En büyük cross-pinch transferi olan eşanjörü belirle
+2. Mevcut eşanjör alanının yeterliliğini değerlendir
+3. Yeni eşanjör ekleme vs. mevcut yeniden borulama (repiping) karşılaştır
+4. Network pinch analizi ile kısıtlayıcı eşanjörü bul
+
+Referans: knowledge/factory/pinch/hen_retrofit.md
+```
+
+### Kurutma Fırını Entegrasyon Kalıpları (Dryer Integration)
+
+| Kaynak | Hedef | Entegrasyon | Tasarruf Potansiyeli |
+|--------|-------|-------------|---------------------|
+| Kurutma fırını egzozu | Isı geri kazanım eşanjörü | Egzoz havası → taze hava ön ısıtma | %15-30 enerji tasarrufu |
+| Kurutma fırını egzozu | Absorpsiyonlu chiller | Egzoz ısısı → soğutma üretimi | Serbest soğutma kapasitesi |
+| Kazan buharı | Kurutma fırını | Buhar → kurutma ısısı | Doğrudan ısı kaynağı |
+| Kompresör atık ısısı | Kurutma fırını ön ısıtma | Atık ısı → hava ön ısıtma | %5-15 enerji tasarrufu |
+| Kurutma fırını | Mekanik ön su alma | Termal öncesi mekanik kurutma | %30-50 enerji azalma |
+
+### Buhar Türbini / CHP Entegrasyon Kalıpları (Steam Turbine Integration)
+
+| Kaynak | Hedef | Entegrasyon | Tasarruf Potansiyeli |
+|--------|-------|-------------|---------------------|
+| Kazan yüksek basınçlı buhar | Karşı basınçlı türbin | HP buhar → elektrik + LP buhar | Elektrik üretimi + proses buharı |
+| Türbin çıkış buharı | Proses ısıtma / kurutma | LP/MP buhar → proses ihtiyacı | CHP verimi %75-85 |
+| Baca gazı atık ısısı | ORC türbin | Düşük sıcaklık → elektrik | %5-12 ek elektrik |
+| PRV (basınç düşürme vanası) | Mikro türbin ikamesi | Basınç enerjisi → elektrik | %100 enerji geri kazanım |
+| Türbin kondensat | Kazan besleme suyu | Sıcak kondensat geri dönüş | %5-10 yakıt tasarrufu |
+| Gaz türbini egzozu | HRSG → buhar türbini | Kombine çevrim | Verim %50 → %55-60 |
 
 ## Dikkat Edilecekler
 
