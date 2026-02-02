@@ -10,7 +10,9 @@ from dataclasses import dataclass
 from typing import Optional
 import math
 
-from .core import DeadState, ExergyResult, celsius_to_kelvin
+import copy
+
+from .core import DeadState, ExergyResult, compute_avoidable_split, celsius_to_kelvin
 
 try:
     from CoolProp.CoolProp import PropsSI
@@ -41,6 +43,17 @@ FUEL_LHV = {
     'biomass': 17000.0,
     'lpg': 46100.0,
     'diesel': 43000.0,
+}
+
+# Best-achievable parameters per boiler type (Tsatsaronis & Morosuk 2008)
+UNAVOIDABLE_REF_BOILER = {
+    'steam_firetube':  {'excess_air_pct': 5.0, 'flue_gas_temp_C': 120.0, 'blowdown_rate_pct': 1.0},
+    'steam_watertube': {'excess_air_pct': 5.0, 'flue_gas_temp_C': 120.0, 'blowdown_rate_pct': 1.0},
+    'hotwater':        {'excess_air_pct': 5.0, 'flue_gas_temp_C': 100.0},
+    'condensing':      {'excess_air_pct': 3.0, 'flue_gas_temp_C': 55.0},
+    'waste_heat':      {'flue_gas_temp_C': 100.0},
+    'electric':        {},
+    'biomass':         {'excess_air_pct': 15.0, 'flue_gas_temp_C': 150.0, 'blowdown_rate_pct': 1.0},
 }
 
 # Reference state for water (25C, 1 atm, liquid)
@@ -136,6 +149,9 @@ class BoilerResult(ExergyResult):
             "benchmark_comparison": self.benchmark_comparison,
             "benchmark_percentile": _calculate_percentile(self.exergy_efficiency_pct, boiler_type),
             "comparison_text": _get_comparison_text(self.benchmark_comparison),
+            "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
+            "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -225,7 +241,7 @@ def _get_feedwater_properties(temp_C: float, pressure_bar: float) -> tuple:
 # Analysis function
 # ---------------------------------------------------------------------------
 
-def analyze_boiler(input_data: BoilerInput, dead_state: DeadState = None) -> BoilerResult:
+def analyze_boiler(input_data: BoilerInput, dead_state: DeadState = None, _calc_avoidable: bool = True) -> BoilerResult:
     """
     Kazan exergy analizi yapar.
 
@@ -359,7 +375,7 @@ def analyze_boiler(input_data: BoilerInput, dead_state: DeadState = None) -> Boi
 
     benchmark = _get_benchmark_comparison(eta_ex, input_data.boiler_type)
 
-    return BoilerResult(
+    result = BoilerResult(
         exergy_in_kW=Ex_in,
         exergy_out_kW=Ex_out,
         exergy_destroyed_kW=Ex_destroyed,
@@ -373,6 +389,21 @@ def analyze_boiler(input_data: BoilerInput, dead_state: DeadState = None) -> Boi
         blowdown_loss_kW=blowdown_loss,
         benchmark_comparison=benchmark,
     )
+
+    # AV/UN split
+    if _calc_avoidable and Ex_destroyed > 0:
+        ref_params = UNAVOIDABLE_REF_BOILER.get(input_data.boiler_type, {})
+        if ref_params:
+            un_input = copy.deepcopy(input_data)
+            for k, v in ref_params.items():
+                setattr(un_input, k, v)
+            un_result = analyze_boiler(un_input, dead_state=dead_state, _calc_avoidable=False)
+            av, un, ratio = compute_avoidable_split(Ex_destroyed, un_result.exergy_destroyed_kW)
+            result.exergy_destroyed_avoidable_kW = av
+            result.exergy_destroyed_unavoidable_kW = un
+            result.avoidable_ratio_pct = ratio
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -424,6 +455,9 @@ def generate_boiler_sankey_data(result: BoilerResult, boiler_type: str = "steam_
             "recoverable_heat_kW": round(flue_gas, 2),
             "irreversibility_kW": round(combustion + radiation + blowdown, 2),
             "efficiency_pct": round(result.exergy_efficiency_pct, 1),
+            "exergy_destroyed_avoidable_kW": round(getattr(result, 'exergy_destroyed_avoidable_kW', 0.0) or 0.0, 2),
+            "exergy_destroyed_unavoidable_kW": round(getattr(result, 'exergy_destroyed_unavoidable_kW', 0.0) or 0.0, 2),
+            "avoidable_ratio_pct": round(getattr(result, 'avoidable_ratio_pct', 0.0) or 0.0, 1),
         },
     }
 

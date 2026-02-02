@@ -9,8 +9,10 @@ from dataclasses import dataclass
 from typing import Optional
 import math
 
+import dataclasses
+
 from .core import (
-    DeadState, ExergyResult,
+    DeadState, ExergyResult, compute_avoidable_split,
     celsius_to_kelvin,
     heat_exergy
 )
@@ -30,6 +32,14 @@ SATURATION_TEMP = {
     10.0: 179.9,  15.0: 198.3,  20.0: 212.4, 25.0: 224.0,
     30.0: 233.9,  40.0: 250.4,  50.0: 263.9, 60.0: 275.6,
     80.0: 295.0,  100.0: 311.0,
+}
+
+
+# Best-achievable efficiencies per turbine type (Tsatsaronis & Morosuk 2008)
+UNAVOIDABLE_REF_STEAM_TURBINE = {
+    'backpressure': {'isentropic_efficiency': 0.90, 'mechanical_efficiency': 0.99, 'generator_efficiency': 0.98},
+    'condensing':   {'isentropic_efficiency': 0.92, 'mechanical_efficiency': 0.99, 'generator_efficiency': 0.98},
+    'extraction':   {'isentropic_efficiency': 0.88, 'mechanical_efficiency': 0.99, 'generator_efficiency': 0.98},
 }
 
 
@@ -173,6 +183,9 @@ class SteamTurbineResult(ExergyResult):
             "benchmark_comparison": self.benchmark_comparison,
             "benchmark_percentile": _calculate_percentile(self.exergy_efficiency_pct, turbine_type),
             "comparison_text": _get_comparison_text(self.benchmark_comparison),
+            "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
+            "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -180,7 +193,7 @@ class SteamTurbineResult(ExergyResult):
 # Analysis function
 # ---------------------------------------------------------------------------
 
-def analyze_steam_turbine(input_data: SteamTurbineInput, dead_state: DeadState = None) -> SteamTurbineResult:
+def analyze_steam_turbine(input_data: SteamTurbineInput, dead_state: DeadState = None, _calc_avoidable: bool = True) -> SteamTurbineResult:
     """
     Buhar türbini exergy analizi yapar.
 
@@ -266,7 +279,7 @@ def analyze_steam_turbine(input_data: SteamTurbineInput, dead_state: DeadState =
     # --- Benchmark ---
     benchmark = _get_turbine_benchmark(eta_ex, input_data.turbine_type)
 
-    return SteamTurbineResult(
+    result = SteamTurbineResult(
         exergy_in_kW=Ex_in,
         exergy_out_kW=Ex_out_flow,
         exergy_destroyed_kW=Ex_destroyed,
@@ -286,6 +299,24 @@ def analyze_steam_turbine(input_data: SteamTurbineInput, dead_state: DeadState =
         annual_electricity_revenue_EUR=annual_elec_revenue,
         benchmark_comparison=benchmark,
     )
+
+    # AV/UN split — construct new instance to trigger __post_init__ recalculation
+    if _calc_avoidable and Ex_destroyed > 0:
+        ref_params = UNAVOIDABLE_REF_STEAM_TURBINE.get(input_data.turbine_type, {})
+        if ref_params:
+            fields_dict = {f.name: getattr(input_data, f.name) for f in dataclasses.fields(type(input_data))}
+            fields_dict.update(ref_params)
+            if input_data.is_chp:
+                fields_dict['heat_recovery_fraction'] = max(input_data.heat_recovery_fraction, 0.85)
+            fields_dict['outlet_temp_C'] = None  # Force __post_init__ to recalculate
+            un_input = type(input_data)(**fields_dict)
+            un_result = analyze_steam_turbine(un_input, dead_state=dead_state, _calc_avoidable=False)
+            av, un, ratio = compute_avoidable_split(Ex_destroyed, un_result.exergy_destroyed_kW)
+            result.exergy_destroyed_avoidable_kW = av
+            result.exergy_destroyed_unavoidable_kW = un
+            result.avoidable_ratio_pct = ratio
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -314,41 +345,96 @@ def generate_steam_turbine_sankey_data(result: SteamTurbineResult, turbine_type:
         Ex_exhaust *= scale
         Ex_destroyed *= scale
 
+    # AV/UN split for destruction node
+    av_kW = getattr(result, 'exergy_destroyed_avoidable_kW', 0.0) or 0.0
+    un_kW = getattr(result, 'exergy_destroyed_unavoidable_kW', 0.0) or 0.0
+    has_av_un = (av_kW > 0 or un_kW > 0)
+
+    # Scale AV/UN to match normalized Ex_destroyed
+    if has_av_un:
+        av_un_total = av_kW + un_kW
+        if av_un_total > 0:
+            av_norm = Ex_destroyed * (av_kW / av_un_total)
+            un_norm = Ex_destroyed * (un_kW / av_un_total)
+        else:
+            av_norm = Ex_destroyed
+            un_norm = 0.0
+
     if is_chp:
         W_elec = result.electrical_power_kW or 0
         heat_rec_ex = result.heat_recovered_exergy_kW or 0
 
-        nodes = [
-            {"id": 0, "name": "Buhar Exergy", "name_en": "Steam Exergy"},
-            {"id": 1, "name": "Elektrik Uretimi", "name_en": "Electricity Generation"},
-            {"id": 2, "name": "Isi Geri Kazanim", "name_en": "Heat Recovery"},
-            {"id": 3, "name": "Egzoz Exergy", "name_en": "Exhaust Exergy"},
-            {"id": 4, "name": "Exergy Yikimi", "name_en": "Exergy Destruction"},
-        ]
-        links = []
-        if W_elec > 0:
-            links.append({"source": 0, "target": 1, "value": round(W_elec, 2), "label": "Elektrik Cikisi"})
-        if heat_rec_ex > 0:
-            links.append({"source": 0, "target": 2, "value": round(heat_rec_ex, 2), "label": "Isi Geri Kazanimi"})
-        remaining_exhaust = max(Ex_exhaust - heat_rec_ex, 0)
-        if remaining_exhaust > 0:
-            links.append({"source": 0, "target": 3, "value": round(remaining_exhaust, 2), "label": "Egzoz Kaybi"})
-        if Ex_destroyed > 0:
-            links.append({"source": 0, "target": 4, "value": round(Ex_destroyed, 2), "label": "Tersinmezlik"})
+        if has_av_un:
+            nodes = [
+                {"id": 0, "name": "Buhar Exergy", "name_en": "Steam Exergy"},
+                {"id": 1, "name": "Elektrik Uretimi", "name_en": "Electricity Generation"},
+                {"id": 2, "name": "Isi Geri Kazanim", "name_en": "Heat Recovery"},
+                {"id": 3, "name": "Egzoz Exergy", "name_en": "Exhaust Exergy"},
+                {"id": 4, "name": "Exergy Yikimi (Onlenebilir)", "name_en": "Exergy Destruction (Avoidable)", "color": "#e74c3c"},
+                {"id": 5, "name": "Exergy Yikimi (Onlenemez)", "name_en": "Exergy Destruction (Unavoidable)", "color": "#95a5a6"},
+            ]
+            links = []
+            if W_elec > 0:
+                links.append({"source": 0, "target": 1, "value": round(W_elec, 2), "label": "Elektrik Cikisi"})
+            if heat_rec_ex > 0:
+                links.append({"source": 0, "target": 2, "value": round(heat_rec_ex, 2), "label": "Isi Geri Kazanimi"})
+            remaining_exhaust = max(Ex_exhaust - heat_rec_ex, 0)
+            if remaining_exhaust > 0:
+                links.append({"source": 0, "target": 3, "value": round(remaining_exhaust, 2), "label": "Egzoz Kaybi"})
+            if av_norm > 0.01:
+                links.append({"source": 0, "target": 4, "value": round(av_norm, 2), "label": "Onlenebilir Kayiplar"})
+            if un_norm > 0.01:
+                links.append({"source": 0, "target": 5, "value": round(un_norm, 2), "label": "Onlenemez Kayiplar"})
+        else:
+            nodes = [
+                {"id": 0, "name": "Buhar Exergy", "name_en": "Steam Exergy"},
+                {"id": 1, "name": "Elektrik Uretimi", "name_en": "Electricity Generation"},
+                {"id": 2, "name": "Isi Geri Kazanim", "name_en": "Heat Recovery"},
+                {"id": 3, "name": "Egzoz Exergy", "name_en": "Exhaust Exergy"},
+                {"id": 4, "name": "Exergy Yikimi", "name_en": "Exergy Destruction"},
+            ]
+            links = []
+            if W_elec > 0:
+                links.append({"source": 0, "target": 1, "value": round(W_elec, 2), "label": "Elektrik Cikisi"})
+            if heat_rec_ex > 0:
+                links.append({"source": 0, "target": 2, "value": round(heat_rec_ex, 2), "label": "Isi Geri Kazanimi"})
+            remaining_exhaust = max(Ex_exhaust - heat_rec_ex, 0)
+            if remaining_exhaust > 0:
+                links.append({"source": 0, "target": 3, "value": round(remaining_exhaust, 2), "label": "Egzoz Kaybi"})
+            if Ex_destroyed > 0:
+                links.append({"source": 0, "target": 4, "value": round(Ex_destroyed, 2), "label": "Tersinmezlik"})
     else:
-        nodes = [
-            {"id": 0, "name": "Buhar Exergy", "name_en": "Steam Exergy"},
-            {"id": 1, "name": "Shaft Work", "name_en": "Shaft Work"},
-            {"id": 2, "name": "Egzoz Exergy", "name_en": "Exhaust Exergy"},
-            {"id": 3, "name": "Exergy Yikimi", "name_en": "Exergy Destruction"},
-        ]
-        links = []
-        if W_shaft > 0:
-            links.append({"source": 0, "target": 1, "value": round(W_shaft, 2), "label": "Mekanik Is"})
-        if Ex_exhaust > 0:
-            links.append({"source": 0, "target": 2, "value": round(Ex_exhaust, 2), "label": "Egzoz Kaybi"})
-        if Ex_destroyed > 0:
-            links.append({"source": 0, "target": 3, "value": round(Ex_destroyed, 2), "label": "Tersinmezlik"})
+        if has_av_un:
+            nodes = [
+                {"id": 0, "name": "Buhar Exergy", "name_en": "Steam Exergy"},
+                {"id": 1, "name": "Shaft Work", "name_en": "Shaft Work"},
+                {"id": 2, "name": "Egzoz Exergy", "name_en": "Exhaust Exergy"},
+                {"id": 3, "name": "Exergy Yikimi (Onlenebilir)", "name_en": "Exergy Destruction (Avoidable)", "color": "#e74c3c"},
+                {"id": 4, "name": "Exergy Yikimi (Onlenemez)", "name_en": "Exergy Destruction (Unavoidable)", "color": "#95a5a6"},
+            ]
+            links = []
+            if W_shaft > 0:
+                links.append({"source": 0, "target": 1, "value": round(W_shaft, 2), "label": "Mekanik Is"})
+            if Ex_exhaust > 0:
+                links.append({"source": 0, "target": 2, "value": round(Ex_exhaust, 2), "label": "Egzoz Kaybi"})
+            if av_norm > 0.01:
+                links.append({"source": 0, "target": 3, "value": round(av_norm, 2), "label": "Onlenebilir Kayiplar"})
+            if un_norm > 0.01:
+                links.append({"source": 0, "target": 4, "value": round(un_norm, 2), "label": "Onlenemez Kayiplar"})
+        else:
+            nodes = [
+                {"id": 0, "name": "Buhar Exergy", "name_en": "Steam Exergy"},
+                {"id": 1, "name": "Shaft Work", "name_en": "Shaft Work"},
+                {"id": 2, "name": "Egzoz Exergy", "name_en": "Exhaust Exergy"},
+                {"id": 3, "name": "Exergy Yikimi", "name_en": "Exergy Destruction"},
+            ]
+            links = []
+            if W_shaft > 0:
+                links.append({"source": 0, "target": 1, "value": round(W_shaft, 2), "label": "Mekanik Is"})
+            if Ex_exhaust > 0:
+                links.append({"source": 0, "target": 2, "value": round(Ex_exhaust, 2), "label": "Egzoz Kaybi"})
+            if Ex_destroyed > 0:
+                links.append({"source": 0, "target": 3, "value": round(Ex_destroyed, 2), "label": "Tersinmezlik"})
 
     title = 'Buhar Turbini Exergy Akisi' + (' (CHP)' if is_chp else '')
 
@@ -361,6 +447,9 @@ def generate_steam_turbine_sankey_data(result: SteamTurbineResult, turbine_type:
             "recoverable_heat_kW": round(result.heat_recovered_exergy_kW or 0, 2),
             "irreversibility_kW": round(Ex_destroyed, 2),
             "efficiency_pct": round(result.exergy_efficiency_pct, 1),
+            "exergy_destroyed_avoidable_kW": round(av_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(un_kW, 2),
+            "avoidable_ratio_pct": round(getattr(result, 'avoidable_ratio_pct', 0.0) or 0.0, 1),
         },
     }
 

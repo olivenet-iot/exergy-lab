@@ -318,6 +318,8 @@ def _calculate_aggregates(results: List[dict]) -> dict:
     total_destroyed = 0.0
     total_annual_loss_kwh = 0.0
     total_annual_loss_eur = 0.0
+    total_avoidable = 0.0
+    total_unavoidable = 0.0
 
     for r in results:
         a = r["analysis"]
@@ -326,8 +328,11 @@ def _calculate_aggregates(results: List[dict]) -> dict:
         total_destroyed += a.get("exergy_destroyed_kW", 0)
         total_annual_loss_kwh += a.get("annual_loss_kWh", 0) or 0
         total_annual_loss_eur += a.get("annual_loss_EUR", 0) or 0
+        total_avoidable += a.get("exergy_destroyed_avoidable_kW", 0) or 0
+        total_unavoidable += a.get("exergy_destroyed_unavoidable_kW", 0) or 0
 
     factory_efficiency = (total_out / total_in * 100) if total_in > 0 else 0.0
+    avoidable_ratio = (total_avoidable / total_destroyed * 100) if total_destroyed > 0 else 0.0
 
     return {
         "total_exergy_input_kW": round(total_in, 2),
@@ -337,6 +342,9 @@ def _calculate_aggregates(results: List[dict]) -> dict:
         "total_annual_loss_kWh": round(total_annual_loss_kwh, 0),
         "total_annual_loss_EUR": round(total_annual_loss_eur, 0),
         "equipment_count": len(results),
+        "total_exergy_destroyed_avoidable_kW": round(total_avoidable, 2),
+        "total_exergy_destroyed_unavoidable_kW": round(total_unavoidable, 2),
+        "avoidable_ratio_pct": round(avoidable_ratio, 1),
     }
 
 
@@ -756,7 +764,49 @@ def _generate_factory_sankey(results: List[dict], aggregates: dict) -> dict:
 
     # Add output/loss summary nodes
     nodes.append({"id": useful_node_id, "name": "Faydali Exergy", "name_en": "Useful Exergy"})
-    nodes.append({"id": loss_node_id, "name": "Exergy Kaybi", "name_en": "Exergy Loss"})
+
+    # Check if AV/UN data is available at factory level
+    total_av = aggregates.get("total_exergy_destroyed_avoidable_kW", 0)
+    total_un = aggregates.get("total_exergy_destroyed_unavoidable_kW", 0)
+    has_av_un = (total_av > 0 or total_un > 0)
+
+    if has_av_un:
+        av_node_id = loss_node_id
+        un_node_id = loss_node_id + 1
+        nodes.append({"id": av_node_id, "name": "Exergy Kaybi (Onlenebilir)", "name_en": "Exergy Loss (Avoidable)", "color": "#e74c3c"})
+        nodes.append({"id": un_node_id, "name": "Exergy Kaybi (Onlenemez)", "name_en": "Exergy Loss (Unavoidable)", "color": "#95a5a6"})
+
+        # Redistribute existing loss links into AV and UN
+        total_loss_sum = total_av + total_un
+        new_links = []
+        for link in links:
+            if link["target"] == loss_node_id:
+                loss_val = link["value"]
+                if total_loss_sum > 0:
+                    av_share = loss_val * (total_av / total_loss_sum)
+                    un_share = loss_val * (total_un / total_loss_sum)
+                else:
+                    av_share = loss_val
+                    un_share = 0
+                if av_share > 0.01:
+                    new_links.append({
+                        "source": link["source"],
+                        "target": av_node_id,
+                        "value": round(av_share, 2),
+                        "label": link["label"].replace("Kayip", "Onlenebilir"),
+                    })
+                if un_share > 0.01:
+                    new_links.append({
+                        "source": link["source"],
+                        "target": un_node_id,
+                        "value": round(un_share, 2),
+                        "label": link["label"].replace("Kayip", "Onlenemez"),
+                    })
+            else:
+                new_links.append(link)
+        links = new_links
+    else:
+        nodes.append({"id": loss_node_id, "name": "Exergy Kaybi", "name_en": "Exergy Loss"})
 
     return {
         "nodes": nodes,
@@ -767,5 +817,8 @@ def _generate_factory_sankey(results: List[dict], aggregates: dict) -> dict:
             "recoverable_heat_kW": 0,
             "irreversibility_kW": aggregates.get("total_exergy_destroyed_kW", 0),
             "efficiency_pct": aggregates.get("factory_exergy_efficiency_pct", 0),
+            "exergy_destroyed_avoidable_kW": round(total_av, 2),
+            "exergy_destroyed_unavoidable_kW": round(total_un, 2),
+            "avoidable_ratio_pct": aggregates.get("avoidable_ratio_pct", 0),
         },
     }

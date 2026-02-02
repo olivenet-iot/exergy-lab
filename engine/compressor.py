@@ -9,11 +9,22 @@ from dataclasses import dataclass
 from typing import Optional
 import math
 
+import copy
+
 from .core import (
-    DeadState, ExergyResult,
+    DeadState, ExergyResult, compute_avoidable_split,
     R_AIR, CP_AIR, celsius_to_kelvin, bar_to_kpa,
     m3_min_to_m3_s, air_density, heat_exergy
 )
+
+
+# Best-achievable isentropic efficiency per compressor type (Tsatsaronis & Morosuk 2008)
+UNAVOIDABLE_REF_COMPRESSOR = {
+    'screw': {'eta_is_best': 0.90},
+    'piston': {'eta_is_best': 0.88},
+    'scroll': {'eta_is_best': 0.85},
+    'centrifugal': {'eta_is_best': 0.92},
+}
 
 
 # ---------------------------------------------------------------------------
@@ -136,6 +147,9 @@ class CompressorResult(ExergyResult):
             "benchmark_comparison": self.benchmark_comparison,
             "benchmark_percentile": _calculate_percentile(self.exergy_efficiency_pct, compressor_type),
             "comparison_text": _get_comparison_text(self.benchmark_comparison),
+            "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
+            "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -210,13 +224,70 @@ def _build_result(Ex_in: float, Ex_out: float, m_dot: float, T_out_K: float,
 # Analysis functions
 # ---------------------------------------------------------------------------
 
-def analyze_compressor(input_data: CompressorInput, dead_state: DeadState = None) -> CompressorResult:
+def _apply_avoidable_split(result: CompressorResult, input_data, dead_state: DeadState, analyze_fn, _calc_avoidable: bool) -> CompressorResult:
+    """
+    Apply AV/UN split to a compressor result.
+
+    For compressors, best-achievable technology means higher isentropic
+    efficiency → lower power consumption for same output.
+
+    Two cases:
+    1. Outlet temp > isentropic temp (no aftercooling): improve via eta_is
+    2. Outlet temp <= isentropic temp (aftercooled): reduce power input
+       while keeping same flow + pressure + outlet temp
+    """
+    if not _calc_avoidable or result.exergy_destroyed_kW <= 0:
+        return result
+
+    ref = UNAVOIDABLE_REF_COMPRESSOR.get(input_data.compressor_type, {'eta_is_best': 0.90})
+    eta_is_best = ref['eta_is_best']
+
+    P_ratio = bar_to_kpa(input_data.outlet_pressure_bar) / dead_state.P0
+    T_in_K = celsius_to_kelvin(input_data.inlet_temp_C)
+    T_out_K = celsius_to_kelvin(input_data.outlet_temp_C)
+    gamma = 1.4
+    T_isentropic_K = T_in_K * (P_ratio) ** ((gamma - 1) / gamma)
+
+    un_input = copy.deepcopy(input_data)
+
+    if T_out_K >= T_isentropic_K:
+        # Case 1: No aftercooling — outlet temp encodes efficiency
+        eta_is_actual = (T_isentropic_K - T_in_K) / (T_out_K - T_in_K)
+        if eta_is_actual >= eta_is_best:
+            result.exergy_destroyed_unavoidable_kW = result.exergy_destroyed_kW
+            return result
+        T_out_best_K = T_in_K + (T_isentropic_K - T_in_K) / eta_is_best
+        un_input.outlet_temp_C = T_out_best_K - 273.15
+    else:
+        # Case 2: Aftercooled — compute best-case power from isentropic work
+        V_dot_m3_s = m3_min_to_m3_s(input_data.flow_rate_m3_min)
+        rho = air_density(T_in_K, dead_state.P0)
+        m_dot = V_dot_m3_s * rho
+        # Isentropic work: W_is = m_dot * cp * (T_isen - T_in)
+        W_isentropic = m_dot * CP_AIR * (T_isentropic_K - T_in_K)
+        best_power = W_isentropic / eta_is_best
+        if best_power >= input_data.power_kW:
+            result.exergy_destroyed_unavoidable_kW = result.exergy_destroyed_kW
+            return result
+        un_input.power_kW = best_power
+
+    un_result = analyze_fn(un_input, dead_state=dead_state, _calc_avoidable=False)
+
+    av, un, ratio = compute_avoidable_split(result.exergy_destroyed_kW, un_result.exergy_destroyed_kW)
+    result.exergy_destroyed_avoidable_kW = av
+    result.exergy_destroyed_unavoidable_kW = un
+    result.avoidable_ratio_pct = ratio
+    return result
+
+
+def analyze_compressor(input_data: CompressorInput, dead_state: DeadState = None, _calc_avoidable: bool = True) -> CompressorResult:
     """
     Kompresör exergy analizi yapar (vidalı / genel).
 
     Args:
         input_data: Kompresör giriş verileri
         dead_state: Dead state koşulları (opsiyonel)
+        _calc_avoidable: AV/UN hesaplaması yapılsın mı (iç kullanım)
 
     Returns:
         CompressorResult: Analiz sonuçları
@@ -235,7 +306,7 @@ def analyze_compressor(input_data: CompressorInput, dead_state: DeadState = None
     Ex_in = input_data.power_kW
     Ex_out = _calculate_exergy_output(m_dot, T_out_K, P_out_kPa, dead_state)
 
-    return _build_result(
+    result = _build_result(
         Ex_in=Ex_in, Ex_out=Ex_out, m_dot=m_dot, T_out_K=T_out_K,
         power_kW=input_data.power_kW,
         flow_rate_m3_min=input_data.flow_rate_m3_min,
@@ -245,9 +316,11 @@ def analyze_compressor(input_data: CompressorInput, dead_state: DeadState = None
         dead_state=dead_state,
     )
 
+    return _apply_avoidable_split(result, input_data, dead_state, analyze_compressor, _calc_avoidable)
+
 
 def analyze_piston_compressor(input_data: PistonCompressorInput,
-                              dead_state: DeadState = None) -> CompressorResult:
+                              dead_state: DeadState = None, _calc_avoidable: bool = True) -> CompressorResult:
     """
     Pistonlu kompresör exergy analizi.
     Politropik model: n=1.3 (hava soğutmalı), n=1.1 (su soğutmalı).
@@ -267,7 +340,7 @@ def analyze_piston_compressor(input_data: PistonCompressorInput,
     Ex_in = input_data.power_kW
     Ex_out = _calculate_exergy_output(m_dot, T_out_K, P_out_kPa, dead_state)
 
-    return _build_result(
+    result = _build_result(
         Ex_in=Ex_in, Ex_out=Ex_out, m_dot=m_dot, T_out_K=T_out_K,
         power_kW=input_data.power_kW,
         flow_rate_m3_min=input_data.flow_rate_m3_min,
@@ -277,9 +350,11 @@ def analyze_piston_compressor(input_data: PistonCompressorInput,
         dead_state=dead_state,
     )
 
+    return _apply_avoidable_split(result, input_data, dead_state, analyze_piston_compressor, _calc_avoidable)
+
 
 def analyze_scroll_compressor(input_data: ScrollCompressorInput,
-                              dead_state: DeadState = None) -> CompressorResult:
+                              dead_state: DeadState = None, _calc_avoidable: bool = True) -> CompressorResult:
     """
     Scroll kompresör exergy analizi.
     Tek kademeli, yağsız seçeneği.
@@ -298,7 +373,7 @@ def analyze_scroll_compressor(input_data: ScrollCompressorInput,
     Ex_in = input_data.power_kW
     Ex_out = _calculate_exergy_output(m_dot, T_out_K, P_out_kPa, dead_state)
 
-    return _build_result(
+    result = _build_result(
         Ex_in=Ex_in, Ex_out=Ex_out, m_dot=m_dot, T_out_K=T_out_K,
         power_kW=input_data.power_kW,
         flow_rate_m3_min=input_data.flow_rate_m3_min,
@@ -308,9 +383,11 @@ def analyze_scroll_compressor(input_data: ScrollCompressorInput,
         dead_state=dead_state,
     )
 
+    return _apply_avoidable_split(result, input_data, dead_state, analyze_scroll_compressor, _calc_avoidable)
+
 
 def analyze_centrifugal_compressor(input_data: CentrifugalCompressorInput,
-                                   dead_state: DeadState = None) -> CompressorResult:
+                                   dead_state: DeadState = None, _calc_avoidable: bool = True) -> CompressorResult:
     """
     Santrifüj kompresör exergy analizi.
     Çok kademeli, IGV pozisyon takibi.
@@ -329,7 +406,7 @@ def analyze_centrifugal_compressor(input_data: CentrifugalCompressorInput,
     Ex_in = input_data.power_kW
     Ex_out = _calculate_exergy_output(m_dot, T_out_K, P_out_kPa, dead_state)
 
-    return _build_result(
+    result = _build_result(
         Ex_in=Ex_in, Ex_out=Ex_out, m_dot=m_dot, T_out_K=T_out_K,
         power_kW=input_data.power_kW,
         flow_rate_m3_min=input_data.flow_rate_m3_min,
@@ -338,6 +415,8 @@ def analyze_centrifugal_compressor(input_data: CentrifugalCompressorInput,
         compressor_type="centrifugal",
         dead_state=dead_state,
     )
+
+    return _apply_avoidable_split(result, input_data, dead_state, analyze_centrifugal_compressor, _calc_avoidable)
 
 
 # ---------------------------------------------------------------------------

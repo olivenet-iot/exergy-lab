@@ -36,6 +36,10 @@ class MetricsResponse(BaseModel):
     # Dryer-specific
     water_removed_kg_h: Optional[float] = None
     specific_energy_kJ_kg_water: Optional[float] = None
+    # Avoidable/Unavoidable split
+    exergy_destroyed_avoidable_kW: Optional[float] = None
+    exergy_destroyed_unavoidable_kW: Optional[float] = None
+    avoidable_ratio_pct: Optional[float] = None
 
 
 class HeatRecoveryResponse(BaseModel):
@@ -55,6 +59,7 @@ class SankeyNodeResponse(BaseModel):
     id: int
     name: str
     name_en: str
+    color: Optional[str] = None
 
 
 class SankeyLinkResponse(BaseModel):

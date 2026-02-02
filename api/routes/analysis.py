@@ -181,6 +181,9 @@ def _analyze_compressor(comp_type: str, parameters: dict) -> AnalysisResponse:
             exergy_efficiency_pct=api_dict["exergy_efficiency_pct"],
             mass_flow_kg_s=api_dict.get("mass_flow_kg_s"),
             specific_power_kW_m3min=api_dict.get("specific_power_kW_m3min"),
+            exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
+            exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
+            avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
         ),
         heat_recovery=HeatRecoveryResponse(
             heat_recovery_potential_kW=api_dict.get("heat_recovery_potential_kW"),
@@ -227,6 +230,9 @@ def _analyze_boiler(subtype: str, parameters: dict) -> AnalysisResponse:
             thermal_efficiency_pct=api_dict.get("thermal_efficiency_pct"),
             combustion_loss_kW=api_dict.get("combustion_loss_kW"),
             flue_gas_loss_kW=api_dict.get("flue_gas_loss_kW"),
+            exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
+            exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
+            avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -277,6 +283,9 @@ def _analyze_chiller(subtype: str, parameters: dict) -> AnalysisResponse:
             cop=api_dict.get("cop"),
             cop_carnot=api_dict.get("cop_carnot"),
             kw_per_ton=api_dict.get("kw_per_ton"),
+            exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
+            exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
+            avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -321,6 +330,9 @@ def _analyze_pump(subtype: str, parameters: dict) -> AnalysisResponse:
             hydraulic_power_kW=api_dict.get("hydraulic_power_kW"),
             wire_to_water_efficiency_pct=api_dict.get("wire_to_water_efficiency_pct"),
             throttle_loss_kW=api_dict.get("throttle_loss_kW"),
+            exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
+            exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
+            avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -366,6 +378,9 @@ def _analyze_heat_exchanger(subtype: str, parameters: dict) -> AnalysisResponse:
             lmtd_K=api_dict.get("lmtd_K"),
             effectiveness=api_dict.get("effectiveness"),
             bejan_number=api_dict.get("bejan_number"),
+            exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
+            exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
+            avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -419,6 +434,9 @@ def _analyze_steam_turbine(subtype: str, parameters: dict) -> AnalysisResponse:
             shaft_power_kW=api_dict.get("shaft_power_kW"),
             electrical_power_kW=api_dict.get("electrical_power_kW"),
             chp_exergy_efficiency_pct=api_dict.get("chp_exergy_efficiency_pct"),
+            exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
+            exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
+            avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -469,6 +487,9 @@ def _analyze_dryer(subtype: str, parameters: dict) -> AnalysisResponse:
             thermal_efficiency_pct=api_dict.get("thermal_efficiency_pct"),
             water_removed_kg_h=api_dict.get("water_removed_kg_h"),
             specific_energy_kJ_kg_water=api_dict.get("specific_energy_kJ_kg_water"),
+            exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
+            exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
+            avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),

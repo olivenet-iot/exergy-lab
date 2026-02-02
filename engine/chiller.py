@@ -10,7 +10,9 @@ from dataclasses import dataclass
 from typing import Optional
 import math
 
-from .core import DeadState, ExergyResult, celsius_to_kelvin
+import copy
+
+from .core import DeadState, ExergyResult, compute_avoidable_split, celsius_to_kelvin
 
 
 # ---------------------------------------------------------------------------
@@ -18,6 +20,17 @@ from .core import DeadState, ExergyResult, celsius_to_kelvin
 # ---------------------------------------------------------------------------
 
 KW_PER_TON = 3.517  # 1 ton of refrigeration = 3.517 kW
+
+# Best-achievable COP per chiller type (Tsatsaronis & Morosuk 2008)
+UNAVOIDABLE_REF_CHILLER = {
+    'screw': {'best_cop': 7.0},
+    'centrifugal': {'best_cop': 8.0},
+    'scroll': {'best_cop': 5.5},
+    'reciprocating': {'best_cop': 6.0},
+    'air_cooled': {'best_cop': 4.5},
+    'water_cooled': {'best_cop': 7.5},
+    'absorption': {'best_cop_thermal': 0.80},
+}
 
 
 # ---------------------------------------------------------------------------
@@ -106,6 +119,9 @@ class ChillerResult(ExergyResult):
             "benchmark_comparison": self.benchmark_comparison,
             "benchmark_percentile": _calculate_percentile(self.exergy_efficiency_pct, chiller_type),
             "comparison_text": _get_comparison_text(self.benchmark_comparison),
+            "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
+            "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -113,7 +129,7 @@ class ChillerResult(ExergyResult):
 # Analysis function
 # ---------------------------------------------------------------------------
 
-def analyze_chiller(input_data: ChillerInput, dead_state: DeadState = None) -> ChillerResult:
+def analyze_chiller(input_data: ChillerInput, dead_state: DeadState = None, _calc_avoidable: bool = True) -> ChillerResult:
     """
     Chiller exergy analizi yapar.
 
@@ -207,7 +223,7 @@ def analyze_chiller(input_data: ChillerInput, dead_state: DeadState = None) -> C
 
     benchmark = _get_benchmark_comparison(eta_ex, input_data.chiller_type)
 
-    return ChillerResult(
+    result = ChillerResult(
         exergy_in_kW=Ex_in,
         exergy_out_kW=Ex_out,
         exergy_destroyed_kW=Ex_destroyed,
@@ -221,6 +237,26 @@ def analyze_chiller(input_data: ChillerInput, dead_state: DeadState = None) -> C
         internal_loss_kW=internal_loss,
         benchmark_comparison=benchmark,
     )
+
+    # AV/UN split
+    if _calc_avoidable and Ex_destroyed > 0:
+        ref = UNAVOIDABLE_REF_CHILLER.get(input_data.chiller_type, {})
+        un_input = copy.deepcopy(input_data)
+        if is_absorption and 'best_cop_thermal' in ref:
+            best_cop = ref['best_cop_thermal']
+            if cop < best_cop:
+                un_input.generator_heat_kW = Q_cool / best_cop
+        elif 'best_cop' in ref:
+            best_cop = ref['best_cop']
+            if cop < best_cop:
+                un_input.compressor_power_kW = Q_cool / best_cop
+        un_result = analyze_chiller(un_input, dead_state=dead_state, _calc_avoidable=False)
+        av, un, ratio = compute_avoidable_split(Ex_destroyed, un_result.exergy_destroyed_kW)
+        result.exergy_destroyed_avoidable_kW = av
+        result.exergy_destroyed_unavoidable_kW = un
+        result.avoidable_ratio_pct = ratio
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -278,6 +314,9 @@ def generate_chiller_sankey_data(result: ChillerResult, chiller_type: str = "cen
             "recoverable_heat_kW": 0.0,
             "irreversibility_kW": round(condenser_norm + internal_norm, 2),
             "efficiency_pct": round(result.exergy_efficiency_pct, 1),
+            "exergy_destroyed_avoidable_kW": round(getattr(result, 'exergy_destroyed_avoidable_kW', 0.0) or 0.0, 2),
+            "exergy_destroyed_unavoidable_kW": round(getattr(result, 'exergy_destroyed_unavoidable_kW', 0.0) or 0.0, 2),
+            "avoidable_ratio_pct": round(getattr(result, 'avoidable_ratio_pct', 0.0) or 0.0, 1),
         },
     }
 

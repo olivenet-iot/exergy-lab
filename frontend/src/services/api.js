@@ -33,6 +33,9 @@ export const analyzeCompressor = async (compressorType, parameters) => {
       exergy_efficiency_percent: data.metrics.exergy_efficiency_pct,
       annual_loss_kWh: data.heat_recovery.annual_loss_kWh,
       annual_cost_eur: data.heat_recovery.annual_loss_EUR,
+      exergy_destroyed_avoidable_kW: data.metrics.exergy_destroyed_avoidable_kW,
+      exergy_destroyed_unavoidable_kW: data.metrics.exergy_destroyed_unavoidable_kW,
+      avoidable_ratio_pct: data.metrics.avoidable_ratio_pct,
     },
     heat_recovery: {
       potential_kW: data.heat_recovery.heat_recovery_potential_kW,
@@ -99,6 +102,10 @@ export const analyzeEquipment = async (equipmentType, subtype, parameters) => {
       // Dryer-specific
       water_removed_kg_h: data.metrics.water_removed_kg_h,
       specific_energy_kJ_kg_water: data.metrics.specific_energy_kJ_kg_water,
+      // Avoidable/Unavoidable split
+      exergy_destroyed_avoidable_kW: data.metrics.exergy_destroyed_avoidable_kW,
+      exergy_destroyed_unavoidable_kW: data.metrics.exergy_destroyed_unavoidable_kW,
+      avoidable_ratio_pct: data.metrics.avoidable_ratio_pct,
     },
     heat_recovery: {
       potential_kW: data.heat_recovery?.heat_recovery_potential_kW,

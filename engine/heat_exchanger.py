@@ -9,8 +9,10 @@ from dataclasses import dataclass
 from typing import Optional
 import math
 
+import copy
+
 from .core import (
-    DeadState, ExergyResult,
+    DeadState, ExergyResult, compute_avoidable_split,
     celsius_to_kelvin,
     heat_exergy, CP_AIR, R_AIR
 )
@@ -36,6 +38,18 @@ FLUID_R = {
     'thermal_oil': 0.0,
     'glycol_30': 0.0,
     'glycol_50': 0.0,
+}
+
+# Best-achievable pressure drops per HX type (Tsatsaronis & Morosuk 2008)
+UNAVOIDABLE_REF_HEAT_EXCHANGER = {
+    'shell_tube':  {'hot_pressure_drop_kPa': 8.0, 'cold_pressure_drop_kPa': 8.0},
+    'plate':       {'hot_pressure_drop_kPa': 5.0, 'cold_pressure_drop_kPa': 5.0},
+    'finned_tube': {'hot_pressure_drop_kPa': 3.0, 'cold_pressure_drop_kPa': 10.0},
+    'economizer':  {'hot_pressure_drop_kPa': 2.0, 'cold_pressure_drop_kPa': 10.0},
+    'air_cooled':  {'hot_pressure_drop_kPa': 5.0, 'cold_pressure_drop_kPa': 0.5},
+    'double_pipe': {'hot_pressure_drop_kPa': 5.0, 'cold_pressure_drop_kPa': 5.0},
+    'spiral':      {'hot_pressure_drop_kPa': 8.0, 'cold_pressure_drop_kPa': 8.0},
+    'recuperator': {'hot_pressure_drop_kPa': 5.0, 'cold_pressure_drop_kPa': 5.0},
 }
 
 
@@ -143,6 +157,9 @@ class HeatExchangerResult(ExergyResult):
             "benchmark_comparison": self.benchmark_comparison,
             "benchmark_percentile": _calculate_percentile(self.exergy_efficiency_pct, hx_type),
             "comparison_text": _get_comparison_text(self.benchmark_comparison),
+            "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
+            "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -150,7 +167,7 @@ class HeatExchangerResult(ExergyResult):
 # Analysis function
 # ---------------------------------------------------------------------------
 
-def analyze_heat_exchanger(input_data: HeatExchangerInput, dead_state: DeadState = None) -> HeatExchangerResult:
+def analyze_heat_exchanger(input_data: HeatExchangerInput, dead_state: DeadState = None, _calc_avoidable: bool = True) -> HeatExchangerResult:
     """
     Isı eşanjörü exergy analizi yapar.
 
@@ -257,7 +274,7 @@ def analyze_heat_exchanger(input_data: HeatExchangerInput, dead_state: DeadState
         else:
             fouling = 'clean'
 
-    return HeatExchangerResult(
+    result = HeatExchangerResult(
         exergy_in_kW=Ex_in,
         exergy_out_kW=Ex_out,
         exergy_destroyed_kW=Ex_destroyed,
@@ -277,6 +294,22 @@ def analyze_heat_exchanger(input_data: HeatExchangerInput, dead_state: DeadState
         benchmark_comparison=benchmark,
         fouling_indicator=fouling,
     )
+
+    # AV/UN split
+    if _calc_avoidable and Ex_destroyed > 0:
+        ref_params = UNAVOIDABLE_REF_HEAT_EXCHANGER.get(input_data.hx_type, {})
+        if ref_params:
+            un_input = copy.deepcopy(input_data)
+            for k, v in ref_params.items():
+                if getattr(un_input, k) > v:
+                    setattr(un_input, k, v)
+            un_result = analyze_heat_exchanger(un_input, dead_state=dead_state, _calc_avoidable=False)
+            av, un, ratio = compute_avoidable_split(Ex_destroyed, un_result.exergy_destroyed_kW)
+            result.exergy_destroyed_avoidable_kW = av
+            result.exergy_destroyed_unavoidable_kW = un
+            result.avoidable_ratio_pct = ratio
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -341,6 +374,9 @@ def generate_heat_exchanger_sankey_data(result: HeatExchangerResult, hx_type: st
             "recoverable_heat_kW": 0,
             "irreversibility_kW": round(Ex_destroyed, 2),
             "efficiency_pct": round(result.exergy_efficiency_pct, 1),
+            "exergy_destroyed_avoidable_kW": round(getattr(result, 'exergy_destroyed_avoidable_kW', 0.0) or 0.0, 2),
+            "exergy_destroyed_unavoidable_kW": round(getattr(result, 'exergy_destroyed_unavoidable_kW', 0.0) or 0.0, 2),
+            "avoidable_ratio_pct": round(getattr(result, 'avoidable_ratio_pct', 0.0) or 0.0, 1),
         },
     }
 

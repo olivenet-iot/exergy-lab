@@ -39,6 +39,11 @@ class ExergyResult:
     annual_loss_EUR: Optional[float] = None
     recoverable_heat_kW: Optional[float] = None
 
+    # AV/UN exergy destruction split (Tsatsaronis & Morosuk 2008)
+    exergy_destroyed_avoidable_kW: float = 0.0
+    exergy_destroyed_unavoidable_kW: float = 0.0
+    avoidable_ratio_pct: float = 0.0
+
     def to_dict(self) -> dict:
         return {
             'exergy_in_kW': round(self.exergy_in_kW, 2),
@@ -48,6 +53,9 @@ class ExergyResult:
             'annual_loss_kWh': round(self.annual_loss_kWh, 0) if self.annual_loss_kWh else None,
             'annual_loss_EUR': round(self.annual_loss_EUR, 0) if self.annual_loss_EUR else None,
             'recoverable_heat_kW': round(self.recoverable_heat_kW, 2) if self.recoverable_heat_kW else None,
+            'exergy_destroyed_avoidable_kW': round(self.exergy_destroyed_avoidable_kW, 2),
+            'exergy_destroyed_unavoidable_kW': round(self.exergy_destroyed_unavoidable_kW, 2),
+            'avoidable_ratio_pct': round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -117,3 +125,33 @@ def air_density(T_K: float, P_kPa: float) -> float:
     ρ = P / (R × T)
     """
     return P_kPa / (R_AIR * T_K)
+
+
+def compute_avoidable_split(actual_destroyed: float, unavoidable_destroyed: float) -> tuple:
+    """
+    Avoidable/Unavoidable exergy destruction split.
+
+    Tsatsaronis & Morosuk (2008):
+      AV = actual - UN
+      ratio = AV / actual * 100
+
+    Edge cases:
+      - actual <= 0: all zeros
+      - unavoidable > actual: UN = actual, AV = 0
+      - unavoidable < 0: UN = 0, AV = actual
+
+    Args:
+        actual_destroyed: Actual exergy destruction [kW]
+        unavoidable_destroyed: Unavoidable exergy destruction [kW]
+
+    Returns:
+        (avoidable_kW, unavoidable_kW, ratio_pct)
+    """
+    if actual_destroyed <= 0:
+        return (0.0, 0.0, 0.0)
+
+    un = max(0.0, min(unavoidable_destroyed, actual_destroyed))
+    av = actual_destroyed - un
+    ratio = (av / actual_destroyed) * 100.0 if actual_destroyed > 0 else 0.0
+
+    return (av, un, ratio)

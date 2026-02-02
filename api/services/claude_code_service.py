@@ -305,6 +305,20 @@ class ClaudeCodeClient:
 {knowledge_content}
 """
 
+        # Avoidable/Unavoidable split
+        av_un_section = ""
+        av_kW = metrics.get('exergy_destroyed_avoidable_kW')
+        if av_kW is not None:
+            un_kW = metrics.get('exergy_destroyed_unavoidable_kW', 0)
+            av_ratio = metrics.get('avoidable_ratio_pct', 0)
+            av_un_section = f"""
+**Yıkım Ayrıştırması (AV/UN — Tsatsaronis & Morosuk):**
+- Önlenebilir (AV) Yıkım: {av_kW} kW
+- Önlenemez (UN) Yıkım: {un_kW} kW
+- Önlenebilir Oran: {av_ratio}%
+
+"""
+
         return f"""Sen bir endüstriyel exergy analizi uzmanısın. Aşağıdaki {equipment_label.lower()} analiz sonuçlarını yorumla.
 
 ## Yorumlama Kuralları ve Şema
@@ -335,7 +349,7 @@ class ClaudeCodeClient:
 - Değerlendirme: {benchmark.get('rating', 'N/A')}
 - Yüzdelik: {benchmark.get('percentile', 'N/A')}
 
-## Görev
+{av_un_section}## Görev
 
 Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yanıt ver. Markdown fence kullanma, saf JSON döndür.
 

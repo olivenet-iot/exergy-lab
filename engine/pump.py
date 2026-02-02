@@ -9,7 +9,9 @@ from dataclasses import dataclass
 from typing import Optional
 import math
 
-from .core import DeadState, ExergyResult, celsius_to_kelvin
+import copy
+
+from .core import DeadState, ExergyResult, compute_avoidable_split, celsius_to_kelvin
 
 
 # ---------------------------------------------------------------------------
@@ -17,6 +19,16 @@ from .core import DeadState, ExergyResult, celsius_to_kelvin
 # ---------------------------------------------------------------------------
 
 GRAVITY = 9.81  # m/s^2
+
+# Best-achievable parameters per pump type (Tsatsaronis & Morosuk 2008)
+UNAVOIDABLE_REF_PUMP = {
+    'centrifugal':            {'pump_efficiency_pct': 90.0, 'motor_efficiency_pct': 96.0, 'control_method': 'vsd', 'throttle_loss_pct': 0.0},
+    'positive_displacement':  {'pump_efficiency_pct': 85.0, 'motor_efficiency_pct': 95.0, 'control_method': 'vsd', 'throttle_loss_pct': 0.0},
+    'submersible':            {'pump_efficiency_pct': 80.0, 'motor_efficiency_pct': 90.0, 'throttle_loss_pct': 0.0},
+    'vertical_turbine':       {'pump_efficiency_pct': 88.0, 'motor_efficiency_pct': 95.0, 'throttle_loss_pct': 0.0},
+    'booster':                {'pump_efficiency_pct': 82.0, 'motor_efficiency_pct': 93.0, 'throttle_loss_pct': 0.0},
+    'vacuum':                 {'pump_efficiency_pct': 75.0, 'motor_efficiency_pct': 90.0, 'throttle_loss_pct': 0.0},
+}
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +128,9 @@ class PumpResult(ExergyResult):
             "benchmark_comparison": self.benchmark_comparison,
             "benchmark_percentile": _calculate_percentile(self.exergy_efficiency_pct, pump_type),
             "comparison_text": _get_comparison_text(self.benchmark_comparison),
+            "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
+            "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -123,7 +138,7 @@ class PumpResult(ExergyResult):
 # Analysis function
 # ---------------------------------------------------------------------------
 
-def analyze_pump(input_data: PumpInput, dead_state: DeadState = None) -> PumpResult:
+def analyze_pump(input_data: PumpInput, dead_state: DeadState = None, _calc_avoidable: bool = True) -> PumpResult:
     """
     Pompa exergy analizi yapar.
 
@@ -192,7 +207,7 @@ def analyze_pump(input_data: PumpInput, dead_state: DeadState = None) -> PumpRes
 
     benchmark = _get_benchmark_comparison(eta_ex, input_data.pump_type)
 
-    return PumpResult(
+    result = PumpResult(
         exergy_in_kW=Ex_in,
         exergy_out_kW=Ex_out,
         exergy_destroyed_kW=Ex_destroyed,
@@ -207,6 +222,29 @@ def analyze_pump(input_data: PumpInput, dead_state: DeadState = None) -> PumpRes
         vsd_savings_potential_kW=vsd_savings,
         benchmark_comparison=benchmark,
     )
+
+    # AV/UN split — for pumps, best tech means less motor_power for same hydraulic output
+    if _calc_avoidable and Ex_destroyed > 0:
+        ref_params = UNAVOIDABLE_REF_PUMP.get(input_data.pump_type, {})
+        if ref_params:
+            best_pump_eff = ref_params.get('pump_efficiency_pct', input_data.pump_efficiency_pct) / 100.0
+            best_motor_eff = ref_params.get('motor_efficiency_pct', input_data.motor_efficiency_pct) / 100.0
+            best_throttle = ref_params.get('throttle_loss_pct', input_data.throttle_loss_pct)
+            # Best-case motor power = hydraulic / (pump_eff * motor_eff) + throttle
+            if best_pump_eff > 0 and best_motor_eff > 0:
+                best_motor_power = P_hydraulic / (best_pump_eff * best_motor_eff)
+                best_motor_power *= (1 + best_throttle / 100.0)
+                un_input = copy.deepcopy(input_data)
+                un_input.motor_power_kW = best_motor_power
+                for k, v in ref_params.items():
+                    setattr(un_input, k, v)
+                un_result = analyze_pump(un_input, dead_state=dead_state, _calc_avoidable=False)
+                av, un, ratio = compute_avoidable_split(Ex_destroyed, un_result.exergy_destroyed_kW)
+                result.exergy_destroyed_avoidable_kW = av
+                result.exergy_destroyed_unavoidable_kW = un
+                result.avoidable_ratio_pct = ratio
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -257,6 +295,9 @@ def generate_pump_sankey_data(result: PumpResult, pump_type: str = "centrifugal"
             "recoverable_heat_kW": 0.0,
             "irreversibility_kW": round(Ex_in - hydraulic, 2),
             "efficiency_pct": round(result.exergy_efficiency_pct, 1),
+            "exergy_destroyed_avoidable_kW": round(getattr(result, 'exergy_destroyed_avoidable_kW', 0.0) or 0.0, 2),
+            "exergy_destroyed_unavoidable_kW": round(getattr(result, 'exergy_destroyed_unavoidable_kW', 0.0) or 0.0, 2),
+            "avoidable_ratio_pct": round(getattr(result, 'avoidable_ratio_pct', 0.0) or 0.0, 1),
         },
     }
 

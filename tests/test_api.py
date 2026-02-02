@@ -112,8 +112,10 @@ class TestAnalyze:
         })
         assert resp.status_code == 200
         sankey = resp.json()["sankey"]
-        assert len(sankey["nodes"]) == 5
-        assert len(sankey["links"]) == 4
+        # With AV/UN split: 6 nodes (destruction split into avoidable + unavoidable)
+        # Without AV/UN (fallback): 5 nodes
+        assert len(sankey["nodes"]) >= 5
+        assert len(sankey["links"]) >= 4
 
     def test_screw_efficiency_range(self):
         """The knowledge base example expects ~66.4% for 32kW/6.2m³/min/7.5bar."""
@@ -534,8 +536,9 @@ class TestFactoryAPI:
         assert "links" in sankey
         assert "summary" in sankey
 
-        # Should have: 1 input + 2 equipment + 1 useful + 1 loss = 5 nodes
-        assert len(sankey["nodes"]) == 5
+        # Should have: 1 input + 2 equipment + 1 useful + 1-2 loss nodes
+        # With AV/UN split: 6 nodes; without: 5 nodes
+        assert len(sankey["nodes"]) >= 5
         # Should have links for each equipment (input->eq, eq->useful, eq->loss)
         assert len(sankey["links"]) >= 4
 

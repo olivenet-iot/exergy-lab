@@ -62,6 +62,55 @@ const ResultsPanel = ({ data }) => {
         />
       </div>
 
+      {/* Avoidable/Unavoidable Destruction Split */}
+      {metrics.exergy_destroyed_avoidable_kW != null && (
+        <Card title="Yıkım Ayrıştırması (AV/UN)">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="text-gray-600">Önlenebilir (AV)</span>
+              <span className="font-mono font-semibold text-red-600">
+                {formatNumber(metrics.exergy_destroyed_avoidable_kW)} kW
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="text-gray-600">Önlenemez (UN)</span>
+              <span className="font-mono font-semibold text-gray-500">
+                {formatNumber(metrics.exergy_destroyed_unavoidable_kW)} kW
+              </span>
+            </div>
+            {/* Stacked horizontal bar */}
+            <div className="w-full h-6 rounded-full overflow-hidden flex bg-gray-200">
+              {metrics.avoidable_ratio_pct > 0 && (
+                <div
+                  className="h-full bg-red-500 flex items-center justify-center text-xs text-white font-semibold"
+                  style={{ width: `${Math.max(metrics.avoidable_ratio_pct, 8)}%` }}
+                >
+                  {formatNumber(metrics.avoidable_ratio_pct, 1)}%
+                </div>
+              )}
+              {(100 - (metrics.avoidable_ratio_pct || 0)) > 0 && (
+                <div
+                  className="h-full bg-gray-400 flex items-center justify-center text-xs text-white font-semibold"
+                  style={{ width: `${Math.max(100 - (metrics.avoidable_ratio_pct || 0), 8)}%` }}
+                >
+                  {formatNumber(100 - (metrics.avoidable_ratio_pct || 0), 1)}%
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-4 text-xs text-gray-500 mt-1">
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                Önlenebilir — iyileştirme potansiyeli
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-gray-400 inline-block"></span>
+                Önlenemez — fiziksel sınır
+              </span>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Equipment-specific Extra Metrics */}
       {extraMetricEntries.length > 0 && (
         <div>

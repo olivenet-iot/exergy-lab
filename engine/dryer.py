@@ -9,8 +9,10 @@ from dataclasses import dataclass
 from typing import Optional
 import math
 
+import dataclasses
+
 from .core import (
-    DeadState, ExergyResult,
+    DeadState, ExergyResult, compute_avoidable_split,
     celsius_to_kelvin,
     heat_exergy, CP_AIR
 )
@@ -28,6 +30,18 @@ def _get_hfg(T_C: float) -> float:
 
 
 # Kurutucu tip verimi referansları (1. yasa termal verim)
+# Best-achievable parameters per dryer type (Tsatsaronis & Morosuk 2008)
+UNAVOIDABLE_REF_DRYER = {
+    'conveyor':      {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 60.0},
+    'rotary':        {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 55.0},
+    'spray':         {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 70.0},
+    'fluidized_bed': {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 55.0},
+    'tray':          {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 60.0},
+    'drum':          {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 55.0},
+    'infrared':      {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 50.0},
+    'microwave':     {'fuel_efficiency': 0.95, 'air_outlet_temp_C': 50.0},
+}
+
 DRYER_THERMAL_EFF = {
     'conveyor': 0.55,
     'rotary': 0.60,
@@ -168,6 +182,9 @@ class DryerResult(ExergyResult):
             "benchmark_comparison": self.benchmark_comparison,
             "benchmark_percentile": _calculate_percentile(self.exergy_efficiency_pct, dryer_type),
             "comparison_text": _get_comparison_text(self.benchmark_comparison),
+            "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
+            "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
         }
 
 
@@ -175,7 +192,7 @@ class DryerResult(ExergyResult):
 # Analysis function
 # ---------------------------------------------------------------------------
 
-def analyze_dryer(input_data: DryerInput, dead_state: DeadState = None) -> DryerResult:
+def analyze_dryer(input_data: DryerInput, dead_state: DeadState = None, _calc_avoidable: bool = True) -> DryerResult:
     """
     Kurutma fırını exergy analizi yapar.
 
@@ -267,7 +284,7 @@ def analyze_dryer(input_data: DryerInput, dead_state: DeadState = None) -> Dryer
 
     benchmark = _get_dryer_benchmark(eta_ex, input_data.dryer_type)
 
-    return DryerResult(
+    result = DryerResult(
         exergy_in_kW=Ex_in,
         exergy_out_kW=Ex_total_useful,
         exergy_destroyed_kW=Ex_destroyed,
@@ -286,6 +303,23 @@ def analyze_dryer(input_data: DryerInput, dead_state: DeadState = None) -> Dryer
         exhaust_recovery_savings_eur_year=exhaust_recovery_savings,
         benchmark_comparison=benchmark,
     )
+
+    # AV/UN split — construct new instance to trigger __post_init__ recalculation
+    if _calc_avoidable and Ex_destroyed > 0:
+        ref_params = UNAVOIDABLE_REF_DRYER.get(input_data.dryer_type, {})
+        if ref_params:
+            fields_dict = {f.name: getattr(input_data, f.name) for f in dataclasses.fields(DryerInput)}
+            fields_dict.update(ref_params)
+            fields_dict['heat_input_kW'] = None       # Recalculate with new fuel_efficiency
+            fields_dict['air_mass_flow_kg_h'] = None  # Recalculate with new air_outlet_temp_C
+            un_input = DryerInput(**fields_dict)
+            un_result = analyze_dryer(un_input, dead_state=dead_state, _calc_avoidable=False)
+            av, un, ratio = compute_avoidable_split(Ex_destroyed, un_result.exergy_destroyed_kW)
+            result.exergy_destroyed_avoidable_kW = av
+            result.exergy_destroyed_unavoidable_kW = un
+            result.avoidable_ratio_pct = ratio
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -311,20 +345,53 @@ def generate_dryer_sankey_data(result: DryerResult, dryer_type: str = "conveyor"
         Ex_exhaust *= scale
         Ex_destroyed *= scale
 
-    nodes = [
-        {"id": 0, "name": "Isi Kaynagi Exergy", "name_en": "Heat Source Exergy"},
-        {"id": 1, "name": "Kurutma Isi", "name_en": "Drying Work"},
-        {"id": 2, "name": "Egzoz Havasi Exergy", "name_en": "Exhaust Air Exergy"},
-        {"id": 3, "name": "Exergy Yikimi", "name_en": "Exergy Destruction"},
-    ]
+    # AV/UN split for destruction node
+    av_kW = getattr(result, 'exergy_destroyed_avoidable_kW', 0.0) or 0.0
+    un_kW = getattr(result, 'exergy_destroyed_unavoidable_kW', 0.0) or 0.0
+    has_av_un = (av_kW > 0 or un_kW > 0)
 
-    links = []
-    if Ex_useful > 0:
-        links.append({"source": 0, "target": 1, "value": round(Ex_useful, 2), "label": "Kurutma Exergy"})
-    if Ex_exhaust > 0:
-        links.append({"source": 0, "target": 2, "value": round(Ex_exhaust, 2), "label": "Egzoz Kaybi"})
-    if Ex_destroyed > 0:
-        links.append({"source": 0, "target": 3, "value": round(Ex_destroyed, 2), "label": "Tersinmezlik"})
+    if has_av_un:
+        # Scale AV/UN to match normalized Ex_destroyed
+        av_un_total = av_kW + un_kW
+        if av_un_total > 0:
+            av_norm = Ex_destroyed * (av_kW / av_un_total)
+            un_norm = Ex_destroyed * (un_kW / av_un_total)
+        else:
+            av_norm = Ex_destroyed
+            un_norm = 0.0
+
+        nodes = [
+            {"id": 0, "name": "Isi Kaynagi Exergy", "name_en": "Heat Source Exergy"},
+            {"id": 1, "name": "Kurutma Isi", "name_en": "Drying Work"},
+            {"id": 2, "name": "Egzoz Havasi Exergy", "name_en": "Exhaust Air Exergy"},
+            {"id": 3, "name": "Exergy Yikimi (Onlenebilir)", "name_en": "Exergy Destruction (Avoidable)", "color": "#e74c3c"},
+            {"id": 4, "name": "Exergy Yikimi (Onlenemez)", "name_en": "Exergy Destruction (Unavoidable)", "color": "#95a5a6"},
+        ]
+
+        links = []
+        if Ex_useful > 0:
+            links.append({"source": 0, "target": 1, "value": round(Ex_useful, 2), "label": "Kurutma Exergy"})
+        if Ex_exhaust > 0:
+            links.append({"source": 0, "target": 2, "value": round(Ex_exhaust, 2), "label": "Egzoz Kaybi"})
+        if av_norm > 0.01:
+            links.append({"source": 0, "target": 3, "value": round(av_norm, 2), "label": "Onlenebilir Kayiplar"})
+        if un_norm > 0.01:
+            links.append({"source": 0, "target": 4, "value": round(un_norm, 2), "label": "Onlenemez Kayiplar"})
+    else:
+        nodes = [
+            {"id": 0, "name": "Isi Kaynagi Exergy", "name_en": "Heat Source Exergy"},
+            {"id": 1, "name": "Kurutma Isi", "name_en": "Drying Work"},
+            {"id": 2, "name": "Egzoz Havasi Exergy", "name_en": "Exhaust Air Exergy"},
+            {"id": 3, "name": "Exergy Yikimi", "name_en": "Exergy Destruction"},
+        ]
+
+        links = []
+        if Ex_useful > 0:
+            links.append({"source": 0, "target": 1, "value": round(Ex_useful, 2), "label": "Kurutma Exergy"})
+        if Ex_exhaust > 0:
+            links.append({"source": 0, "target": 2, "value": round(Ex_exhaust, 2), "label": "Egzoz Kaybi"})
+        if Ex_destroyed > 0:
+            links.append({"source": 0, "target": 3, "value": round(Ex_destroyed, 2), "label": "Tersinmezlik"})
 
     return {
         "nodes": nodes,
@@ -335,6 +402,9 @@ def generate_dryer_sankey_data(result: DryerResult, dryer_type: str = "conveyor"
             "recoverable_heat_kW": round(result.exhaust_recovery_potential_kW or 0, 2),
             "irreversibility_kW": round(result.exergy_destroyed_kW or 0, 2),
             "efficiency_pct": round(result.exergy_efficiency_pct, 1),
+            "exergy_destroyed_avoidable_kW": round(av_kW, 2),
+            "exergy_destroyed_unavoidable_kW": round(un_kW, 2),
+            "avoidable_ratio_pct": round(getattr(result, 'avoidable_ratio_pct', 0.0) or 0.0, 1),
         },
     }
 
