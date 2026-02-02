@@ -17,8 +17,9 @@ from engine.steam_turbine import SteamTurbineInput, analyze_steam_turbine
 from engine.dryer import DryerInput, analyze_dryer
 from engine.sankey import generate_sankey_data
 from engine.radar import generate_radar_data
+from engine.compare import compute_comparison
 from api.schemas.requests import (
-    AnalysisRequest, ScrewCompressorParams,
+    AnalysisRequest, CompareRequest, ScrewCompressorParams,
     PistonCompressorParams, ScrollCompressorParams,
     CentrifugalCompressorParams,
     BoilerParams, VaporCompressionChillerParams,
@@ -31,6 +32,7 @@ from api.schemas.responses import (
     RadarDataResponse, RadarScoreResponse, RadarAxisResponse,
     CompressorTypesListResponse, CompressorTypeResponse, CompressorFieldResponse,
     EquipmentTypeConfigResponse, EquipmentSubtypeConfig,
+    CompareResponse, ComparisonData, ComparisonSavings,
 )
 from api.services.equipment_registry import (
     get_equipment_types,
@@ -121,6 +123,42 @@ async def list_subtypes(equipment_type: str):
     return {"subtypes": get_equipment_subtypes(equipment_type)}
 
 
+def _dispatch_analysis(equipment_type: str, subtype: str, parameters: dict) -> AnalysisResponse:
+    """Dispatch analysis to the appropriate equipment handler.
+
+    Args:
+        equipment_type: Equipment category (compressor, boiler, etc.)
+        subtype: Equipment subtype (screw, steam_firetube, etc.)
+        parameters: Analysis parameters dict.
+
+    Returns:
+        AnalysisResponse with full analysis results.
+    """
+    if equipment_type == "compressor":
+        return _analyze_compressor(subtype, parameters)
+    elif equipment_type == "boiler":
+        return _analyze_boiler(subtype, parameters)
+    elif equipment_type == "chiller":
+        return _analyze_chiller(subtype, parameters)
+    elif equipment_type == "pump":
+        return _analyze_pump(subtype, parameters)
+    elif equipment_type == "heat_exchanger":
+        return _analyze_heat_exchanger(subtype, parameters)
+    elif equipment_type == "steam_turbine":
+        return _analyze_steam_turbine(subtype, parameters)
+    elif equipment_type == "dryer":
+        return _analyze_dryer(subtype, parameters)
+    else:
+        raise HTTPException(status_code=422, detail=f"Unsupported equipment type: {equipment_type}")
+
+
+def _flatten_analysis_response(resp: AnalysisResponse) -> dict:
+    """Merge metrics + heat_recovery into a flat dict for comparison engine."""
+    flat = resp.metrics.model_dump()
+    flat.update(resp.heat_recovery.model_dump())
+    return flat
+
+
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze(request: AnalysisRequest):
     """Ekipman exergy analizi yapar. Hem eski hem yeni format desteklenir."""
@@ -139,23 +177,59 @@ async def analyze(request: AnalysisRequest):
     else:
         raise HTTPException(status_code=422, detail="compressor_type or equipment_type is required")
 
-    # Dispatch based on equipment type
-    if equipment_type == "compressor":
-        return _analyze_compressor(subtype, request.parameters)
-    elif equipment_type == "boiler":
-        return _analyze_boiler(subtype, request.parameters)
-    elif equipment_type == "chiller":
-        return _analyze_chiller(subtype, request.parameters)
-    elif equipment_type == "pump":
-        return _analyze_pump(subtype, request.parameters)
-    elif equipment_type == "heat_exchanger":
-        return _analyze_heat_exchanger(subtype, request.parameters)
-    elif equipment_type == "steam_turbine":
-        return _analyze_steam_turbine(subtype, request.parameters)
-    elif equipment_type == "dryer":
-        return _analyze_dryer(subtype, request.parameters)
-    else:
-        raise HTTPException(status_code=422, detail=f"Unsupported equipment type: {equipment_type}")
+    return _dispatch_analysis(equipment_type, subtype, request.parameters)
+
+
+@router.post("/compare", response_model=CompareResponse)
+async def compare_scenarios(request: CompareRequest):
+    """Compare baseline vs scenario analysis for What-If mode."""
+    if not is_engine_ready(request.equipment_type):
+        raise HTTPException(
+            status_code=501,
+            detail="Bu ekipman tipi henuz desteklenmiyor",
+        )
+
+    subtype = request.subtype
+    if not subtype:
+        raise HTTPException(status_code=422, detail="subtype is required for comparison")
+
+    # Run both analyses
+    baseline_resp = _dispatch_analysis(request.equipment_type, subtype, request.baseline_params)
+    scenario_resp = _dispatch_analysis(request.equipment_type, subtype, request.scenario_params)
+
+    # Flatten for comparison engine
+    baseline_flat = _flatten_analysis_response(baseline_resp)
+    scenario_flat = _flatten_analysis_response(scenario_resp)
+
+    # Determine energy price from params (cascade)
+    energy_price = (
+        request.baseline_params.get("electricity_price_eur_kwh")
+        or request.baseline_params.get("fuel_price_eur_kwh")
+        or request.baseline_params.get("fuel_price_eur_kg")
+        or 0.10
+    )
+    operating_hours = request.baseline_params.get("operating_hours", 6000)
+
+    comparison_raw = compute_comparison(
+        baseline_flat, scenario_flat,
+        energy_price_eur_kwh=float(energy_price),
+        operating_hours=float(operating_hours),
+    )
+
+    comparison = ComparisonData(
+        delta=comparison_raw["delta"],
+        delta_pct=comparison_raw["delta_pct"],
+        savings=ComparisonSavings(**comparison_raw["savings"]),
+        improved_metrics=comparison_raw["improved_metrics"],
+        degraded_metrics=comparison_raw["degraded_metrics"],
+        summary_tr=comparison_raw["summary_tr"],
+    )
+
+    return CompareResponse(
+        baseline=baseline_resp,
+        scenario=scenario_resp,
+        comparison=comparison,
+    )
 
 
 def _analyze_compressor(comp_type: str, parameters: dict) -> AnalysisResponse:

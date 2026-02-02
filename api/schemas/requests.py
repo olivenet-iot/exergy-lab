@@ -194,3 +194,10 @@ class AnalysisRequest(BaseModel):
         None, description="Kompresör tipi (geriye uyumluluk)"
     )
     parameters: dict = Field(..., description="Ekipman parametreleri")
+
+
+class CompareRequest(BaseModel):
+    equipment_type: str = Field(..., description="Ekipman tipi")
+    subtype: Optional[str] = Field(None, description="Ekipman alt tipi")
+    baseline_params: dict = Field(..., description="Mevcut durum parametreleri")
+    scenario_params: dict = Field(..., description="Senaryo parametreleri")

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun } from 'lucide-react';
-import { getEquipmentConfig } from '../services/api';
+import { getEquipmentConfig, compareScenarios } from '../services/api';
 import { useAnalysis } from '../hooks/useAnalysis';
 import SubtypeSelector from '../components/equipment/SubtypeSelector';
 import ParameterForm from '../components/forms/ParameterForm';
 import ResultsPanel from '../components/results/ResultsPanel';
 import SolutionsList from '../components/results/SolutionsList';
 import AIInterpretation from '../components/results/AIInterpretation';
+import ScenarioEditor from '../components/whatif/ScenarioEditor';
+import ComparisonPanel from '../components/whatif/ComparisonPanel';
 import Card from '../components/common/Card';
 import LoadingSpinner from '../components/common/Loading';
 
@@ -33,11 +35,22 @@ const EquipmentAnalysis = () => {
 
   const { result, solutions, loading, error, analyze, reset, interpretation, aiLoading } = useAnalysis();
 
+  // What-If state
+  const [whatIfMode, setWhatIfMode] = useState(false);
+  const [baselineParams, setBaselineParams] = useState({});
+  const [scenarioParams, setScenarioParams] = useState({});
+  const [compareResult, setCompareResult] = useState(null);
+  const [isComparing, setIsComparing] = useState(false);
+  const [compareError, setCompareError] = useState(null);
+
   // Fetch subtypes with field definitions when equipment type changes
   useEffect(() => {
     setSubtypes([]);
     setSelectedSubtype(null);
     setFormValues({});
+    setWhatIfMode(false);
+    setCompareResult(null);
+    setCompareError(null);
     reset();
     setSubtypesLoading(true);
 
@@ -58,6 +71,9 @@ const EquipmentAnalysis = () => {
   const handleSubtypeSelect = (subtypeId) => {
     setSelectedSubtype(subtypeId);
     setFormValues({});
+    setWhatIfMode(false);
+    setCompareResult(null);
+    setCompareError(null);
     reset();
   };
 
@@ -67,7 +83,46 @@ const EquipmentAnalysis = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setWhatIfMode(false);
+    setCompareResult(null);
+    setCompareError(null);
     analyze(equipmentType, selectedSubtype, formValues);
+    setBaselineParams({ ...formValues });
+  };
+
+  const handleWhatIfToggle = () => {
+    setWhatIfMode(true);
+    setScenarioParams({ ...baselineParams });
+    setCompareResult(null);
+    setCompareError(null);
+  };
+
+  const handleWhatIfCancel = () => {
+    setWhatIfMode(false);
+    setCompareResult(null);
+    setCompareError(null);
+  };
+
+  const handleScenarioParamChange = (fieldId, value) => {
+    setScenarioParams(prev => ({ ...prev, [fieldId]: value }));
+  };
+
+  const handleCompare = async () => {
+    setIsComparing(true);
+    setCompareError(null);
+    try {
+      const res = await compareScenarios({
+        equipment_type: equipmentType,
+        subtype: selectedSubtype,
+        baseline_params: baselineParams,
+        scenario_params: scenarioParams,
+      });
+      setCompareResult(res);
+    } catch (err) {
+      setCompareError(err.response?.data?.detail || 'Karsilastirma hatasi');
+    } finally {
+      setIsComparing(false);
+    }
   };
 
   const selectedSubtypeData = subtypes?.find((t) => (t.id || t.type) === selectedSubtype);
@@ -130,6 +185,42 @@ const EquipmentAnalysis = () => {
 
               {!interpretation && !aiLoading && solutions.length > 0 && (
                 <SolutionsList solutions={solutions} />
+              )}
+
+              {/* What-If Scenario Mode */}
+              {!whatIfMode && (
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleWhatIfToggle}
+                    className="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium shadow-sm"
+                  >
+                    What-If Senaryo Modu
+                  </button>
+                </div>
+              )}
+
+              {whatIfMode && (
+                <div className="space-y-6">
+                  <ScenarioEditor
+                    fields={selectedSubtypeData?.fields || []}
+                    baselineParams={baselineParams}
+                    scenarioParams={scenarioParams}
+                    onParamChange={handleScenarioParamChange}
+                    onCompare={handleCompare}
+                    onCancel={handleWhatIfCancel}
+                    isLoading={isComparing}
+                  />
+
+                  {compareError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+                      {typeof compareError === 'string' ? compareError : JSON.stringify(compareError)}
+                    </div>
+                  )}
+
+                  {compareResult && (
+                    <ComparisonPanel compareResult={compareResult} />
+                  )}
+                </div>
               )}
             </>
           )}

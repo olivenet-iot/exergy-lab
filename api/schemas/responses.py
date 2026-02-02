@@ -1,6 +1,6 @@
 """Response schemas for ExergyLab API."""
 
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 
@@ -191,3 +191,28 @@ class BenchmarkResponse(BaseModel):
     efficiency_ranges: EfficiencyRangeResponse
     spc_ranges: SPCRangeResponse
     sector_averages: dict
+
+
+# --- What-If Comparison ---
+
+class ComparisonSavings(BaseModel):
+    exergy_saved_kW: float = 0
+    annual_savings_kWh: float = 0
+    annual_savings_EUR: float = 0
+    efficiency_improvement_pct: float = 0
+    avoidable_reduction_kW: float = 0
+
+
+class ComparisonData(BaseModel):
+    delta: Dict[str, float] = {}
+    delta_pct: Dict[str, float] = {}
+    savings: ComparisonSavings = ComparisonSavings()
+    improved_metrics: List[str] = []
+    degraded_metrics: List[str] = []
+    summary_tr: str = ""
+
+
+class CompareResponse(BaseModel):
+    baseline: AnalysisResponse
+    scenario: AnalysisResponse
+    comparison: ComparisonData

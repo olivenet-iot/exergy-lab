@@ -154,6 +154,16 @@ export const interpretAnalysis = async (analysisResult, equipmentType, subtype, 
   return response.data;
 };
 
+export const compareScenarios = async ({ equipment_type, subtype, baseline_params, scenario_params }) => {
+  const response = await api.post('/compare', {
+    equipment_type,
+    subtype,
+    baseline_params,
+    scenario_params,
+  });
+  return response.data;
+};
+
 export const getEquipmentTypes = async () => {
   const response = await api.get('/equipment-types');
   return response.data;

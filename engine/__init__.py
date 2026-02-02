@@ -38,5 +38,6 @@ from .dryer import (
     analyze_dryer, get_dryer_recommendations,
     generate_dryer_sankey_data,
 )
+from .compare import compute_comparison
 from .sankey import generate_sankey_data
 from .radar import generate_radar_data, RADAR_AXES
