@@ -16,6 +16,7 @@ from engine.heat_exchanger import HeatExchangerInput, analyze_heat_exchanger
 from engine.steam_turbine import SteamTurbineInput, analyze_steam_turbine
 from engine.dryer import DryerInput, analyze_dryer
 from engine.sankey import generate_sankey_data
+from engine.radar import generate_radar_data
 from api.schemas.requests import (
     AnalysisRequest, ScrewCompressorParams,
     PistonCompressorParams, ScrollCompressorParams,
@@ -27,6 +28,7 @@ from api.schemas.requests import (
 from api.schemas.responses import (
     AnalysisResponse, MetricsResponse, HeatRecoveryResponse,
     BenchmarkDetailResponse, SankeyResponse,
+    RadarDataResponse, RadarScoreResponse, RadarAxisResponse,
     CompressorTypesListResponse, CompressorTypeResponse, CompressorFieldResponse,
     EquipmentTypeConfigResponse, EquipmentSubtypeConfig,
 )
@@ -38,6 +40,19 @@ from api.services.equipment_registry import (
 )
 
 router = APIRouter()
+
+
+def _build_radar_response(api_dict: dict, operating_hours: int = 6000) -> RadarDataResponse:
+    """Build RadarDataResponse from engine api_dict."""
+    raw = generate_radar_data(api_dict, operating_hours)
+    return RadarDataResponse(
+        axes=[RadarAxisResponse(**a) for a in raw["axes"]],
+        scores=RadarScoreResponse(**raw["scores"]),
+        overall_score=raw["overall_score"],
+        grade=raw["grade"],
+        grade_letter=raw["grade_letter"],
+        grade_en=raw["grade_en"],
+    )
 
 
 # Param validators per compressor subtype
@@ -171,6 +186,7 @@ def _analyze_compressor(comp_type: str, parameters: dict) -> AnalysisResponse:
 
     api_dict = result.to_api_dict(comp_type)
     sankey_data = generate_sankey_data(result, comp_type)
+    radar_response = _build_radar_response(api_dict, getattr(validated, 'operating_hours', 6000) or 6000)
 
     return AnalysisResponse(
         compressor_type=comp_type,
@@ -197,6 +213,7 @@ def _analyze_compressor(comp_type: str, parameters: dict) -> AnalysisResponse:
             comparison_text=api_dict.get("comparison_text"),
         ),
         sankey=SankeyResponse(**sankey_data),
+        radar_data=radar_response,
     )
 
 
@@ -219,6 +236,7 @@ def _analyze_boiler(subtype: str, parameters: dict) -> AnalysisResponse:
 
     api_dict = result.to_api_dict(subtype)
     sankey_data = generate_sankey_data(result, subtype)
+    radar_response = _build_radar_response(api_dict, getattr(validated, 'operating_hours', 6000) or 6000)
 
     return AnalysisResponse(
         compressor_type=subtype,
@@ -244,6 +262,7 @@ def _analyze_boiler(subtype: str, parameters: dict) -> AnalysisResponse:
             comparison_text=api_dict.get("comparison_text"),
         ),
         sankey=SankeyResponse(**sankey_data),
+        radar_data=radar_response,
     )
 
 
@@ -272,6 +291,7 @@ def _analyze_chiller(subtype: str, parameters: dict) -> AnalysisResponse:
 
     api_dict = result.to_api_dict(subtype)
     sankey_data = generate_sankey_data(result, subtype)
+    radar_response = _build_radar_response(api_dict, getattr(validated, 'operating_hours', 4000) or 4000)
 
     return AnalysisResponse(
         compressor_type=subtype,
@@ -297,6 +317,7 @@ def _analyze_chiller(subtype: str, parameters: dict) -> AnalysisResponse:
             comparison_text=api_dict.get("comparison_text"),
         ),
         sankey=SankeyResponse(**sankey_data),
+        radar_data=radar_response,
     )
 
 
@@ -319,6 +340,7 @@ def _analyze_pump(subtype: str, parameters: dict) -> AnalysisResponse:
 
     api_dict = result.to_api_dict(subtype)
     sankey_data = generate_sankey_data(result, subtype)
+    radar_response = _build_radar_response(api_dict, getattr(validated, 'operating_hours', 6000) or 6000)
 
     return AnalysisResponse(
         compressor_type=subtype,
@@ -344,6 +366,7 @@ def _analyze_pump(subtype: str, parameters: dict) -> AnalysisResponse:
             comparison_text=api_dict.get("comparison_text"),
         ),
         sankey=SankeyResponse(**sankey_data),
+        radar_data=radar_response,
     )
 
 
@@ -366,6 +389,7 @@ def _analyze_heat_exchanger(subtype: str, parameters: dict) -> AnalysisResponse:
 
     api_dict = result.to_api_dict(subtype)
     sankey_data = generate_sankey_data(result, subtype)
+    radar_response = _build_radar_response(api_dict, getattr(validated, 'operating_hours', 6000) or 6000)
 
     return AnalysisResponse(
         compressor_type=subtype,
@@ -392,6 +416,7 @@ def _analyze_heat_exchanger(subtype: str, parameters: dict) -> AnalysisResponse:
             comparison_text=api_dict.get("comparison_text"),
         ),
         sankey=SankeyResponse(**sankey_data),
+        radar_data=radar_response,
     )
 
 
@@ -423,6 +448,7 @@ def _analyze_steam_turbine(subtype: str, parameters: dict) -> AnalysisResponse:
 
     api_dict = result.to_api_dict(engine_kwargs["turbine_type"])
     sankey_data = generate_sankey_data(result, subtype)
+    radar_response = _build_radar_response(api_dict, getattr(validated, 'operating_hours', 7000) or 7000)
 
     return AnalysisResponse(
         compressor_type=subtype,
@@ -448,6 +474,7 @@ def _analyze_steam_turbine(subtype: str, parameters: dict) -> AnalysisResponse:
             comparison_text=api_dict.get("comparison_text"),
         ),
         sankey=SankeyResponse(**sankey_data),
+        radar_data=radar_response,
     )
 
 
@@ -476,6 +503,7 @@ def _analyze_dryer(subtype: str, parameters: dict) -> AnalysisResponse:
 
     api_dict = result.to_api_dict(engine_kwargs["dryer_type"])
     sankey_data = generate_sankey_data(result, subtype)
+    radar_response = _build_radar_response(api_dict, getattr(validated, 'operating_hours', 5000) or 5000)
 
     return AnalysisResponse(
         compressor_type=subtype,
@@ -501,6 +529,7 @@ def _analyze_dryer(subtype: str, parameters: dict) -> AnalysisResponse:
             comparison_text=api_dict.get("comparison_text"),
         ),
         sankey=SankeyResponse(**sankey_data),
+        radar_data=radar_response,
     )
 
 

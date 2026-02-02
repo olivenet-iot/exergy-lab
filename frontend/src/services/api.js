@@ -47,6 +47,7 @@ export const analyzeCompressor = async (compressorType, parameters) => {
       comparison_text: data.benchmark.comparison_text,
     },
     sankey: data.sankey,
+    radar_data: data.radar_data || null,
   };
 };
 
@@ -117,6 +118,7 @@ export const analyzeEquipment = async (equipmentType, subtype, parameters) => {
       comparison_text: data.benchmark.comparison_text,
     },
     sankey: data.sankey,
+    radar_data: data.radar_data || null,
   };
 };
 

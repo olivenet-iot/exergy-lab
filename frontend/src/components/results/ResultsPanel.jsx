@@ -3,6 +3,7 @@ import Card from '../common/Card';
 import MetricsCard from './MetricsCard';
 import SankeyDiagram from './SankeyDiagram';
 import BenchmarkChart from './BenchmarkChart';
+import RadarBenchmark from './RadarBenchmark';
 
 const EXTRA_METRICS = {
   // Heat exchanger
@@ -25,7 +26,7 @@ const ResultsPanel = ({ data }) => {
   console.log('[ResultsPanel] rendering with data:', data);
   if (!data) return null;
 
-  const { metrics = {}, heat_recovery = {}, benchmark = {}, sankey } = data;
+  const { metrics = {}, heat_recovery = {}, benchmark = {}, sankey, radar_data } = data;
 
   const extraMetricEntries = Object.entries(EXTRA_METRICS).filter(
     ([key]) => metrics[key] != null
@@ -127,6 +128,9 @@ const ResultsPanel = ({ data }) => {
           </div>
         </div>
       )}
+
+      {/* Radar Benchmark */}
+      {radar_data && <RadarBenchmark radarData={radar_data} />}
 
       {/* Sankey Diagram */}
       <Card title="Exergy Akis Diyagrami">

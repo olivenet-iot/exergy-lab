@@ -83,12 +83,37 @@ class SankeyResponse(BaseModel):
     summary: SankeySummaryResponse
 
 
+class RadarScoreResponse(BaseModel):
+    exergy_efficiency: float = 0
+    improvement_status: float = 0
+    sector_ranking: float = 0
+    heat_recovery: float = 0
+    destruction_ratio: float = 0
+    cost_efficiency: float = 0
+
+
+class RadarAxisResponse(BaseModel):
+    key: str
+    label: str
+    label_en: str
+
+
+class RadarDataResponse(BaseModel):
+    axes: List[RadarAxisResponse] = []
+    scores: RadarScoreResponse = RadarScoreResponse()
+    overall_score: float = 0
+    grade: str = ""
+    grade_letter: str = ""
+    grade_en: str = ""
+
+
 class AnalysisResponse(BaseModel):
     compressor_type: str
     metrics: MetricsResponse
     heat_recovery: HeatRecoveryResponse
     benchmark: BenchmarkDetailResponse
     sankey: SankeyResponse
+    radar_data: Optional[RadarDataResponse] = None
 
 
 class RecommendationResponse(BaseModel):
