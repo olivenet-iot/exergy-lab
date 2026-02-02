@@ -51,32 +51,39 @@ EQUIPMENT_PARAMS_TEMPLATE = {
 - Kontrol Yöntemi: {control_method}
 - Çalışma Saati: {operating_hours} saat/yıl
 - Elektrik Fiyatı: {electricity_price_eur_kwh} €/kWh""",
-    "heat_exchanger": """- Isı Yükü: {heat_duty_kW} kW
-- Sıcak Akışkan Giriş: {hot_inlet_temp_C} °C
-- Sıcak Akışkan Çıkış: {hot_outlet_temp_C} °C
-- Soğuk Akışkan Giriş: {cold_inlet_temp_C} °C
-- Soğuk Akışkan Çıkış: {cold_outlet_temp_C} °C
-- Yüzey Alanı: {area_m2} m²
-- U Değeri: {u_value} W/(m²·K)
-- Eşanjör Tipi: {hx_type}
+    "heat_exchanger": """- Sıcak Akışkan: {hot_fluid}
+- Sıcak Giriş Sıcaklığı: {hot_inlet_temp_C} °C
+- Sıcak Çıkış Sıcaklığı: {hot_outlet_temp_C} °C
+- Sıcak Kütle Debisi: {hot_mass_flow_kg_s} kg/s
+- Sıcak Basınç Düşüşü: {hot_pressure_drop_kPa} kPa
+- Soğuk Akışkan: {cold_fluid}
+- Soğuk Giriş Sıcaklığı: {cold_inlet_temp_C} °C
+- Soğuk Çıkış Sıcaklığı: {cold_outlet_temp_C} °C
+- Soğuk Kütle Debisi: {cold_mass_flow_kg_s} kg/s
+- Soğuk Basınç Düşüşü: {cold_pressure_drop_kPa} kPa
+- Isı Yükü: {heat_duty_kW} kW
 - Çalışma Saati: {operating_hours} saat/yıl""",
-    "steam_turbine": """- Güç Çıkışı: {power_output_kW} kW
+    "steam_turbine": """- Giriş Sıcaklığı: {inlet_temp_C} °C
 - Giriş Basıncı: {inlet_pressure_bar} bar
-- Giriş Sıcaklığı: {inlet_temp_C} °C
+- Buhar Debisi: {mass_flow_kg_s} kg/s
 - Çıkış Basıncı: {outlet_pressure_bar} bar
 - Çıkış Sıcaklığı: {outlet_temp_C} °C
-- Buhar Debisi: {steam_flow_kg_h} kg/h
-- İzentropik Verim: {isentropic_efficiency_pct}%
-- Türbin Tipi: {turbine_type}
+- İzentropik Verim: {isentropic_efficiency}
+- Mekanik Verim: {mechanical_efficiency}
+- Jeneratör Verimi: {generator_efficiency}
+- CHP Modu: {is_chp}
+- Isı Geri Kazanım Sıcaklığı: {heat_recovery_temp_C} °C
+- Isı Geri Kazanım Oranı: {heat_recovery_fraction}
 - Çalışma Saati: {operating_hours} saat/yıl""",
-    "dryer": """- Kurutma Kapasitesi: {drying_capacity_kg_h} kg/h
+    "dryer": """- Ürün Debisi: {product_mass_flow_kg_h} kg/h
+- Giriş Nemi: {moisture_in_pct}%
+- Çıkış Nemi: {moisture_out_pct}%
+- Ürün Giriş Sıcaklığı: {product_inlet_temp_C} °C
+- Ürün Çıkış Sıcaklığı: {product_outlet_temp_C} °C
+- Isı Kaynağı: {heat_source}
+- Besleme Sıcaklığı: {supply_temp_C} °C
 - Isı Girdisi: {heat_input_kW} kW
-- Giriş Nemi: {inlet_moisture_pct}%
-- Çıkış Nemi: {outlet_moisture_pct}%
-- Kurutma Sıcaklığı: {drying_temp_C} °C
-- Egzoz Sıcaklığı: {exhaust_temp_C} °C
-- Egzoz Bağıl Nemi: {exhaust_rh_pct}%
-- Kurutucu Tipi: {dryer_type}
+- Hava Çıkış Sıcaklığı: {air_outlet_temp_C} °C
 - Çalışma Saati: {operating_hours} saat/yıl""",
 }
 
