@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun } from 'lucide-react';
-import { getEquipmentConfig, compareScenarios } from '../services/api';
+import { getEquipmentConfig } from '../services/api';
 import { useAnalysis } from '../hooks/useAnalysis';
 import SubtypeSelector from '../components/equipment/SubtypeSelector';
 import ParameterForm from '../components/forms/ParameterForm';
-import ResultsPanel from '../components/results/ResultsPanel';
-import SolutionsList from '../components/results/SolutionsList';
-import AIInterpretation from '../components/results/AIInterpretation';
-import ScenarioEditor from '../components/whatif/ScenarioEditor';
-import ComparisonPanel from '../components/whatif/ComparisonPanel';
-import ChatPanel from '../components/chat/ChatPanel';
 import Card from '../components/common/Card';
 import LoadingSpinner from '../components/common/Loading';
+import DashboardLayout from '../components/dashboard/DashboardLayout';
+import ParameterSidebar from '../components/dashboard/ParameterSidebar';
+import MetricBar from '../components/dashboard/MetricBar';
+import TabContainer from '../components/dashboard/TabContainer';
+import OverviewTab from '../components/dashboard/OverviewTab';
+import FlowTab from '../components/dashboard/FlowTab';
+import AITab from '../components/dashboard/AITab';
+import ScenarioTab from '../components/dashboard/ScenarioTab';
 
 const EQUIPMENT_META = {
   compressor: { name: 'Kompresör', icon: Wind, color: 'text-blue-600' },
@@ -24,6 +26,13 @@ const EQUIPMENT_META = {
   dryer: { name: 'Kurutma Fırını', icon: Sun, color: 'text-red-600' },
 };
 
+const TAB_CONFIG = [
+  { id: 'overview', label: 'Genel Bakış' },
+  { id: 'flow',     label: 'Akış Analizi' },
+  { id: 'ai',       label: 'AI Danışman' },
+  { id: 'scenario', label: 'Senaryo' },
+];
+
 const EquipmentAnalysis = () => {
   const { equipmentType } = useParams();
   const meta = EQUIPMENT_META[equipmentType] || { name: equipmentType, icon: Wind, color: 'text-gray-600' };
@@ -33,28 +42,21 @@ const EquipmentAnalysis = () => {
   const [subtypesLoading, setSubtypesLoading] = useState(true);
   const [selectedSubtype, setSelectedSubtype] = useState(null);
   const [formValues, setFormValues] = useState({});
+  const [baselineParams, setBaselineParams] = useState({});
 
   const { result, solutions, loading, error, analyze, reset, interpretation, aiLoading } = useAnalysis();
 
-  // Chat state
-  const [chatOpen, setChatOpen] = useState(false);
-
-  // What-If state
-  const [whatIfMode, setWhatIfMode] = useState(false);
-  const [baselineParams, setBaselineParams] = useState({});
-  const [scenarioParams, setScenarioParams] = useState({});
-  const [compareResult, setCompareResult] = useState(null);
-  const [isComparing, setIsComparing] = useState(false);
-  const [compareError, setCompareError] = useState(null);
+  // Dashboard state
+  const [activeTab, setActiveTab] = useState('overview');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Fetch subtypes with field definitions when equipment type changes
   useEffect(() => {
     setSubtypes([]);
     setSelectedSubtype(null);
     setFormValues({});
-    setWhatIfMode(false);
-    setCompareResult(null);
-    setCompareError(null);
+    setActiveTab('overview');
+    setSidebarCollapsed(false);
     reset();
     setSubtypesLoading(true);
 
@@ -75,9 +77,7 @@ const EquipmentAnalysis = () => {
   const handleSubtypeSelect = (subtypeId) => {
     setSelectedSubtype(subtypeId);
     setFormValues({});
-    setWhatIfMode(false);
-    setCompareResult(null);
-    setCompareError(null);
+    setActiveTab('overview');
     reset();
   };
 
@@ -87,167 +87,142 @@ const EquipmentAnalysis = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setWhatIfMode(false);
-    setCompareResult(null);
-    setCompareError(null);
     analyze(equipmentType, selectedSubtype, formValues);
     setBaselineParams({ ...formValues });
   };
 
-  const handleWhatIfToggle = () => {
-    setWhatIfMode(true);
-    setScenarioParams({ ...baselineParams });
-    setCompareResult(null);
-    setCompareError(null);
-  };
-
-  const handleWhatIfCancel = () => {
-    setWhatIfMode(false);
-    setCompareResult(null);
-    setCompareError(null);
-  };
-
-  const handleScenarioParamChange = (fieldId, value) => {
-    setScenarioParams(prev => ({ ...prev, [fieldId]: value }));
-  };
-
-  const handleCompare = async () => {
-    setIsComparing(true);
-    setCompareError(null);
-    try {
-      const res = await compareScenarios({
-        equipment_type: equipmentType,
-        subtype: selectedSubtype,
-        baseline_params: baselineParams,
-        scenario_params: scenarioParams,
-      });
-      setCompareResult(res);
-    } catch (err) {
-      setCompareError(err.response?.data?.detail || 'Karsilastirma hatasi');
-    } finally {
-      setIsComparing(false);
-    }
+  const handleReanalyze = () => {
+    analyze(equipmentType, selectedSubtype, formValues);
+    setBaselineParams({ ...formValues });
   };
 
   const selectedSubtypeData = subtypes?.find((t) => (t.id || t.type) === selectedSubtype);
 
-  return (
-    <div className="space-y-8">
-      {/* Title */}
-      <div className="flex items-center gap-3">
-        <Icon className={`w-8 h-8 ${meta.color}`} />
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{meta.name} Ekserji Analizi</h2>
-          <p className="text-gray-600 mt-1">
-            {meta.name} tipini seçin ve parametreleri girin
-          </p>
-        </div>
-      </div>
-
-      {/* Subtype Selection */}
-      <Card title={`1. ${meta.name} Tipi`}>
-        {subtypesLoading ? (
-          <div className="h-32 flex items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <SubtypeSelector
-            subtypes={subtypes}
-            selected={selectedSubtype}
-            onSelect={handleSubtypeSelect}
-          />
-        )}
-      </Card>
-
-      {/* Parameter form + analysis for ALL equipment types */}
+  // Build sidebar (only shown when result exists)
+  const sidebar = result ? (
+    <ParameterSidebar
+      equipmentType={equipmentType}
+      equipmentName={meta.name}
+      equipmentIcon={Icon}
+      equipmentColor={meta.color}
+      subtype={selectedSubtypeData?.name || selectedSubtype}
+      isCollapsed={sidebarCollapsed}
+      onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
+      onReanalyze={handleReanalyze}
+      loading={loading}
+    >
       {selectedSubtypeData && (
-        <>
-          <Card title="2. Parametreler">
-            <ParameterForm
-              fields={selectedSubtypeData.fields}
-              values={formValues}
-              onChange={handleFormChange}
-              onSubmit={handleSubmit}
-              loading={loading}
-            />
+        <ParameterForm
+          fields={selectedSubtypeData.fields}
+          values={formValues}
+          onChange={handleFormChange}
+          onSubmit={(e) => { e.preventDefault(); handleReanalyze(); }}
+          loading={loading}
+        />
+      )}
+    </ParameterSidebar>
+  ) : null;
+
+  // Build metric bar (only shown when result exists)
+  const metricBar = result ? (
+    <MetricBar metrics={result.metrics} radarData={result.radar_data} />
+  ) : null;
+
+  return (
+    <DashboardLayout hasResult={!!result} sidebar={sidebar} metricBar={metricBar}>
+      {!result ? (
+        /* Pre-analysis: centered form */
+        <div className="space-y-8">
+          {/* Title */}
+          <div className="flex items-center gap-3">
+            <Icon className={`w-8 h-8 ${meta.color}`} />
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{meta.name} Ekserji Analizi</h2>
+              <p className="text-gray-600 mt-1">
+                {meta.name} tipini seçin ve parametreleri girin
+              </p>
+            </div>
+          </div>
+
+          {/* Subtype Selection */}
+          <Card title={`1. ${meta.name} Tipi`}>
+            {subtypesLoading ? (
+              <div className="h-32 flex items-center justify-center">
+                <LoadingSpinner />
+              </div>
+            ) : (
+              <SubtypeSelector
+                subtypes={subtypes}
+                selected={selectedSubtype}
+                onSelect={handleSubtypeSelect}
+              />
+            )}
           </Card>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-              {typeof error === 'string' ? error : JSON.stringify(error)}
-            </div>
-          )}
-
-          {result && (
+          {/* Parameter Form */}
+          {selectedSubtypeData && (
             <>
-              <div className="border-t border-gray-200 pt-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Analiz Sonuçları</h2>
-                <ResultsPanel data={result} />
-              </div>
-
-              <AIInterpretation interpretation={interpretation} loading={aiLoading} />
-
-              {!interpretation && !aiLoading && solutions.length > 0 && (
-                <SolutionsList solutions={solutions} />
-              )}
-
-              {/* Action buttons: What-If + AI Chat */}
-              {!whatIfMode && (
-                <div className="flex justify-center gap-4">
-                  <button
-                    onClick={handleWhatIfToggle}
-                    className="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium shadow-sm"
-                  >
-                    What-If Senaryo Modu
-                  </button>
-                  <button
-                    onClick={() => setChatOpen(prev => !prev)}
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm"
-                  >
-                    {chatOpen ? 'Sohbeti Kapat' : 'AI Danismana Sor'}
-                  </button>
-                </div>
-              )}
-
-              {/* AI Chat Panel */}
-              {chatOpen && (
-                <ChatPanel
-                  equipmentType={equipmentType}
-                  subtype={selectedSubtype}
-                  analysisData={result}
-                  isVisible={chatOpen}
-                  onClose={() => setChatOpen(false)}
+              <Card title="2. Parametreler">
+                <ParameterForm
+                  fields={selectedSubtypeData.fields}
+                  values={formValues}
+                  onChange={handleFormChange}
+                  onSubmit={handleSubmit}
+                  loading={loading}
                 />
-              )}
+              </Card>
 
-              {whatIfMode && (
-                <div className="space-y-6">
-                  <ScenarioEditor
-                    fields={selectedSubtypeData?.fields || []}
-                    baselineParams={baselineParams}
-                    scenarioParams={scenarioParams}
-                    onParamChange={handleScenarioParamChange}
-                    onCompare={handleCompare}
-                    onCancel={handleWhatIfCancel}
-                    isLoading={isComparing}
-                  />
-
-                  {compareError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-                      {typeof compareError === 'string' ? compareError : JSON.stringify(compareError)}
-                    </div>
-                  )}
-
-                  {compareResult && (
-                    <ComparisonPanel compareResult={compareResult} />
-                  )}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+                  {typeof error === 'string' ? error : JSON.stringify(error)}
                 </div>
               )}
             </>
           )}
-        </>
+        </div>
+      ) : (
+        /* Post-analysis: tabbed dashboard */
+        <div>
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-4">
+              {typeof error === 'string' ? error : JSON.stringify(error)}
+            </div>
+          )}
+
+          <TabContainer tabs={TAB_CONFIG} activeTab={activeTab} onTabChange={setActiveTab}>
+            <div key="overview" data-tab="overview">
+              <OverviewTab
+                result={result}
+                interpretation={interpretation}
+                aiLoading={aiLoading}
+                onSwitchToAI={() => setActiveTab('ai')}
+              />
+            </div>
+            <div key="flow" data-tab="flow">
+              <FlowTab result={result} />
+            </div>
+            <div key="ai" data-tab="ai">
+              <AITab
+                interpretation={interpretation}
+                aiLoading={aiLoading}
+                equipmentType={equipmentType}
+                subtype={selectedSubtype}
+                result={result}
+              />
+            </div>
+            <div key="scenario" data-tab="scenario">
+              <ScenarioTab
+                equipmentType={equipmentType}
+                subtype={selectedSubtype}
+                baselineParams={baselineParams}
+                fields={selectedSubtypeData?.fields || []}
+                result={result}
+              />
+            </div>
+          </TabContainer>
+        </div>
       )}
-    </div>
+    </DashboardLayout>
   );
 };
 

@@ -1,11 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   margin: 0;
   min-width: 320px;
+}
+
+/* Sidebar collapse/expand animation */
+.sidebar-transition {
+  transition: width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom thin scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 2px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Tab content area minimum height */
+.tab-content {
+  min-height: calc(100vh - 200px);
+}
+
+/* Dark sidebar form overrides — avoids modifying FormField.jsx / ParameterForm.jsx */
+.dark-sidebar-form label {
+  color: #cbd5e1;
+}
+.dark-sidebar-form input {
+  background: #1e293b;
+  color: #fff;
+  border-color: #475569;
+}
+.dark-sidebar-form select {
+  background: #1e293b;
+  color: #fff;
+  border-color: #475569;
+}
+.dark-sidebar-form input::placeholder {
+  color: #64748b;
+}
+.dark-sidebar-form .text-gray-500 {
+  color: #94a3b8;
+}
+.dark-sidebar-form .text-gray-700 {
+  color: #cbd5e1;
+}
+.dark-sidebar-form .text-gray-400 {
+  color: #94a3b8;
+}
+.dark-sidebar-form button[type="submit"] {
+  display: none;
 }
