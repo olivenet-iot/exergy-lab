@@ -1,8 +1,11 @@
 """ExergyLab FastAPI Application."""
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from api.database.session import close_db, init_db
 from api.routes.analysis import router as analysis_router
 from api.routes.benchmarks import router as benchmarks_router
 from api.routes.chat import router as chat_router
@@ -10,10 +13,20 @@ from api.routes.factory import router as factory_router
 from api.routes.interpret import router as interpret_router
 from api.routes.solutions import router as solutions_router
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize and tear down the database."""
+    await init_db()
+    yield
+    await close_db()
+
+
 app = FastAPI(
     title="ExergyLab API",
     description="Kompresör exergy analizi ve optimizasyon API'si",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # CORS
