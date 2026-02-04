@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Factory, ArrowLeft, Play, Sparkles, Plus } from 'lucide-react';
+import { Factory, Plus, Play, PackageOpen } from 'lucide-react';
 import {
   getFactoryProject,
   analyzeFactory,
@@ -9,13 +9,14 @@ import {
   removeEquipmentFromProject,
 } from '../services/factoryApi';
 import Card from '../components/common/Card';
-import { formatCurrency, formatNumber, formatPercentage } from '../utils/formatters';
 import EquipmentInventory from '../components/factory/EquipmentInventory';
 import AddEquipmentModal from '../components/factory/AddEquipmentModal';
+import FactoryHeader from '../components/factory/FactoryHeader';
+import FactoryMetricBar from '../components/factory/FactoryMetricBar';
+import PriorityList from '../components/factory/PriorityList';
+import IntegrationPanel from '../components/factory/IntegrationPanel';
 import FactorySankey from '../components/factory/FactorySankey';
-import HotspotList from '../components/factory/HotspotList';
-import IntegrationOpportunities from '../components/factory/IntegrationOpportunities';
-import FactoryAIInterpretation from '../components/factory/FactoryAIInterpretation';
+import FactoryAIPanel from '../components/factory/FactoryAIPanel';
 
 const FactoryDashboard = () => {
   const { projectId } = useParams();
@@ -102,10 +103,16 @@ const FactoryDashboard = () => {
     }
   };
 
+  const handleEquipmentClick = (hotspot) => {
+    navigate(`/equipment/${hotspot.equipment_type}`, {
+      state: { equipmentId: hotspot.id, fromFactory: projectId },
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-600" />
       </div>
     );
   }
@@ -119,57 +126,22 @@ const FactoryDashboard = () => {
   }
 
   const aggregates = analysisResult?.aggregates;
+  const hasEquipment = (project.equipment?.length || 0) > 0;
+  const hasAnalysis = !!analysisResult;
+  const integrationPotential = analysisResult?.integration_opportunities?.reduce(
+    (sum, opp) => sum + (opp.estimated_savings_EUR_year || 0),
+    0
+  ) || null;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/factory')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <Factory className="w-8 h-8 text-indigo-600" />
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">{project.name}</h2>
-            <p className="text-gray-600 mt-1">
-              {project.sector && <span className="capitalize">{project.sector}</span>}
-              {project.sector && ' — '}
-              {project.equipment_count} ekipman
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleAnalyze}
-            disabled={analyzing || (project.equipment?.length || 0) === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
-          >
-            {analyzing ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-            ) : (
-              <Play className="w-4 h-4" />
-            )}
-            Analiz Calistir
-          </button>
-          {analysisResult && (
-            <button
-              onClick={handleInterpret}
-              disabled={interpreting}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
-            >
-              {interpreting ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-              ) : (
-                <Sparkles className="w-4 h-4" />
-              )}
-              AI Yorumu
-            </button>
-          )}
-        </div>
-      </div>
+    <div className="space-y-6">
+      {/* Header - always visible */}
+      <FactoryHeader
+        project={project}
+        onRefreshAnalysis={handleAnalyze}
+        onAddEquipment={() => setShowModal(true)}
+        isAnalyzing={analyzing}
+      />
 
       {/* Error */}
       {error && (
@@ -178,74 +150,118 @@ const FactoryDashboard = () => {
         </div>
       )}
 
-      {/* Summary Metrics */}
-      {aggregates && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <div className="text-sm text-gray-500">Toplam Guc</div>
-            <div className="text-2xl font-bold text-gray-900 mt-1">
-              {formatNumber(aggregates.total_exergy_input_kW, 1)} kW
-            </div>
-          </Card>
-          <Card>
-            <div className="text-sm text-gray-500">Exergy Kaybi</div>
-            <div className="text-2xl font-bold text-red-600 mt-1">
-              {formatNumber(aggregates.total_exergy_destroyed_kW, 1)} kW
-            </div>
-          </Card>
-          <Card>
-            <div className="text-sm text-gray-500">Fabrika Verimi</div>
-            <div className="text-2xl font-bold text-indigo-600 mt-1">
-              {formatPercentage(aggregates.factory_exergy_efficiency_pct)}
-            </div>
-          </Card>
-          <Card>
-            <div className="text-sm text-gray-500">Yillik Kayip</div>
-            <div className="text-2xl font-bold text-amber-600 mt-1">
-              {formatCurrency(aggregates.total_annual_loss_EUR)}
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Equipment Inventory */}
-      <Card title="Ekipman Envanteri">
-        <EquipmentInventory
-          equipment={project.equipment || []}
-          onRemove={handleRemoveEquipment}
-        />
-        <div className="mt-4">
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-3 py-2 text-indigo-600 border border-indigo-300 rounded-lg hover:bg-indigo-50 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Ekipman Ekle
-          </button>
-        </div>
-      </Card>
-
-      {/* Factory Sankey */}
-      {analysisResult?.sankey && (
-        <Card title="Fabrika Exergy Akis Diyagrami">
-          <FactorySankey data={analysisResult.sankey} />
+      {/* Mode 1: Empty - no equipment */}
+      {!hasEquipment && (
+        <Card>
+          <div className="text-center py-12">
+            <PackageOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+              Henuz ekipman eklenmedi
+            </h3>
+            <p className="text-gray-500 mb-4">
+              Fabrika analizine baslamak icin ekipman ekleyin
+            </p>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-2 px-4 py-2 mx-auto bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Ekipman Ekle
+            </button>
+          </div>
         </Card>
       )}
 
-      {/* Hotspots */}
-      {analysisResult?.hotspots?.length > 0 && (
-        <Card title="Exergy Kayip Hotspot'lari">
-          <HotspotList hotspots={analysisResult.hotspots} />
-        </Card>
+      {/* Mode 2: Has equipment, no analysis */}
+      {hasEquipment && !hasAnalysis && (
+        <>
+          <Card>
+            <div className="text-center py-8">
+              <Factory className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Analiz hazir
+              </h3>
+              <p className="text-gray-500 mb-4">
+                {project.equipment?.length} ekipman eklendi. Fabrika exergy analizini baslatabilirsiniz.
+              </p>
+              <button
+                onClick={handleAnalyze}
+                disabled={analyzing}
+                className="flex items-center gap-2 px-4 py-2 mx-auto bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50"
+              >
+                {analyzing ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
+                Analiz Calistir
+              </button>
+            </div>
+          </Card>
+
+          <Card title="Ekipman Envanteri">
+            <EquipmentInventory
+              equipment={project.equipment || []}
+              onRemove={handleRemoveEquipment}
+            />
+          </Card>
+        </>
       )}
 
-      {/* Integration Opportunities */}
-      {analysisResult?.integration_opportunities?.length > 0 && (
-        <IntegrationOpportunities opportunities={analysisResult.integration_opportunities} />
-      )}
+      {/* Mode 3: Full dashboard */}
+      {hasEquipment && hasAnalysis && (
+        <>
+          {/* Metric Bar */}
+          <FactoryMetricBar
+            aggregates={aggregates}
+            integrationPotential={integrationPotential}
+          />
 
-      {/* AI Interpretation */}
-      <FactoryAIInterpretation interpretation={interpretation} loading={interpreting} />
+          {/* Priority List + Integration Panel grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <Card title="Iyilestirme Oncelik Listesi">
+                <PriorityList
+                  hotspots={analysisResult?.hotspots}
+                  equipmentResults={analysisResult?.equipment_results}
+                  totalDestroyed={aggregates?.total_exergy_destroyed_kW}
+                  onEquipmentClick={handleEquipmentClick}
+                />
+              </Card>
+            </div>
+            <div>
+              <Card title="Entegrasyon Firsatlari">
+                <IntegrationPanel
+                  opportunities={analysisResult?.integration_opportunities}
+                />
+              </Card>
+            </div>
+          </div>
+
+          {/* Sankey Diagram */}
+          {analysisResult?.sankey && (
+            <Card title="Fabrika Exergy Akis Diyagrami">
+              <FactorySankey data={analysisResult.sankey} />
+            </Card>
+          )}
+
+          {/* AI Panel */}
+          <FactoryAIPanel
+            interpretation={interpretation}
+            loading={interpreting}
+            onRequestAI={handleInterpret}
+            hasAnalysis={hasAnalysis}
+          />
+
+          {/* Equipment Inventory */}
+          <Card title="Ekipman Envanteri">
+            <EquipmentInventory
+              equipment={project.equipment || []}
+              onRemove={handleRemoveEquipment}
+            />
+          </Card>
+        </>
+      )}
 
       {/* Add Equipment Modal */}
       {showModal && (
