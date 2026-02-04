@@ -29,6 +29,13 @@ const EXTRA_METRICS = {
   hydraulic_power_kW: { label: 'Hidrolik Güç', unit: 'kW' },
   wire_to_water_efficiency_pct: { label: 'Wire-to-Water Verim', unit: '%' },
   throttle_loss_kW: { label: 'Kısma Kaybı', unit: 'kW' },
+  // Exergoeconomic
+  exergoeconomic_f_factor: { label: 'Exergoekonomik Faktor (f)', unit: '' },
+  exergoeconomic_r_factor: { label: 'Goreli Maliyet Farki (r)', unit: '' },
+  exergoeconomic_Z_dot_eur_h: { label: 'Yatirim Maliyet Akisi (Z)', unit: 'EUR/h' },
+  exergoeconomic_C_dot_destruction_eur_h: { label: 'Yikim Maliyet Akisi (C_D)', unit: 'EUR/h' },
+  exergoeconomic_c_product_eur_kWh: { label: 'Urun Birim Maliyeti (c_P)', unit: 'EUR/kWh' },
+  exergoeconomic_total_cost_rate_eur_h: { label: 'Toplam Maliyet Akisi (Z+C_D)', unit: 'EUR/h' },
 };
 
 const FlowTab = ({ result }) => {

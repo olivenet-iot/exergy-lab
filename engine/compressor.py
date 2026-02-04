@@ -16,6 +16,7 @@ from .core import (
     R_AIR, CP_AIR, celsius_to_kelvin, bar_to_kpa,
     m3_min_to_m3_s, air_density, heat_exergy
 )
+from .exergoeconomic import _apply_exergoeconomic
 
 
 # Best-achievable isentropic efficiency per compressor type (Tsatsaronis & Morosuk 2008)
@@ -51,6 +52,7 @@ class CompressorInput:
 
     # Ekonomik
     electricity_price_eur_kwh: float = 0.10  # Elektrik fiyatı [€/kWh]
+    equipment_cost_eur: Optional[float] = None  # Ekipman maliyeti PEC [€]
 
     # Ekipman bilgisi
     compressor_type: str = "screw"          # screw, piston, scroll, centrifugal
@@ -150,6 +152,12 @@ class CompressorResult(ExergyResult):
             "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
             "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
             "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
+            "exergoeconomic_Z_dot_eur_h": round(self.exergoeconomic_Z_dot_eur_h, 4),
+            "exergoeconomic_C_dot_destruction_eur_h": round(self.exergoeconomic_C_dot_destruction_eur_h, 4),
+            "exergoeconomic_f_factor": round(self.exergoeconomic_f_factor, 4),
+            "exergoeconomic_r_factor": round(self.exergoeconomic_r_factor, 4),
+            "exergoeconomic_c_product_eur_kWh": round(self.exergoeconomic_c_product_eur_kWh, 4),
+            "exergoeconomic_total_cost_rate_eur_h": round(self.exergoeconomic_total_cost_rate_eur_h, 4),
         }
 
 
@@ -316,7 +324,17 @@ def analyze_compressor(input_data: CompressorInput, dead_state: DeadState = None
         dead_state=dead_state,
     )
 
-    return _apply_avoidable_split(result, input_data, dead_state, analyze_compressor, _calc_avoidable)
+    result = _apply_avoidable_split(result, input_data, dead_state, analyze_compressor, _calc_avoidable)
+
+    _apply_exergoeconomic(
+        result, equipment_type='compressor',
+        c_fuel_eur_kWh=input_data.electricity_price_eur_kwh,
+        capacity_param_kW=input_data.power_kW,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
+
+    return result
 
 
 def analyze_piston_compressor(input_data: PistonCompressorInput,
@@ -350,7 +368,17 @@ def analyze_piston_compressor(input_data: PistonCompressorInput,
         dead_state=dead_state,
     )
 
-    return _apply_avoidable_split(result, input_data, dead_state, analyze_piston_compressor, _calc_avoidable)
+    result = _apply_avoidable_split(result, input_data, dead_state, analyze_piston_compressor, _calc_avoidable)
+
+    _apply_exergoeconomic(
+        result, equipment_type='compressor',
+        c_fuel_eur_kWh=input_data.electricity_price_eur_kwh,
+        capacity_param_kW=input_data.power_kW,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
+
+    return result
 
 
 def analyze_scroll_compressor(input_data: ScrollCompressorInput,
@@ -383,7 +411,17 @@ def analyze_scroll_compressor(input_data: ScrollCompressorInput,
         dead_state=dead_state,
     )
 
-    return _apply_avoidable_split(result, input_data, dead_state, analyze_scroll_compressor, _calc_avoidable)
+    result = _apply_avoidable_split(result, input_data, dead_state, analyze_scroll_compressor, _calc_avoidable)
+
+    _apply_exergoeconomic(
+        result, equipment_type='compressor',
+        c_fuel_eur_kWh=input_data.electricity_price_eur_kwh,
+        capacity_param_kW=input_data.power_kW,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
+
+    return result
 
 
 def analyze_centrifugal_compressor(input_data: CentrifugalCompressorInput,
@@ -416,7 +454,17 @@ def analyze_centrifugal_compressor(input_data: CentrifugalCompressorInput,
         dead_state=dead_state,
     )
 
-    return _apply_avoidable_split(result, input_data, dead_state, analyze_centrifugal_compressor, _calc_avoidable)
+    result = _apply_avoidable_split(result, input_data, dead_state, analyze_centrifugal_compressor, _calc_avoidable)
+
+    _apply_exergoeconomic(
+        result, equipment_type='compressor',
+        c_fuel_eur_kWh=input_data.electricity_price_eur_kwh,
+        capacity_param_kW=input_data.power_kW,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
+
+    return result
 
 
 # ---------------------------------------------------------------------------

@@ -12,6 +12,7 @@ import math
 import copy
 
 from .core import DeadState, ExergyResult, compute_avoidable_split, celsius_to_kelvin
+from .exergoeconomic import _apply_exergoeconomic
 
 
 # ---------------------------------------------------------------------------
@@ -55,6 +56,7 @@ class PumpInput:
     ambient_temp_C: Optional[float] = None
     operating_hours: float = 6000
     electricity_price_eur_kwh: float = 0.12
+    equipment_cost_eur: Optional[float] = None  # Ekipman maliyeti PEC [€]
 
     def __post_init__(self):
         if self.ambient_temp_C is None:
@@ -131,6 +133,12 @@ class PumpResult(ExergyResult):
             "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
             "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
             "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
+            "exergoeconomic_Z_dot_eur_h": round(self.exergoeconomic_Z_dot_eur_h, 4),
+            "exergoeconomic_C_dot_destruction_eur_h": round(self.exergoeconomic_C_dot_destruction_eur_h, 4),
+            "exergoeconomic_f_factor": round(self.exergoeconomic_f_factor, 4),
+            "exergoeconomic_r_factor": round(self.exergoeconomic_r_factor, 4),
+            "exergoeconomic_c_product_eur_kWh": round(self.exergoeconomic_c_product_eur_kWh, 4),
+            "exergoeconomic_total_cost_rate_eur_h": round(self.exergoeconomic_total_cost_rate_eur_h, 4),
         }
 
 
@@ -243,6 +251,15 @@ def analyze_pump(input_data: PumpInput, dead_state: DeadState = None, _calc_avoi
                 result.exergy_destroyed_avoidable_kW = av
                 result.exergy_destroyed_unavoidable_kW = un
                 result.avoidable_ratio_pct = ratio
+
+    # Exergoeconomic analysis
+    _apply_exergoeconomic(
+        result, equipment_type='pump',
+        c_fuel_eur_kWh=input_data.electricity_price_eur_kwh,
+        capacity_param_kW=input_data.motor_power_kW,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
 
     return result
 

@@ -274,6 +274,12 @@ def _analyze_compressor(comp_type: str, parameters: dict) -> AnalysisResponse:
             exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
             exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
             avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
+            exergoeconomic_Z_dot_eur_h=api_dict.get("exergoeconomic_Z_dot_eur_h"),
+            exergoeconomic_C_dot_destruction_eur_h=api_dict.get("exergoeconomic_C_dot_destruction_eur_h"),
+            exergoeconomic_f_factor=api_dict.get("exergoeconomic_f_factor"),
+            exergoeconomic_r_factor=api_dict.get("exergoeconomic_r_factor"),
+            exergoeconomic_c_product_eur_kWh=api_dict.get("exergoeconomic_c_product_eur_kWh"),
+            exergoeconomic_total_cost_rate_eur_h=api_dict.get("exergoeconomic_total_cost_rate_eur_h"),
         ),
         heat_recovery=HeatRecoveryResponse(
             heat_recovery_potential_kW=api_dict.get("heat_recovery_potential_kW"),
@@ -325,6 +331,12 @@ def _analyze_boiler(subtype: str, parameters: dict) -> AnalysisResponse:
             exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
             exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
             avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
+            exergoeconomic_Z_dot_eur_h=api_dict.get("exergoeconomic_Z_dot_eur_h"),
+            exergoeconomic_C_dot_destruction_eur_h=api_dict.get("exergoeconomic_C_dot_destruction_eur_h"),
+            exergoeconomic_f_factor=api_dict.get("exergoeconomic_f_factor"),
+            exergoeconomic_r_factor=api_dict.get("exergoeconomic_r_factor"),
+            exergoeconomic_c_product_eur_kWh=api_dict.get("exergoeconomic_c_product_eur_kWh"),
+            exergoeconomic_total_cost_rate_eur_h=api_dict.get("exergoeconomic_total_cost_rate_eur_h"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -380,6 +392,12 @@ def _analyze_chiller(subtype: str, parameters: dict) -> AnalysisResponse:
             exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
             exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
             avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
+            exergoeconomic_Z_dot_eur_h=api_dict.get("exergoeconomic_Z_dot_eur_h"),
+            exergoeconomic_C_dot_destruction_eur_h=api_dict.get("exergoeconomic_C_dot_destruction_eur_h"),
+            exergoeconomic_f_factor=api_dict.get("exergoeconomic_f_factor"),
+            exergoeconomic_r_factor=api_dict.get("exergoeconomic_r_factor"),
+            exergoeconomic_c_product_eur_kWh=api_dict.get("exergoeconomic_c_product_eur_kWh"),
+            exergoeconomic_total_cost_rate_eur_h=api_dict.get("exergoeconomic_total_cost_rate_eur_h"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -429,6 +447,12 @@ def _analyze_pump(subtype: str, parameters: dict) -> AnalysisResponse:
             exergy_destroyed_avoidable_kW=api_dict.get("exergy_destroyed_avoidable_kW"),
             exergy_destroyed_unavoidable_kW=api_dict.get("exergy_destroyed_unavoidable_kW"),
             avoidable_ratio_pct=api_dict.get("avoidable_ratio_pct"),
+            exergoeconomic_Z_dot_eur_h=api_dict.get("exergoeconomic_Z_dot_eur_h"),
+            exergoeconomic_C_dot_destruction_eur_h=api_dict.get("exergoeconomic_C_dot_destruction_eur_h"),
+            exergoeconomic_f_factor=api_dict.get("exergoeconomic_f_factor"),
+            exergoeconomic_r_factor=api_dict.get("exergoeconomic_r_factor"),
+            exergoeconomic_c_product_eur_kWh=api_dict.get("exergoeconomic_c_product_eur_kWh"),
+            exergoeconomic_total_cost_rate_eur_h=api_dict.get("exergoeconomic_total_cost_rate_eur_h"),
         ),
         heat_recovery=HeatRecoveryResponse(
             annual_loss_kWh=api_dict.get("annual_loss_kWh"),
@@ -647,6 +671,7 @@ def _get_compressor_config() -> EquipmentTypeConfigResponse:
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=6000, min=0, max=8760, unit="saat/yıl"),
         CompressorFieldResponse(name="load_factor", label="Yük Faktörü", type="number", required=False, default=0.75, min=0, max=1, hint="0-1 arası, tipik değer 0.65-0.85"),
         CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.12, min=0, max=1, unit="€/kWh"),
+        CompressorFieldResponse(name="equipment_cost_eur", label="Ekipman Maliyeti", type="number", required=False, min=0, max=50000000, unit="EUR", hint="Bos birakilirsa otomatik tahmin yapilir"),
     ]
 
     subtypes = [
@@ -688,6 +713,7 @@ def _get_boiler_config() -> EquipmentTypeConfigResponse:
         CompressorFieldResponse(name="blowdown_rate_pct", label="Blowdown Oranı", type="number", required=False, default=3, min=0, max=20, unit="%"),
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=6000, min=0, max=8760, unit="saat/yıl"),
         CompressorFieldResponse(name="fuel_price_eur_kg", label="Yakıt Fiyatı", type="number", required=False, default=0.50, min=0, max=10, unit="€/kg", hint="Dogalgaz icin tipik: 0.35-0.60 €/kg"),
+        CompressorFieldResponse(name="equipment_cost_eur", label="Ekipman Maliyeti", type="number", required=False, min=0, max=50000000, unit="EUR", hint="Bos birakilirsa otomatik tahmin yapilir"),
     ]
 
     subtypes = []
@@ -723,6 +749,7 @@ def _get_chiller_config() -> EquipmentTypeConfigResponse:
         ]),
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=4000, min=0, max=8760, unit="saat/yıl"),
         CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.12, min=0, max=1, unit="€/kWh"),
+        CompressorFieldResponse(name="equipment_cost_eur", label="Ekipman Maliyeti", type="number", required=False, min=0, max=50000000, unit="EUR", hint="Bos birakilirsa otomatik tahmin yapilir"),
     ]
 
     abs_fields = [
@@ -736,6 +763,7 @@ def _get_chiller_config() -> EquipmentTypeConfigResponse:
         CompressorFieldResponse(name="cw_return_temp_C", label="Kondenser Suyu Çıkış", type="number", required=False, default=35, min=15, max=55, unit="°C"),
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=4000, min=0, max=8760, unit="saat/yıl"),
         CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.12, min=0, max=1, unit="€/kWh"),
+        CompressorFieldResponse(name="equipment_cost_eur", label="Ekipman Maliyeti", type="number", required=False, min=0, max=50000000, unit="EUR", hint="Bos birakilirsa otomatik tahmin yapilir"),
     ]
 
     subtypes = []
@@ -773,6 +801,7 @@ def _get_pump_config() -> EquipmentTypeConfigResponse:
         CompressorFieldResponse(name="pump_efficiency_pct", label="Pompa Verimi", type="number", required=False, default=75, min=30, max=95, unit="%"),
         CompressorFieldResponse(name="operating_hours", label="Yıllık Çalışma Saati", type="number", required=False, default=6000, min=0, max=8760, unit="saat/yıl"),
         CompressorFieldResponse(name="electricity_price_eur_kwh", label="Elektrik Fiyatı", type="number", required=False, default=0.12, min=0, max=1, unit="€/kWh"),
+        CompressorFieldResponse(name="equipment_cost_eur", label="Ekipman Maliyeti", type="number", required=False, min=0, max=50000000, unit="EUR", hint="Bos birakilirsa otomatik tahmin yapilir"),
     ]
 
     subtypes = []

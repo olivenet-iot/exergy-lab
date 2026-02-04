@@ -14,6 +14,7 @@ class ScrewCompressorParams(BaseModel):
     operating_hours: float = Field(4000, ge=0, le=8760, description="Yıllık çalışma saati")
     load_factor: float = Field(0.75, ge=0, le=1, description="Yük faktörü")
     electricity_price_eur_kwh: float = Field(0.10, ge=0, le=1, description="Elektrik fiyatı [€/kWh]")
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
 
 
 class PistonCompressorParams(BaseModel):
@@ -26,6 +27,7 @@ class PistonCompressorParams(BaseModel):
     operating_hours: float = Field(4000, ge=0, le=8760)
     load_factor: float = Field(0.75, ge=0, le=1)
     electricity_price_eur_kwh: float = Field(0.10, ge=0, le=1)
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
     stages: int = Field(1, ge=1, le=4, description="Kademe sayısı")
     cooling_type: Literal["air", "water"] = Field("air", description="Soğutma tipi")
 
@@ -40,6 +42,7 @@ class ScrollCompressorParams(BaseModel):
     operating_hours: float = Field(4000, ge=0, le=8760)
     load_factor: float = Field(0.75, ge=0, le=1)
     electricity_price_eur_kwh: float = Field(0.10, ge=0, le=1)
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
     oil_free: bool = Field(False, description="Yağsız kompresör mü?")
 
 
@@ -53,6 +56,7 @@ class CentrifugalCompressorParams(BaseModel):
     operating_hours: float = Field(4000, ge=0, le=8760)
     load_factor: float = Field(0.75, ge=0, le=1)
     electricity_price_eur_kwh: float = Field(0.10, ge=0, le=1)
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
     stages: int = Field(1, ge=1, le=5, description="Kademe sayısı")
     igv_position: float = Field(100.0, ge=0, le=100, description="IGV pozisyonu [%]")
 
@@ -75,6 +79,7 @@ class BoilerParams(BaseModel):
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Ortam sıcaklığı [°C]")
     operating_hours: float = Field(6000, ge=0, le=8760, description="Yıllık çalışma saati")
     fuel_price_eur_kg: float = Field(0.50, ge=0, le=10, description="Yakıt fiyatı [€/kg]")
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
 
 
 # --- Chiller params (vapor compression) ---
@@ -90,6 +95,7 @@ class VaporCompressionChillerParams(BaseModel):
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Ortam sıcaklığı [°C]")
     operating_hours: float = Field(4000, ge=0, le=8760, description="Yıllık çalışma saati")
     electricity_price_eur_kwh: float = Field(0.12, ge=0, le=1, description="Elektrik fiyatı [€/kWh]")
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
 
 
 class AbsorptionChillerParams(BaseModel):
@@ -104,6 +110,7 @@ class AbsorptionChillerParams(BaseModel):
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60)
     operating_hours: float = Field(4000, ge=0, le=8760)
     electricity_price_eur_kwh: float = Field(0.12, ge=0, le=1)
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
 
 
 # --- Pump params ---
@@ -121,6 +128,7 @@ class PumpParams(BaseModel):
     ambient_temp_C: Optional[float] = Field(None, ge=-20, le=60, description="Ortam sıcaklığı [°C]")
     operating_hours: float = Field(6000, ge=0, le=8760, description="Yıllık çalışma saati")
     electricity_price_eur_kwh: float = Field(0.12, ge=0, le=1, description="Elektrik fiyatı [€/kWh]")
+    equipment_cost_eur: Optional[float] = Field(None, ge=0, description="Ekipman maliyeti [€]")
 
 
 # --- Heat Exchanger params ---

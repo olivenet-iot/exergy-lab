@@ -40,6 +40,13 @@ class MetricsResponse(BaseModel):
     exergy_destroyed_avoidable_kW: Optional[float] = None
     exergy_destroyed_unavoidable_kW: Optional[float] = None
     avoidable_ratio_pct: Optional[float] = None
+    # Exergoeconomic indicators
+    exergoeconomic_Z_dot_eur_h: Optional[float] = None
+    exergoeconomic_C_dot_destruction_eur_h: Optional[float] = None
+    exergoeconomic_f_factor: Optional[float] = None
+    exergoeconomic_r_factor: Optional[float] = None
+    exergoeconomic_c_product_eur_kWh: Optional[float] = None
+    exergoeconomic_total_cost_rate_eur_h: Optional[float] = None
 
 
 class HeatRecoveryResponse(BaseModel):

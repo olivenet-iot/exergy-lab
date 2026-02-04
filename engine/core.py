@@ -44,6 +44,14 @@ class ExergyResult:
     exergy_destroyed_unavoidable_kW: float = 0.0
     avoidable_ratio_pct: float = 0.0
 
+    # Exergoeconomic indicators (SPECO, Lazzaretto & Tsatsaronis 2006)
+    exergoeconomic_Z_dot_eur_h: float = 0.0
+    exergoeconomic_C_dot_destruction_eur_h: float = 0.0
+    exergoeconomic_f_factor: float = 0.0
+    exergoeconomic_r_factor: float = 0.0
+    exergoeconomic_c_product_eur_kWh: float = 0.0
+    exergoeconomic_total_cost_rate_eur_h: float = 0.0
+
     def to_dict(self) -> dict:
         return {
             'exergy_in_kW': round(self.exergy_in_kW, 2),
@@ -56,6 +64,12 @@ class ExergyResult:
             'exergy_destroyed_avoidable_kW': round(self.exergy_destroyed_avoidable_kW, 2),
             'exergy_destroyed_unavoidable_kW': round(self.exergy_destroyed_unavoidable_kW, 2),
             'avoidable_ratio_pct': round(self.avoidable_ratio_pct, 1),
+            'exergoeconomic_Z_dot_eur_h': round(self.exergoeconomic_Z_dot_eur_h, 4),
+            'exergoeconomic_C_dot_destruction_eur_h': round(self.exergoeconomic_C_dot_destruction_eur_h, 4),
+            'exergoeconomic_f_factor': round(self.exergoeconomic_f_factor, 4),
+            'exergoeconomic_r_factor': round(self.exergoeconomic_r_factor, 4),
+            'exergoeconomic_c_product_eur_kWh': round(self.exergoeconomic_c_product_eur_kWh, 4),
+            'exergoeconomic_total_cost_rate_eur_h': round(self.exergoeconomic_total_cost_rate_eur_h, 4),
         }
 
 

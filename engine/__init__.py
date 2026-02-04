@@ -38,6 +38,10 @@ from .dryer import (
     analyze_dryer, get_dryer_recommendations,
     generate_dryer_sankey_data,
 )
+from .exergoeconomic import (
+    ExergoeconomicInput, ExergoeconomicResult,
+    analyze_exergoeconomic, compute_crf, compute_z_dot,
+)
 from .compare import compute_comparison
 from .sankey import generate_sankey_data
 from .radar import generate_radar_data, RADAR_AXES

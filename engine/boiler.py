@@ -13,6 +13,7 @@ import math
 import copy
 
 from .core import DeadState, ExergyResult, compute_avoidable_split, celsius_to_kelvin
+from .exergoeconomic import _apply_exergoeconomic
 
 try:
     from CoolProp.CoolProp import PropsSI
@@ -94,6 +95,7 @@ class BoilerInput:
     # Ekonomik
     operating_hours: float = 6000
     fuel_price_eur_kg: float = 0.50
+    equipment_cost_eur: Optional[float] = None  # Ekipman maliyeti PEC [€]
 
     # Ekipman
     boiler_type: str = "steam_firetube"
@@ -152,6 +154,12 @@ class BoilerResult(ExergyResult):
             "exergy_destroyed_avoidable_kW": round(self.exergy_destroyed_avoidable_kW, 2),
             "exergy_destroyed_unavoidable_kW": round(self.exergy_destroyed_unavoidable_kW, 2),
             "avoidable_ratio_pct": round(self.avoidable_ratio_pct, 1),
+            "exergoeconomic_Z_dot_eur_h": round(self.exergoeconomic_Z_dot_eur_h, 4),
+            "exergoeconomic_C_dot_destruction_eur_h": round(self.exergoeconomic_C_dot_destruction_eur_h, 4),
+            "exergoeconomic_f_factor": round(self.exergoeconomic_f_factor, 4),
+            "exergoeconomic_r_factor": round(self.exergoeconomic_r_factor, 4),
+            "exergoeconomic_c_product_eur_kWh": round(self.exergoeconomic_c_product_eur_kWh, 4),
+            "exergoeconomic_total_cost_rate_eur_h": round(self.exergoeconomic_total_cost_rate_eur_h, 4),
         }
 
 
@@ -402,6 +410,15 @@ def analyze_boiler(input_data: BoilerInput, dead_state: DeadState = None, _calc_
             result.exergy_destroyed_avoidable_kW = av
             result.exergy_destroyed_unavoidable_kW = un
             result.avoidable_ratio_pct = ratio
+
+    # Exergoeconomic analysis
+    _apply_exergoeconomic(
+        result, equipment_type='boiler',
+        c_fuel_eur_kWh=fuel_cost_per_kwh,
+        capacity_param_kW=Q_fuel,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
 
     return result
 

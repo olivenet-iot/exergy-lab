@@ -45,6 +45,13 @@ export const analyzeCompressor = async (compressorType, parameters) => {
       exergy_destroyed_avoidable_kW: data.metrics.exergy_destroyed_avoidable_kW,
       exergy_destroyed_unavoidable_kW: data.metrics.exergy_destroyed_unavoidable_kW,
       avoidable_ratio_pct: data.metrics.avoidable_ratio_pct,
+      // Exergoeconomic
+      exergoeconomic_Z_dot_eur_h: data.metrics.exergoeconomic_Z_dot_eur_h,
+      exergoeconomic_C_dot_destruction_eur_h: data.metrics.exergoeconomic_C_dot_destruction_eur_h,
+      exergoeconomic_f_factor: data.metrics.exergoeconomic_f_factor,
+      exergoeconomic_r_factor: data.metrics.exergoeconomic_r_factor,
+      exergoeconomic_c_product_eur_kWh: data.metrics.exergoeconomic_c_product_eur_kWh,
+      exergoeconomic_total_cost_rate_eur_h: data.metrics.exergoeconomic_total_cost_rate_eur_h,
     },
     heat_recovery: {
       potential_kW: data.heat_recovery.heat_recovery_potential_kW,
@@ -116,6 +123,13 @@ export const analyzeEquipment = async (equipmentType, subtype, parameters) => {
       exergy_destroyed_avoidable_kW: data.metrics.exergy_destroyed_avoidable_kW,
       exergy_destroyed_unavoidable_kW: data.metrics.exergy_destroyed_unavoidable_kW,
       avoidable_ratio_pct: data.metrics.avoidable_ratio_pct,
+      // Exergoeconomic
+      exergoeconomic_Z_dot_eur_h: data.metrics.exergoeconomic_Z_dot_eur_h,
+      exergoeconomic_C_dot_destruction_eur_h: data.metrics.exergoeconomic_C_dot_destruction_eur_h,
+      exergoeconomic_f_factor: data.metrics.exergoeconomic_f_factor,
+      exergoeconomic_r_factor: data.metrics.exergoeconomic_r_factor,
+      exergoeconomic_c_product_eur_kWh: data.metrics.exergoeconomic_c_product_eur_kWh,
+      exergoeconomic_total_cost_rate_eur_h: data.metrics.exergoeconomic_total_cost_rate_eur_h,
     },
     heat_recovery: {
       potential_kW: data.heat_recovery?.heat_recovery_potential_kW,
