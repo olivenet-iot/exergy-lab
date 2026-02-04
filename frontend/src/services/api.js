@@ -7,6 +7,15 @@ const api = axios.create({
   },
 });
 
+// Attach JWT token to every request if available
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const getCompressorTypes = async () => {
   const response = await api.get('/compressor-types');
   return response.data.compressor_types.map(ct => ({
@@ -183,6 +192,27 @@ export const getEquipmentTypes = async () => {
 export const getEquipmentSubtypes = async (equipmentType) => {
   const response = await api.get(`/equipment-types/${equipmentType}/subtypes`);
   return response.data;
+};
+
+// Auth
+export const register = async ({ email, password, full_name }) => {
+  const response = await api.post('/auth/register', { email, password, full_name });
+  return response.data;
+};
+
+export const login = async ({ email, password }) => {
+  const response = await api.post('/auth/login', { email, password });
+  return response.data;
+};
+
+export const getMe = async () => {
+  const response = await api.get('/auth/me');
+  return response.data;
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
 };
 
 export default api;

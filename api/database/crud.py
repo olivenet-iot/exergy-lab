@@ -10,7 +10,39 @@ from api.database.models import (
     Equipment,
     FactoryAnalysis,
     FactoryProject,
+    User,
 )
+
+
+# ---------------------------------------------------------------------------
+# User CRUD
+# ---------------------------------------------------------------------------
+
+async def create_user(
+    db: AsyncSession,
+    email: str,
+    hashed_password: str,
+    full_name: str | None = None,
+) -> User:
+    """Create a new user."""
+    user = User(email=email, hashed_password=hashed_password, full_name=full_name)
+    db.add(user)
+    await db.flush()
+    return user
+
+
+async def get_user(db: AsyncSession, user_id: str) -> User | None:
+    """Get a user by ID."""
+    stmt = select(User).where(User.id == user_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
+    """Get a user by email."""
+    stmt = select(User).where(User.email == email)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
 
 # ---------------------------------------------------------------------------
@@ -22,9 +54,12 @@ async def create_project(
     name: str,
     sector: str | None = None,
     description: str | None = None,
+    owner_id: str | None = None,
 ) -> FactoryProject:
     """Create a new factory project."""
-    project = FactoryProject(name=name, sector=sector, description=description)
+    project = FactoryProject(
+        name=name, sector=sector, description=description, owner_id=owner_id
+    )
     db.add(project)
     await db.flush()
     # Re-query with eager loading so relationships are accessible outside async
@@ -46,8 +81,14 @@ async def get_project(db: AsyncSession, project_id: str) -> FactoryProject | Non
     return result.scalar_one_or_none()
 
 
-async def get_all_projects(db: AsyncSession) -> list[FactoryProject]:
-    """Get all projects ordered by created_at desc."""
+async def get_all_projects(
+    db: AsyncSession, owner_id: str | None = None
+) -> list[FactoryProject]:
+    """Get all projects ordered by created_at desc.
+
+    If owner_id is provided, return only projects owned by that user
+    plus ownerless (legacy) projects.
+    """
     stmt = (
         select(FactoryProject)
         .options(
@@ -57,6 +98,11 @@ async def get_all_projects(db: AsyncSession) -> list[FactoryProject]:
         )
         .order_by(FactoryProject.created_at.desc())
     )
+    if owner_id is not None:
+        stmt = stmt.where(
+            (FactoryProject.owner_id == owner_id)
+            | (FactoryProject.owner_id.is_(None))
+        )
     result = await db.execute(stmt)
     return list(result.scalars().all())
 

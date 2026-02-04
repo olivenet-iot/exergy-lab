@@ -6,9 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.auth.dependencies import get_current_user
 from api.database import crud
 from api.database.models import Equipment as EquipmentModel
-from api.database.models import FactoryProject
+from api.database.models import FactoryProject, User
 from api.database.session import get_db
 from api.schemas.factory import (
     AddEquipmentRequest,
@@ -60,6 +61,19 @@ def _format_project(project: FactoryProject) -> dict:
     }
 
 
+def _check_ownership(project: FactoryProject, current_user: User | None) -> None:
+    """Raise 403 if user is authenticated but doesn't own the project.
+
+    Rules:
+    - No user (unauthenticated) → allow (backward compat)
+    - Project has no owner (legacy) → allow
+    - User matches owner → allow
+    - User doesn't match owner → 403
+    """
+    if current_user and project.owner_id and project.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized for this project")
+
+
 # ---------------------------------------------------------------------------
 # CRUD endpoints
 # ---------------------------------------------------------------------------
@@ -68,27 +82,42 @@ def _format_project(project: FactoryProject) -> dict:
 async def create_project(
     request: CreateFactoryProjectRequest,
     db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
 ):
     """Yeni fabrika projesi olustur."""
     project = await crud.create_project(
-        db, name=request.name, sector=request.sector, description=request.description
+        db,
+        name=request.name,
+        sector=request.sector,
+        description=request.description,
+        owner_id=current_user.id if current_user else None,
     )
     return {"success": True, "project": _format_project(project)}
 
 
 @router.get("/factory/projects")
-async def list_projects(db: AsyncSession = Depends(get_db)):
+async def list_projects(
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
     """Tum fabrika projelerini listele."""
-    projects = await crud.get_all_projects(db)
+    projects = await crud.get_all_projects(
+        db, owner_id=current_user.id if current_user else None
+    )
     return {"success": True, "projects": [_format_project(p) for p in projects]}
 
 
 @router.get("/factory/projects/{project_id}")
-async def get_project(project_id: str, db: AsyncSession = Depends(get_db)):
+async def get_project(
+    project_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
     """Fabrika projesini getir."""
     project = await crud.get_project(db, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
     return {"success": True, "project": _format_project(project)}
 
 
@@ -97,8 +126,13 @@ async def add_equipment(
     project_id: str,
     request: AddEquipmentRequest,
     db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
 ):
     """Projeye ekipman ekle."""
+    project = await crud.get_project(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
     eq = await crud.add_equipment(
         db,
         project_id=project_id,
@@ -117,12 +151,14 @@ async def remove_equipment(
     project_id: str,
     equipment_id: str,
     db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
 ):
     """Projeden ekipman kaldir."""
     # Check project exists first
     project = await crud.get_project(db, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
 
     removed = await crud.remove_equipment(db, project_id, equipment_id)
     if not removed:
@@ -139,11 +175,13 @@ async def remove_equipment(
 async def analyze_factory_project(
     project_id: str,
     db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
 ):
     """Fabrika seviyesi analiz calistir."""
     project = await crud.get_project(db, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
 
     if not project.equipment:
         raise HTTPException(status_code=400, detail="Project has no equipment")
@@ -194,11 +232,13 @@ async def interpret_factory(
     project_id: str,
     request: FactoryInterpretRequest = None,
     db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
 ):
     """Fabrika analizi AI yorumlama."""
     project = await crud.get_project(db, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
 
     # Check if we have analysis results
     has_results = any(eq.analysis_result for eq in project.equipment)

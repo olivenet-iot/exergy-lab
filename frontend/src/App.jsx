@@ -5,6 +5,7 @@ import EquipmentAnalysis from './pages/EquipmentAnalysis';
 import FactoryList from './pages/FactoryList';
 import FactoryWizard from './pages/FactoryWizard';
 import FactoryDashboard from './pages/FactoryDashboard';
+import Login from './pages/Login';
 
 const ReportsPlaceholder = () => (
   <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -16,17 +17,22 @@ const ReportsPlaceholder = () => (
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/equipment/:equipmentType" element={<EquipmentAnalysis />} />
-          <Route path="/factory" element={<FactoryList />} />
-          <Route path="/factory/new" element={<FactoryWizard />} />
-          <Route path="/factory/:projectId" element={<FactoryDashboard />} />
-          <Route path="/reports" element={<ReportsPlaceholder />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/equipment/:equipmentType" element={<EquipmentAnalysis />} />
+              <Route path="/factory" element={<FactoryList />} />
+              <Route path="/factory/new" element={<FactoryWizard />} />
+              <Route path="/factory/:projectId" element={<FactoryDashboard />} />
+              <Route path="/reports" element={<ReportsPlaceholder />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Layout>
+        } />
+      </Routes>
     </BrowserRouter>
   );
 }

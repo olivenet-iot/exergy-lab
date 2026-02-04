@@ -3,12 +3,16 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, JSON, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 def _short_uuid() -> str:
     return str(uuid.uuid4())[:8]
+
+
+def _full_uuid() -> str:
+    return str(uuid.uuid4())
 
 
 def _utcnow() -> datetime:
@@ -19,6 +23,22 @@ class Base(DeclarativeBase):
     pass
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_full_uuid)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String(255))
+    full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+    projects: Mapped[list["FactoryProject"]] = relationship(
+        back_populates="owner",
+        lazy="raise",
+    )
+
+
 class FactoryProject(Base):
     __tablename__ = "factory_projects"
 
@@ -26,9 +46,13 @@ class FactoryProject(Base):
     name: Mapped[str] = mapped_column(String(255))
     sector: Mapped[str | None] = mapped_column(String(50), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    owner_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
 
+    owner: Mapped["User | None"] = relationship(back_populates="projects")
     equipment: Mapped[list["Equipment"]] = relationship(
         back_populates="project",
         cascade="all, delete-orphan",
