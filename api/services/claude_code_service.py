@@ -737,6 +737,64 @@ def _format_factory_analysis(project: dict) -> str:
     return "\n".join(lines)
 
 
+def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
+    """Format factory data for AI prompt with size limits.
+
+    Extracts only essential fields per equipment, sorts by exergy destruction
+    (descending), and limits to top N equipment to avoid exceeding ARG_MAX.
+
+    Args:
+        project: Factory project data with equipment list.
+        max_equipment: Maximum number of equipment items to include.
+
+    Returns:
+        Formatted string with factory summary and top equipment.
+    """
+    lines = []
+    lines.append(f"**Fabrika Adi:** {project.get('name', 'N/A')}")
+    lines.append(f"**Sektor:** {project.get('sector', 'N/A')}")
+
+    equipment_list = project.get("equipment", [])
+    total_count = len(equipment_list)
+    lines.append(f"**Toplam Ekipman:** {total_count}")
+
+    # Extract and sort by exergy destruction
+    eq_data = []
+    for eq in equipment_list:
+        result = eq.get("analysis_result")
+        if not result:
+            continue
+        destroyed = result.get("exergy_destroyed_kW", 0) or 0
+        eq_data.append({
+            "name": eq.get("name", "N/A"),
+            "type": eq.get("type", ""),
+            "subtype": eq.get("subtype", ""),
+            "efficiency": result.get("exergy_efficiency_pct", "N/A"),
+            "destroyed": destroyed,
+            "annual_loss": result.get("annual_loss_EUR", "N/A"),
+        })
+
+    # Sort by destruction (highest first) and limit
+    eq_data.sort(key=lambda x: x["destroyed"], reverse=True)
+    top_equipment = eq_data[:max_equipment]
+
+    lines.append("")
+    lines.append(f"**En Yuksek Exergy Yikimli {len(top_equipment)} Ekipman:**")
+    lines.append("")
+
+    for eq in top_equipment:
+        lines.append(
+            f"- {eq['name']} ({eq['type']}/{eq['subtype']}): "
+            f"Verim={eq['efficiency']}%, Yikim={eq['destroyed']} kW, "
+            f"Yillik Kayip={eq['annual_loss']} EUR"
+        )
+
+    if total_count > max_equipment:
+        lines.append(f"\n*({total_count - max_equipment} ekipman daha truncate edildi)*")
+
+    return "\n".join(lines)
+
+
 def _fallback_factory_response() -> dict:
     """Return a fallback response for factory interpretation."""
     return {
@@ -757,13 +815,24 @@ async def interpret_factory_analysis(
     """Run Claude Code CLI to interpret factory-level analysis results."""
     client = ClaudeCodeClient.get_instance()
 
-    analysis_summary = _format_factory_analysis(project)
+    # Use size-limited formatter instead of full _format_factory_analysis
+    analysis_summary = _format_factory_for_prompt(project, max_equipment=10)
 
     sector_label = sector or project.get("sector") or "genel"
 
     # Load modular factory skills and knowledge
     skills_content = client._load_skills("factory")
     knowledge_content = client._load_relevant_knowledge("factory", sector=sector_label)
+
+    # Truncate knowledge content (100 lines per file) to avoid ARG_MAX issues
+    if knowledge_content:
+        truncated_parts = []
+        for part in knowledge_content.split("\n\n---\n\n"):
+            lines = part.split("\n")
+            if len(lines) > 100:
+                part = "\n".join(lines[:100]) + "\n\n[...truncated...]"
+            truncated_parts.append(part)
+        knowledge_content = "\n\n---\n\n".join(truncated_parts)
 
     # Build knowledge section
     knowledge_section = ""
@@ -845,6 +914,82 @@ Asagidaki JSON semasina uygun yanit ver. Markdown fence kullanma, saf JSON dondu
   "sector_specific_insights": ["Sektore ozel bulgu 1", "Bulgu 2"],
   "warnings": ["Uyari 1"]
 }}"""
+
+    # Log prompt length and apply hard limit if needed
+    prompt_len = len(prompt)
+    logger.info("Factory interpretation prompt length: %d chars", prompt_len)
+
+    MAX_PROMPT_LEN = 50000
+    if prompt_len > MAX_PROMPT_LEN:
+        logger.warning(
+            "Factory prompt exceeds %d chars (%d), truncating knowledge section",
+            MAX_PROMPT_LEN,
+            prompt_len,
+        )
+        # Reduce knowledge section to fit within limit
+        overage = prompt_len - MAX_PROMPT_LEN
+        if knowledge_section and len(knowledge_section) > overage + 500:
+            knowledge_section = knowledge_section[: len(knowledge_section) - overage - 500]
+            knowledge_section += "\n\n[...knowledge truncated due to size limit...]"
+            # Rebuild prompt with truncated knowledge
+            prompt = f"""Sen bir endustriyel exergy analizi uzmanisin. Asagidaki fabrika seviyesi analiz sonuclarini yorumla.
+
+{skills_section}
+{knowledge_section}
+## Fabrika Verileri
+
+{analysis_summary}
+
+**Sektor:** {sector_label}
+
+## Gorev
+
+Fabrika genelindeki exergy kayiplarini, hotspot'lari, capraz ekipman entegrasyon firsatlarini ve oncelikli aksiyonlari analiz et.
+Sektore ozel bulgulari belirt.
+
+Ileri analiz yontemlerini uygun oldugunda oner:
+- 3+ sicak ve 2+ soguk akis varsa → Pinch analizi oner
+- Toplam exergy yikim maliyeti > 50.000 EUR/yil → Termoekonomik optimizasyon oner
+- 3+ ekipman ve toplam I_total > 100 kW → Ileri exergy analizi (AV/UN, EN/EX) oner
+- Yuksek entropi uretimi → EGM (Entropy Generation Minimization) oner
+
+Asagidaki JSON semasina uygun yanit ver. Markdown fence kullanma, saf JSON dondur.
+
+{{
+  "summary": "Fabrika geneli 2-3 cumlelik ozet",
+  "hotspot_analysis": [
+    {{
+      "equipment_name": "Ekipman adi",
+      "equipment_type": "compressor|boiler|chiller|pump|heat_exchanger|steam_turbine|dryer",
+      "exergy_destroyed_kW": 15.5,
+      "priority": "high|medium|low",
+      "finding": "Bulgu aciklamasi"
+    }}
+  ],
+  "integration_opportunities": [
+    {{
+      "title": "Entegrasyon firsati",
+      "source": "Kaynak ekipman",
+      "target": "Hedef ekipman/proses",
+      "potential_savings_eur_year": 5000,
+      "complexity": "low|medium|high",
+      "description": "Detayli aciklama"
+    }}
+  ],
+  "prioritized_actions": [
+    {{
+      "rank": 1,
+      "action": "Aksiyon aciklamasi",
+      "estimated_savings_eur_year": 10000,
+      "estimated_investment_eur": 15000,
+      "payback_years": 1.5,
+      "priority": "high|medium|low"
+    }}
+  ],
+  "sector_specific_insights": ["Sektore ozel bulgu 1", "Bulgu 2"],
+  "warnings": ["Uyari 1"]
+}}"""
+            logger.info("Truncated prompt length: %d chars", len(prompt))
 
     try:
         logger.info("Claude Code CLI called for factory interpretation")
