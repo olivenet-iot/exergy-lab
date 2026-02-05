@@ -7,6 +7,7 @@ import {
   interpretFactory,
   addEquipmentToProject,
   removeEquipmentFromProject,
+  runPinchAnalysis,
 } from '../services/factoryApi';
 import Card from '../components/common/Card';
 import EquipmentInventory from '../components/factory/EquipmentInventory';
@@ -17,6 +18,7 @@ import PriorityList from '../components/factory/PriorityList';
 import IntegrationPanel from '../components/factory/IntegrationPanel';
 import FactorySankey from '../components/factory/FactorySankey';
 import FactoryAIPanel from '../components/factory/FactoryAIPanel';
+import PinchTab from '../components/pinch/PinchTab';
 
 const FactoryDashboard = () => {
   const { projectId } = useParams();
@@ -30,6 +32,7 @@ const FactoryDashboard = () => {
   const [interpreting, setInterpreting] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [pinchLoading, setPinchLoading] = useState(false);
 
   const fetchProject = async () => {
     try {
@@ -107,6 +110,21 @@ const FactoryDashboard = () => {
     navigate(`/equipment/${hotspot.equipment_type}`, {
       state: { equipmentId: hotspot.id, fromFactory: projectId },
     });
+  };
+
+  const handlePinchRerun = async (params) => {
+    setPinchLoading(true);
+    try {
+      const data = await runPinchAnalysis(projectId, params);
+      setAnalysisResult((prev) => ({
+        ...prev,
+        pinch_analysis: data.pinch_analysis,
+      }));
+    } catch {
+      // Keep existing pinch data on error
+    } finally {
+      setPinchLoading(false);
+    }
   };
 
   if (loading) {
@@ -243,6 +261,15 @@ const FactoryDashboard = () => {
             <Card title="Fabrika Exergy Akis Diyagrami">
               <FactorySankey data={analysisResult.sankey} />
             </Card>
+          )}
+
+          {/* Pinch Analysis */}
+          {analysisResult?.pinch_analysis && (
+            <PinchTab
+              pinchData={analysisResult.pinch_analysis}
+              onRerun={handlePinchRerun}
+              isLoading={pinchLoading}
+            />
           )}
 
           {/* AI Panel */}

@@ -34,3 +34,8 @@ export const interpretFactory = async (projectId, sector) => {
   const response = await api.post(`/factory/projects/${projectId}/interpret`, { sector });
   return response.data;
 };
+
+export const runPinchAnalysis = async (projectId, params = {}) => {
+  const response = await api.post(`/factory/projects/${projectId}/pinch`, params);
+  return response.data;
+};

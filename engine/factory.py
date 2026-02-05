@@ -59,6 +59,7 @@ class FactoryAnalysisResult:
     hotspots: List[dict]
     integration_opportunities: List[dict]
     sankey: dict
+    pinch_analysis: Optional[dict] = None
 
 
 # ---------------------------------------------------------------------------
@@ -298,12 +299,28 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
     # 5. Generate factory Sankey
     sankey = _generate_factory_sankey(valid_results, aggregates)
 
+    # 6. Pinch analysis (optional, best-effort)
+    pinch_analysis = None
+    try:
+        from .pinch import analyze_pinch, extract_thermal_streams, check_pinch_feasibility
+
+        results_dict = {r["id"]: r["analysis"] for r in valid_results if r.get("analysis")}
+        streams = extract_thermal_streams(equipment_list, results_dict)
+        feasible, _ = check_pinch_feasibility(streams)
+        if feasible:
+            pinch_result = analyze_pinch(equipment_list, results_dict)
+            if pinch_result.is_valid:
+                pinch_analysis = pinch_result.to_dict()
+    except Exception:
+        pass  # pinch_analysis stays None
+
     return FactoryAnalysisResult(
         equipment_results=equipment_results,
         aggregates=aggregates,
         hotspots=hotspots,
         integration_opportunities=integration,
         sankey=sankey,
+        pinch_analysis=pinch_analysis,
     )
 
 

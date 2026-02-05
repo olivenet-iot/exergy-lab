@@ -55,6 +55,13 @@ class FactoryProjectResponse(BaseModel):
     equipment_count: int = 0
 
 
+class PinchAnalysisRequest(BaseModel):
+    delta_T_min_C: float = Field(default=10.0, ge=1.0, le=50.0, description="Minimum sicaklik yaklasmasi [°C]")
+    fuel_price_eur_kwh: float = Field(default=0.08, ge=0.01, le=1.0, description="Yakit fiyati [EUR/kWh]")
+    operating_hours: int = Field(default=8000, ge=1000, le=8760, description="Yillik calisma saati")
+    include_pumps: bool = Field(default=False, description="Pompa akislarini dahil et")
+
+
 class FactoryAnalysisResponse(BaseModel):
     success: bool
     project_id: str
@@ -63,3 +70,4 @@ class FactoryAnalysisResponse(BaseModel):
     hotspots: List[dict]
     integration_opportunities: List[dict]
     sankey: dict
+    pinch_analysis: Optional[dict] = None

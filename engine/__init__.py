@@ -42,6 +42,11 @@ from .exergoeconomic import (
     ExergoeconomicInput, ExergoeconomicResult,
     analyze_exergoeconomic, compute_crf, compute_z_dot,
 )
+from .pinch import (
+    ThermalStream, StreamType, PinchResult,
+    analyze_pinch, extract_thermal_streams,
+    check_pinch_feasibility,
+)
 from .compare import compute_comparison
 from .sankey import generate_sankey_data
 from .radar import generate_radar_data, RADAR_AXES

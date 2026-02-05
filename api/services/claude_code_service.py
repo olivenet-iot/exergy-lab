@@ -737,6 +737,59 @@ def _format_factory_analysis(project: dict) -> str:
     return "\n".join(lines)
 
 
+def _format_pinch_for_prompt(project: dict) -> str:
+    """Format pinch analysis data for AI prompt, if available.
+
+    Checks equipment analysis results for pinch data by running
+    a quick pinch analysis on available equipment.
+    """
+    try:
+        from engine.pinch import analyze_pinch, extract_thermal_streams, check_pinch_feasibility
+        from engine.factory import EquipmentItem
+
+        equipment_list = project.get("equipment", [])
+        items = []
+        results_dict = {}
+        for eq in equipment_list:
+            result = eq.get("analysis_result")
+            if not result:
+                continue
+            eq_id = eq.get("id", "")
+            items.append(EquipmentItem(
+                id=eq_id,
+                name=eq.get("name", "N/A"),
+                equipment_type=eq.get("type", ""),
+                subtype=eq.get("subtype", ""),
+                parameters=eq.get("parameters", {}),
+            ))
+            results_dict[eq_id] = result
+
+        if not items:
+            return ""
+
+        streams = extract_thermal_streams(items, results_dict)
+        feasible, _ = check_pinch_feasibility(streams)
+        if not feasible:
+            return ""
+
+        pinch = analyze_pinch(items, results_dict)
+        if not pinch.is_valid:
+            return ""
+
+        lines = [
+            "## Pinch Analizi Sonuclari",
+            f"- Pinch sicakligi: {pinch.pinch_temperature_C:.1f}°C, ΔT_min: {pinch.delta_T_min_C:.1f}°C" if pinch.pinch_temperature_C else "- Pinch sicakligi: belirlenemedi",
+            f"- QH_min: {pinch.QH_min_kW:.1f} kW, QC_min: {pinch.QC_min_kW:.1f} kW",
+            f"- Maks isi geri kazanimi: {pinch.max_heat_recovery_kW:.1f} kW",
+            f"- Tasarruf: {pinch.savings_pct:.1f}% ({pinch.annual_savings_EUR:.0f} EUR/yil)",
+            f"- HEN eslestirme onerileri: {len(pinch.hen_matches)} adet",
+            f"- Termal akislar: {pinch.hot_stream_count} sicak + {pinch.cold_stream_count} soguk",
+        ]
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
 def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     """Format factory data for AI prompt with size limits.
 
@@ -817,6 +870,11 @@ async def interpret_factory_analysis(
 
     # Use size-limited formatter instead of full _format_factory_analysis
     analysis_summary = _format_factory_for_prompt(project, max_equipment=10)
+
+    # Append pinch analysis summary if available
+    pinch_summary = _format_pinch_for_prompt(project)
+    if pinch_summary:
+        analysis_summary += "\n\n" + pinch_summary
 
     sector_label = sector or project.get("sector") or "genel"
 

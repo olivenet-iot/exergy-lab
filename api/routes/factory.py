@@ -14,6 +14,7 @@ from api.database.session import get_db
 from api.schemas.factory import (
     AddEquipmentRequest,
     CreateFactoryProjectRequest,
+    PinchAnalysisRequest,
 )
 from engine.factory import EquipmentItem, analyze_factory
 
@@ -219,8 +220,67 @@ async def analyze_factory_project(
         "hotspots": result.hotspots,
         "integration_opportunities": result.integration_opportunities,
         "sankey": result.sankey,
+        "pinch_analysis": result.pinch_analysis,
     }
     return response
+
+
+# ---------------------------------------------------------------------------
+# Pinch Analysis endpoint
+# ---------------------------------------------------------------------------
+
+@router.post("/factory/projects/{project_id}/pinch")
+async def run_pinch_analysis(
+    project_id: str,
+    pinch_params: PinchAnalysisRequest = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
+    """Fabrika icin pinch analizi calistir (ozel parametreler ile)."""
+    project = await crud.get_project(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
+
+    if not project.equipment:
+        raise HTTPException(status_code=400, detail="Project has no equipment")
+
+    # Check that we have analysis results
+    has_results = any(eq.analysis_result for eq in project.equipment)
+    if not has_results:
+        raise HTTPException(status_code=400, detail="Run analysis first")
+
+    # Build equipment list and results dict
+    items = []
+    results_dict = {}
+    for eq in project.equipment:
+        items.append(EquipmentItem(
+            id=eq.id,
+            name=eq.name,
+            equipment_type=eq.equipment_type,
+            subtype=eq.subtype,
+            parameters=eq.parameters,
+        ))
+        if eq.analysis_result:
+            results_dict[eq.id] = eq.analysis_result.result_data
+
+    params = pinch_params or PinchAnalysisRequest()
+
+    try:
+        from engine.pinch import analyze_pinch
+
+        pinch_result = analyze_pinch(
+            items,
+            results_dict,
+            delta_T_min_C=params.delta_T_min_C,
+            fuel_price_eur_kwh=params.fuel_price_eur_kwh,
+            operating_hours=params.operating_hours,
+            include_pumps=params.include_pumps,
+        )
+        return {"success": True, "pinch_analysis": pinch_result.to_dict()}
+    except Exception as e:
+        logger.exception("Pinch analysis failed")
+        raise HTTPException(status_code=500, detail=f"Pinch analysis failed: {str(e)}")
 
 
 # ---------------------------------------------------------------------------
