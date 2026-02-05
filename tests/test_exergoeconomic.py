@@ -7,11 +7,15 @@ from engine.exergoeconomic import (
     compute_crf, compute_z_dot, estimate_equipment_cost,
     analyze_exergoeconomic, _apply_exergoeconomic,
     ExergoeconomicInput, ExergoeconomicResult,
+    COST_CORRELATIONS,
 )
 from engine.compressor import CompressorInput, analyze_compressor
 from engine.boiler import BoilerInput, analyze_boiler
 from engine.chiller import ChillerInput, analyze_chiller
 from engine.pump import PumpInput, analyze_pump
+from engine.heat_exchanger import HeatExchangerInput, analyze_heat_exchanger
+from engine.steam_turbine import SteamTurbineInput, analyze_steam_turbine
+from engine.dryer import DryerInput, analyze_dryer
 
 
 # ---------------------------------------------------------------------------
@@ -323,3 +327,179 @@ class TestExergoeconomicIntegration:
         result = analyze_pump(inp)
         assert result.exergoeconomic_Z_dot_eur_h > 0
         assert result.exergoeconomic_f_factor > 0
+
+
+# ---------------------------------------------------------------------------
+# TestNewCostCorrelations
+# ---------------------------------------------------------------------------
+
+class TestNewCostCorrelations:
+    @pytest.mark.parametrize("equipment_type,capacity", [
+        ("heat_exchanger", 100.0),
+        ("steam_turbine", 500.0),
+        ("dryer", 200.0),
+    ])
+    def test_new_cost_correlations(self, equipment_type, capacity):
+        """New equipment types should have reasonable PEC estimates."""
+        cost = estimate_equipment_cost(equipment_type, capacity)
+        assert cost > 1000
+        assert cost < 1_000_000
+
+    def test_subtype_cost_differs_from_default(self):
+        """Plate HX should have different cost than default HX."""
+        cost_default = estimate_equipment_cost('heat_exchanger', 100.0)
+        cost_plate = estimate_equipment_cost('heat_exchanger', 100.0, subtype='plate')
+        assert cost_default != cost_plate
+        # plate has lower a (1200 vs 1500), so should be cheaper
+        assert cost_plate < cost_default
+
+    def test_unknown_subtype_falls_back_to_default(self):
+        """Unknown subtype should give same cost as no subtype."""
+        cost_default = estimate_equipment_cost('heat_exchanger', 100.0)
+        cost_unknown = estimate_equipment_cost('heat_exchanger', 100.0, subtype='nonexistent')
+        assert cost_default == cost_unknown
+
+    def test_all_equipment_types_in_correlations(self):
+        """All 7 equipment types should be in COST_CORRELATIONS."""
+        expected = {'compressor', 'boiler', 'chiller', 'pump',
+                    'heat_exchanger', 'steam_turbine', 'dryer'}
+        assert set(COST_CORRELATIONS.keys()) == expected
+
+    def test_subtype_with_analyze(self):
+        """analyze_exergoeconomic with subtype should produce valid results."""
+        r1 = analyze_exergoeconomic(
+            exergy_destroyed_kW=10.0,
+            exergy_efficiency_pct=50.0,
+            exergy_in_kW=50.0,
+            exergy_out_kW=25.0,
+            c_fuel_eur_kWh=0.06,
+            equipment_type='heat_exchanger',
+            capacity_param_kW=100.0,
+        )
+        r2 = analyze_exergoeconomic(
+            exergy_destroyed_kW=10.0,
+            exergy_efficiency_pct=50.0,
+            exergy_in_kW=50.0,
+            exergy_out_kW=25.0,
+            c_fuel_eur_kWh=0.06,
+            equipment_type='heat_exchanger',
+            capacity_param_kW=100.0,
+            subtype='plate',
+        )
+        assert r1.Z_dot_eur_h > 0
+        assert r2.Z_dot_eur_h > 0
+        # Different subtypes -> different Z_dot
+        assert r1.Z_dot_eur_h != r2.Z_dot_eur_h
+
+
+# ---------------------------------------------------------------------------
+# TestSubtypeIntegration
+# ---------------------------------------------------------------------------
+
+class TestSubtypeIntegration:
+    def test_heat_exchanger_has_exergoeconomic_fields(self):
+        """Heat exchanger result should include exergoeconomic fields."""
+        inp = HeatExchangerInput(
+            hot_fluid='water',
+            hot_inlet_temp_C=90.0,
+            hot_outlet_temp_C=70.0,
+            hot_mass_flow_kg_s=2.0,
+            cold_fluid='water',
+            cold_inlet_temp_C=20.0,
+            cold_outlet_temp_C=50.0,
+            cold_mass_flow_kg_s=1.5,
+            fuel_price_eur_kwh=0.06,
+        )
+        result = analyze_heat_exchanger(inp)
+        assert result.exergoeconomic_f_factor > 0
+        assert result.exergoeconomic_r_factor > 0
+        assert result.exergoeconomic_Z_dot_eur_h > 0
+        assert result.exergoeconomic_C_dot_destruction_eur_h > 0
+        assert result.exergoeconomic_c_product_eur_kWh > 0
+        assert result.exergoeconomic_total_cost_rate_eur_h > 0
+
+    def test_steam_turbine_has_exergoeconomic_fields(self):
+        """Steam turbine result should include exergoeconomic fields."""
+        inp = SteamTurbineInput(
+            inlet_temp_C=400.0,
+            inlet_pressure_bar=40.0,
+            mass_flow_kg_s=5.0,
+            outlet_pressure_bar=0.1,
+            fuel_price_eur_kwh=0.04,
+        )
+        result = analyze_steam_turbine(inp)
+        assert result.exergoeconomic_f_factor > 0
+        assert result.exergoeconomic_Z_dot_eur_h > 0
+        assert result.exergoeconomic_C_dot_destruction_eur_h >= 0
+        assert result.exergoeconomic_c_product_eur_kWh > 0
+        assert result.exergoeconomic_total_cost_rate_eur_h > 0
+
+    def test_dryer_has_exergoeconomic_fields(self):
+        """Dryer result should include exergoeconomic fields."""
+        inp = DryerInput(
+            product_mass_flow_kg_h=1000.0,
+            moisture_in_pct=60.0,
+            moisture_out_pct=10.0,
+            supply_temp_C=200.0,
+            fuel_price_eur_kwh=0.05,
+        )
+        result = analyze_dryer(inp)
+        assert result.exergoeconomic_f_factor > 0
+        assert result.exergoeconomic_Z_dot_eur_h > 0
+        assert result.exergoeconomic_C_dot_destruction_eur_h > 0
+        assert result.exergoeconomic_c_product_eur_kWh > 0
+        assert result.exergoeconomic_total_cost_rate_eur_h > 0
+
+    def test_existing_engines_unchanged(self):
+        """Existing 4 engines should still produce exergoeconomic fields."""
+        # Compressor
+        r = analyze_compressor(CompressorInput(
+            power_kW=37.0, flow_rate_m3_min=6.2, outlet_pressure_bar=7.5,
+        ))
+        assert r.exergoeconomic_f_factor > 0
+
+        # Boiler
+        r = analyze_boiler(BoilerInput(
+            fuel_flow_kg_h=100.0, steam_flow_kg_h=2000.0, steam_pressure_bar=10.0,
+        ))
+        assert r.exergoeconomic_f_factor > 0
+
+        # Chiller
+        r = analyze_chiller(ChillerInput(
+            cooling_capacity_kW=350.0, compressor_power_kW=70.0,
+        ))
+        assert r.exergoeconomic_f_factor > 0
+
+        # Pump
+        r = analyze_pump(PumpInput(
+            motor_power_kW=15.0, flow_rate_m3_h=50.0, total_head_m=40.0,
+        ))
+        assert r.exergoeconomic_f_factor > 0
+
+    @pytest.mark.parametrize("equipment_type,input_cls,kwargs", [
+        ("compressor", CompressorInput, dict(power_kW=37.0, flow_rate_m3_min=6.2, outlet_pressure_bar=7.5)),
+        ("boiler", BoilerInput, dict(fuel_flow_kg_h=100.0, steam_flow_kg_h=2000.0, steam_pressure_bar=10.0)),
+        ("chiller", ChillerInput, dict(cooling_capacity_kW=350.0, compressor_power_kW=70.0)),
+        ("pump", PumpInput, dict(motor_power_kW=15.0, flow_rate_m3_h=50.0, total_head_m=40.0)),
+        ("heat_exchanger", HeatExchangerInput, dict()),
+        ("steam_turbine", SteamTurbineInput, dict()),
+        ("dryer", DryerInput, dict()),
+    ])
+    def test_full_speco_pipeline(self, equipment_type, input_cls, kwargs):
+        """All 7 equipment types should complete SPECO pipeline."""
+        analyze_fn = {
+            "compressor": analyze_compressor,
+            "boiler": analyze_boiler,
+            "chiller": analyze_chiller,
+            "pump": analyze_pump,
+            "heat_exchanger": analyze_heat_exchanger,
+            "steam_turbine": analyze_steam_turbine,
+            "dryer": analyze_dryer,
+        }
+        inp = input_cls(**kwargs)
+        result = analyze_fn[equipment_type](inp)
+        # All 6 exergoeconomic fields should be populated
+        assert result.exergoeconomic_Z_dot_eur_h > 0
+        assert result.exergoeconomic_f_factor > 0
+        assert result.exergoeconomic_c_product_eur_kWh > 0
+        assert result.exergoeconomic_total_cost_rate_eur_h > 0

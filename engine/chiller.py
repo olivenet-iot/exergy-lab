@@ -271,6 +271,7 @@ def analyze_chiller(input_data: ChillerInput, dead_state: DeadState = None, _cal
         capacity_param_kW=input_data.cooling_capacity_kW,
         equipment_cost_eur=input_data.equipment_cost_eur,
         annual_operating_hours=input_data.operating_hours,
+        subtype=input_data.chiller_type,
     )
 
     return result

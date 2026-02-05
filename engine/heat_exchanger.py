@@ -16,6 +16,7 @@ from .core import (
     celsius_to_kelvin,
     heat_exergy, CP_AIR, R_AIR
 )
+from .exergoeconomic import _apply_exergoeconomic
 
 
 # Akışkan özgül ısıları (kJ/kg·K)
@@ -90,6 +91,7 @@ class HeatExchangerInput:
     model: Optional[str] = None
     age_years: Optional[int] = None
     design_heat_duty_kW: Optional[float] = None
+    equipment_cost_eur: Optional[float] = None
 
     def __post_init__(self):
         """Varsayılan değerleri ayarla ve doğrula"""
@@ -308,6 +310,16 @@ def analyze_heat_exchanger(input_data: HeatExchangerInput, dead_state: DeadState
             result.exergy_destroyed_avoidable_kW = av
             result.exergy_destroyed_unavoidable_kW = un
             result.avoidable_ratio_pct = ratio
+
+    # Exergoeconomic analysis
+    _apply_exergoeconomic(
+        result, equipment_type='heat_exchanger',
+        c_fuel_eur_kWh=input_data.fuel_price_eur_kwh,
+        capacity_param_kW=Q,
+        subtype=input_data.hx_type,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
 
     return result
 

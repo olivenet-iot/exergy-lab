@@ -259,6 +259,7 @@ def analyze_pump(input_data: PumpInput, dead_state: DeadState = None, _calc_avoi
         capacity_param_kW=input_data.motor_power_kW,
         equipment_cost_eur=input_data.equipment_cost_eur,
         annual_operating_hours=input_data.operating_hours,
+        subtype=input_data.pump_type,
     )
 
     return result

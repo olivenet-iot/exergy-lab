@@ -87,30 +87,76 @@ def compute_z_dot(total_investment_eur: float, crf: float,
     return total_investment_eur * (crf + maintenance_factor) / annual_hours
 
 
-def estimate_equipment_cost(equipment_type: str, capacity_param_kW: float) -> float:
+# PEC = a * W^b  (basitlestirilmis guc yasasi korelasyonlari, endeks yili 2024)
+COST_CORRELATIONS = {
+    "compressor": {"a": 3500, "b": 0.70, "subtypes": {
+        "screw": {"a": 3500, "b": 0.70}, "screw_oilfree": {"a": 4200, "b": 0.72},
+        "piston": {"a": 2800, "b": 0.68}, "scroll": {"a": 3000, "b": 0.69},
+        "centrifugal": {"a": 5000, "b": 0.75}, "roots": {"a": 2500, "b": 0.65},
+    }},
+    "boiler": {"a": 2000, "b": 0.75, "subtypes": {
+        "steam_firetube": {"a": 2000, "b": 0.75}, "steam_watertube": {"a": 2500, "b": 0.78},
+        "hotwater": {"a": 1500, "b": 0.72}, "condensing": {"a": 2800, "b": 0.76},
+        "waste_heat": {"a": 1800, "b": 0.70}, "electric": {"a": 1200, "b": 0.65},
+        "biomass": {"a": 3000, "b": 0.80},
+    }},
+    "chiller": {"a": 1200, "b": 0.80, "subtypes": {
+        "screw": {"a": 1200, "b": 0.80}, "centrifugal": {"a": 1800, "b": 0.82},
+        "scroll": {"a": 1000, "b": 0.75}, "reciprocating": {"a": 1100, "b": 0.78},
+        "absorption": {"a": 2200, "b": 0.85}, "air_cooled": {"a": 1400, "b": 0.79},
+        "water_cooled": {"a": 1300, "b": 0.80},
+    }},
+    "pump": {"a": 1000, "b": 0.65, "subtypes": {
+        "centrifugal": {"a": 1000, "b": 0.65}, "positive_displacement": {"a": 1500, "b": 0.70},
+        "submersible": {"a": 1200, "b": 0.68}, "vertical_turbine": {"a": 1400, "b": 0.69},
+        "booster": {"a": 900, "b": 0.63}, "vacuum": {"a": 1800, "b": 0.72},
+    }},
+    "heat_exchanger": {"a": 1500, "b": 0.75, "subtypes": {
+        "shell_tube": {"a": 1500, "b": 0.75}, "plate": {"a": 1200, "b": 0.72},
+        "air_cooled": {"a": 2000, "b": 0.78}, "double_pipe": {"a": 1000, "b": 0.68},
+        "spiral": {"a": 1800, "b": 0.76}, "economizer": {"a": 1400, "b": 0.73},
+        "recuperator": {"a": 1600, "b": 0.74},
+    }},
+    "steam_turbine": {"a": 4500, "b": 0.70, "subtypes": {
+        "back_pressure": {"a": 4000, "b": 0.70}, "condensing": {"a": 5000, "b": 0.72},
+        "extraction": {"a": 5500, "b": 0.73}, "orc": {"a": 6000, "b": 0.75},
+        "micro_turbine": {"a": 3000, "b": 0.65},
+    }},
+    "dryer": {"a": 2500, "b": 0.78, "subtypes": {
+        "convective": {"a": 2500, "b": 0.78}, "rotary": {"a": 3000, "b": 0.80},
+        "fluidized_bed": {"a": 3500, "b": 0.82}, "spray": {"a": 4000, "b": 0.83},
+        "belt": {"a": 2800, "b": 0.77}, "heat_pump": {"a": 4500, "b": 0.80},
+        "infrared": {"a": 2200, "b": 0.72}, "drum": {"a": 2000, "b": 0.75},
+    }},
+}
+
+
+def estimate_equipment_cost(equipment_type: str, capacity_param_kW: float,
+                            subtype: Optional[str] = None) -> float:
     """
     Guc-yasasi korelasyonlariyla ekipman maliyeti (PEC) tahmini.
 
     Basitlestirilmis korelasyonlar - endeks yili 2024.
 
     Args:
-        equipment_type: Ekipman tipi (compressor, boiler, chiller, pump)
+        equipment_type: Ekipman tipi (compressor, boiler, chiller, pump, heat_exchanger, steam_turbine, dryer)
         capacity_param_kW: Kapasite parametresi [kW]
+        subtype: Ekipman alt tipi (opsiyonel, ornegin 'screw', 'plate')
 
     Returns:
         Tahmini PEC [EUR]
     """
     W = max(capacity_param_kW, 1.0)  # minimum 1 kW
 
-    # PEC = a * W^b  (basitlestirilmis guc yasasi korelasyonlari)
-    correlations = {
-        'compressor':  (3500.0, 0.70),   # Vidalı/pistonlu hava kompresoru
-        'boiler':      (2000.0, 0.75),   # Buhar/sicak su kazani
-        'chiller':     (1200.0, 0.80),   # Vapor compression chiller
-        'pump':        (1000.0, 0.65),   # Santrifuj pompa
-    }
+    corr = COST_CORRELATIONS.get(equipment_type)
+    if corr is None:
+        a, b = 2000.0, 0.70
+    elif subtype and subtype in corr.get("subtypes", {}):
+        sub = corr["subtypes"][subtype]
+        a, b = sub["a"], sub["b"]
+    else:
+        a, b = corr["a"], corr["b"]
 
-    a, b = correlations.get(equipment_type, (2000.0, 0.70))
     return a * (W ** b)
 
 
@@ -128,6 +174,7 @@ def analyze_exergoeconomic(
     equipment_life_years: int = 20,
     maintenance_factor: float = 0.02,
     annual_operating_hours: float = 6000,
+    subtype: Optional[str] = None,
 ) -> ExergoeconomicResult:
     """
     Exergoekonomik analiz yapar (SPECO yontemi).
@@ -160,7 +207,7 @@ def analyze_exergoeconomic(
     if equipment_cost_eur is not None and equipment_cost_eur > 0:
         pec = equipment_cost_eur
     else:
-        pec = estimate_equipment_cost(equipment_type, capacity_param_kW)
+        pec = estimate_equipment_cost(equipment_type, capacity_param_kW, subtype=subtype)
 
     tci = pec * installation_factor
 
@@ -208,7 +255,8 @@ def _apply_exergoeconomic(result, equipment_type: str,
                            c_fuel_eur_kWh: float,
                            capacity_param_kW: float,
                            equipment_cost_eur: Optional[float] = None,
-                           annual_operating_hours: float = 6000) -> None:
+                           annual_operating_hours: float = 6000,
+                           subtype: Optional[str] = None) -> None:
     """
     Exergoekonomik sonuclari mevcut ExergyResult nesnesine yazar.
 
@@ -221,6 +269,7 @@ def _apply_exergoeconomic(result, equipment_type: str,
         capacity_param_kW: Kapasite parametresi [kW]
         equipment_cost_eur: Ekipman maliyeti PEC [EUR] (None = otomatik tahmin)
         annual_operating_hours: Yillik calisma saati [h]
+        subtype: Ekipman alt tipi (opsiyonel)
     """
     eco = analyze_exergoeconomic(
         exergy_destroyed_kW=result.exergy_destroyed_kW,
@@ -232,6 +281,7 @@ def _apply_exergoeconomic(result, equipment_type: str,
         capacity_param_kW=capacity_param_kW,
         equipment_cost_eur=equipment_cost_eur,
         annual_operating_hours=annual_operating_hours,
+        subtype=subtype,
     )
 
     result.exergoeconomic_Z_dot_eur_h = eco.Z_dot_eur_h

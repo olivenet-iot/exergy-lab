@@ -16,6 +16,7 @@ from .core import (
     celsius_to_kelvin,
     heat_exergy, CP_AIR
 )
+from .exergoeconomic import _apply_exergoeconomic
 
 
 # Sabitler
@@ -94,6 +95,7 @@ class DryerInput:
     brand: Optional[str] = None
     model: Optional[str] = None
     age_years: Optional[int] = None
+    equipment_cost_eur: Optional[float] = None
 
     def __post_init__(self):
         """Hesaplanan varsayılanlar"""
@@ -318,6 +320,16 @@ def analyze_dryer(input_data: DryerInput, dead_state: DeadState = None, _calc_av
             result.exergy_destroyed_avoidable_kW = av
             result.exergy_destroyed_unavoidable_kW = un
             result.avoidable_ratio_pct = ratio
+
+    # Exergoeconomic analysis
+    _apply_exergoeconomic(
+        result, equipment_type='dryer',
+        c_fuel_eur_kWh=input_data.fuel_price_eur_kwh,
+        capacity_param_kW=Q_input,
+        subtype=input_data.dryer_type,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
 
     return result
 

@@ -332,6 +332,7 @@ def analyze_compressor(input_data: CompressorInput, dead_state: DeadState = None
         capacity_param_kW=input_data.power_kW,
         equipment_cost_eur=input_data.equipment_cost_eur,
         annual_operating_hours=input_data.operating_hours,
+        subtype=input_data.compressor_type,
     )
 
     return result
@@ -376,6 +377,7 @@ def analyze_piston_compressor(input_data: PistonCompressorInput,
         capacity_param_kW=input_data.power_kW,
         equipment_cost_eur=input_data.equipment_cost_eur,
         annual_operating_hours=input_data.operating_hours,
+        subtype=input_data.compressor_type,
     )
 
     return result
@@ -419,6 +421,7 @@ def analyze_scroll_compressor(input_data: ScrollCompressorInput,
         capacity_param_kW=input_data.power_kW,
         equipment_cost_eur=input_data.equipment_cost_eur,
         annual_operating_hours=input_data.operating_hours,
+        subtype=input_data.compressor_type,
     )
 
     return result
@@ -462,6 +465,7 @@ def analyze_centrifugal_compressor(input_data: CentrifugalCompressorInput,
         capacity_param_kW=input_data.power_kW,
         equipment_cost_eur=input_data.equipment_cost_eur,
         annual_operating_hours=input_data.operating_hours,
+        subtype=input_data.compressor_type,
     )
 
     return result

@@ -418,6 +418,7 @@ def analyze_boiler(input_data: BoilerInput, dead_state: DeadState = None, _calc_
         capacity_param_kW=Q_fuel,
         equipment_cost_eur=input_data.equipment_cost_eur,
         annual_operating_hours=input_data.operating_hours,
+        subtype=input_data.boiler_type,
     )
 
     return result

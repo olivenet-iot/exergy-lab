@@ -16,6 +16,7 @@ from .core import (
     celsius_to_kelvin,
     heat_exergy
 )
+from .exergoeconomic import _apply_exergoeconomic
 
 # Buhar özellikleri (basitleştirilmiş)
 CP_STEAM_SUPERHEATED = 2.01     # kJ/kg·K
@@ -102,6 +103,7 @@ class SteamTurbineInput:
     model: Optional[str] = None
     age_years: Optional[int] = None
     rated_power_MW: Optional[float] = None
+    equipment_cost_eur: Optional[float] = None
 
     def __post_init__(self):
         """Çıkış sıcaklığını hesapla (verilmemişse)"""
@@ -315,6 +317,16 @@ def analyze_steam_turbine(input_data: SteamTurbineInput, dead_state: DeadState =
             result.exergy_destroyed_avoidable_kW = av
             result.exergy_destroyed_unavoidable_kW = un
             result.avoidable_ratio_pct = ratio
+
+    # Exergoeconomic analysis
+    _apply_exergoeconomic(
+        result, equipment_type='steam_turbine',
+        c_fuel_eur_kWh=input_data.fuel_price_eur_kwh,
+        capacity_param_kW=W_shaft,
+        subtype=input_data.turbine_type,
+        equipment_cost_eur=input_data.equipment_cost_eur,
+        annual_operating_hours=input_data.operating_hours,
+    )
 
     return result
 
