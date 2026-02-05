@@ -39,3 +39,8 @@ export const runPinchAnalysis = async (projectId, params = {}) => {
   const response = await api.post(`/factory/projects/${projectId}/pinch`, params);
   return response.data;
 };
+
+export const runAdvancedExergy = async (projectId) => {
+  const response = await api.post(`/factory/projects/${projectId}/advanced-exergy`);
+  return response.data;
+};

@@ -793,6 +793,60 @@ def _format_pinch_for_prompt(project: dict) -> str:
         return ""
 
 
+def _format_advanced_exergy_for_prompt(project: dict) -> str:
+    """Format advanced exergy (EN/EX) data for AI prompt, if available."""
+    try:
+        from engine.advanced_exergy import analyze_advanced_exergy, check_advanced_exergy_feasibility
+        from engine.factory import EquipmentItem
+
+        equipment_list = project.get("equipment", [])
+        items = []
+        results_dict = {}
+        for eq in equipment_list:
+            result = eq.get("analysis_result")
+            if not result:
+                continue
+            eq_id = eq.get("id", "")
+            items.append({
+                "id": eq_id,
+                "name": eq.get("name", "N/A"),
+                "equipment_type": eq.get("type", ""),
+                "subtype": eq.get("subtype", ""),
+                "parameters": eq.get("parameters", {}),
+            })
+            results_dict[eq_id] = result
+
+        if len(items) < 2:
+            return ""
+
+        feasible, _ = check_advanced_exergy_feasibility(items, results_dict)
+        if not feasible:
+            return ""
+
+        adv = analyze_advanced_exergy(items, results_dict)
+        if not adv.is_valid:
+            return ""
+
+        lines = [
+            "## Ileri Exergy Analizi (EN/EX Dekompozisyon)",
+            f"- Endojen oran: {adv.endogenous_ratio:.1%}, Etkilesim yogunlugu: {adv.interaction_density:.1%}",
+            f"- AV-EN toplam: {adv.total_I_AV_EN_kW:.1f} kW, AV-EX toplam: {adv.total_I_AV_EX_kW:.1f} kW",
+        ]
+        top3 = adv.priority_ranking[:3]
+        if top3:
+            names = ", ".join(f"{r['equipment_name']}({r['I_AV_EN_kW']:.1f}kW)" for r in top3)
+            lines.append(f"- Oncelik: {names}")
+        if adv.most_influential:
+            lines.append(f"- En etkili: {adv.most_influential}")
+
+        result = "\n".join(lines)
+        if len(result) > 400:
+            result = result[:380] + "\n[...truncated...]"
+        return result
+    except Exception:
+        return ""
+
+
 def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     """Format factory data for AI prompt with size limits.
 
@@ -910,6 +964,11 @@ async def interpret_factory_analysis(
     pinch_summary = _format_pinch_for_prompt(project)
     if pinch_summary:
         analysis_summary += "\n\n" + pinch_summary
+
+    # Append advanced exergy summary if available
+    adv_summary = _format_advanced_exergy_for_prompt(project)
+    if adv_summary:
+        analysis_summary += "\n\n" + adv_summary
 
     sector_label = sector or project.get("sector") or "genel"
 

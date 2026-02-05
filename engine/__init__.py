@@ -47,6 +47,10 @@ from .pinch import (
     analyze_pinch, extract_thermal_streams,
     check_pinch_feasibility,
 )
+from .advanced_exergy import (
+    AdvancedExergyEquipmentResult, AdvancedExergyResult,
+    analyze_advanced_exergy, check_advanced_exergy_feasibility,
+)
 from .compare import compute_comparison
 from .sankey import generate_sankey_data
 from .radar import generate_radar_data, RADAR_AXES

@@ -71,3 +71,4 @@ class FactoryAnalysisResponse(BaseModel):
     integration_opportunities: List[dict]
     sankey: dict
     pinch_analysis: Optional[dict] = None
+    advanced_exergy: Optional[dict] = None

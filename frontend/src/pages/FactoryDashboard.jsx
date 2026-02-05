@@ -8,6 +8,7 @@ import {
   addEquipmentToProject,
   removeEquipmentFromProject,
   runPinchAnalysis,
+  runAdvancedExergy,
 } from '../services/factoryApi';
 import Card from '../components/common/Card';
 import EquipmentInventory from '../components/factory/EquipmentInventory';
@@ -19,6 +20,7 @@ import IntegrationPanel from '../components/factory/IntegrationPanel';
 import FactorySankey from '../components/factory/FactorySankey';
 import FactoryAIPanel from '../components/factory/FactoryAIPanel';
 import PinchTab from '../components/pinch/PinchTab';
+import AdvancedExergyTab from '../components/advanced-exergy/AdvancedExergyTab';
 
 const FactoryDashboard = () => {
   const { projectId } = useParams();
@@ -33,6 +35,7 @@ const FactoryDashboard = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [pinchLoading, setPinchLoading] = useState(false);
+  const [advExergyLoading, setAdvExergyLoading] = useState(false);
 
   const fetchProject = async () => {
     try {
@@ -124,6 +127,21 @@ const FactoryDashboard = () => {
       // Keep existing pinch data on error
     } finally {
       setPinchLoading(false);
+    }
+  };
+
+  const handleAdvancedExergyRerun = async () => {
+    setAdvExergyLoading(true);
+    try {
+      const data = await runAdvancedExergy(projectId);
+      setAnalysisResult((prev) => ({
+        ...prev,
+        advanced_exergy: data.advanced_exergy,
+      }));
+    } catch {
+      // Keep existing data on error
+    } finally {
+      setAdvExergyLoading(false);
     }
   };
 
@@ -269,6 +287,15 @@ const FactoryDashboard = () => {
               pinchData={analysisResult.pinch_analysis}
               onRerun={handlePinchRerun}
               isLoading={pinchLoading}
+            />
+          )}
+
+          {/* Advanced Exergy (EN/EX) */}
+          {analysisResult?.advanced_exergy && (
+            <AdvancedExergyTab
+              advancedExergyData={analysisResult.advanced_exergy}
+              onRerun={handleAdvancedExergyRerun}
+              isLoading={advExergyLoading}
             />
           )}
 

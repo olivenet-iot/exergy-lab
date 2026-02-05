@@ -60,6 +60,7 @@ class FactoryAnalysisResult:
     integration_opportunities: List[dict]
     sankey: dict
     pinch_analysis: Optional[dict] = None
+    advanced_exergy: Optional[dict] = None
 
 
 # ---------------------------------------------------------------------------
@@ -314,6 +315,25 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
     except Exception:
         pass  # pinch_analysis stays None
 
+    # 7. Advanced Exergy (optional, best-effort)
+    advanced_exergy = None
+    try:
+        from .advanced_exergy import analyze_advanced_exergy, check_advanced_exergy_feasibility
+
+        adv_results_dict = {r["id"]: r["analysis"] for r in valid_results if r.get("analysis")}
+        eq_list_dicts = [
+            {"id": item.id, "name": item.name, "equipment_type": item.equipment_type,
+             "subtype": item.subtype, "parameters": item.parameters}
+            for item in equipment_list
+        ]
+        feasible, _ = check_advanced_exergy_feasibility(eq_list_dicts, adv_results_dict)
+        if feasible:
+            adv_result = analyze_advanced_exergy(eq_list_dicts, adv_results_dict)
+            if adv_result.is_valid:
+                advanced_exergy = adv_result.to_dict()
+    except Exception:
+        pass
+
     return FactoryAnalysisResult(
         equipment_results=equipment_results,
         aggregates=aggregates,
@@ -321,6 +341,7 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
         integration_opportunities=integration,
         sankey=sankey,
         pinch_analysis=pinch_analysis,
+        advanced_exergy=advanced_exergy,
     )
 
 

@@ -221,6 +221,7 @@ async def analyze_factory_project(
         "integration_opportunities": result.integration_opportunities,
         "sankey": result.sankey,
         "pinch_analysis": result.pinch_analysis,
+        "advanced_exergy": result.advanced_exergy,
     }
     return response
 
@@ -281,6 +282,52 @@ async def run_pinch_analysis(
     except Exception as e:
         logger.exception("Pinch analysis failed")
         raise HTTPException(status_code=500, detail=f"Pinch analysis failed: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# Advanced Exergy endpoint
+# ---------------------------------------------------------------------------
+
+@router.post("/factory/projects/{project_id}/advanced-exergy")
+async def run_advanced_exergy(
+    project_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
+    """Fabrika icin ileri exergy analizi (EN/EX dekompozisyon) calistir."""
+    project = await crud.get_project(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
+
+    if not project.equipment:
+        raise HTTPException(status_code=400, detail="Project has no equipment")
+
+    has_results = any(eq.analysis_result for eq in project.equipment)
+    if not has_results:
+        raise HTTPException(status_code=400, detail="Run analysis first")
+
+    eq_list_dicts = []
+    results_dict = {}
+    for eq in project.equipment:
+        eq_list_dicts.append({
+            "id": eq.id,
+            "name": eq.name,
+            "equipment_type": eq.equipment_type,
+            "subtype": eq.subtype,
+            "parameters": eq.parameters,
+        })
+        if eq.analysis_result:
+            results_dict[eq.id] = eq.analysis_result.result_data
+
+    try:
+        from engine.advanced_exergy import analyze_advanced_exergy
+
+        adv_result = analyze_advanced_exergy(eq_list_dicts, results_dict)
+        return {"success": True, "advanced_exergy": adv_result.to_dict()}
+    except Exception as e:
+        logger.exception("Advanced exergy analysis failed")
+        raise HTTPException(status_code=500, detail=f"Advanced exergy analysis failed: {str(e)}")
 
 
 # ---------------------------------------------------------------------------
