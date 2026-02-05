@@ -785,7 +785,10 @@ def _format_pinch_for_prompt(project: dict) -> str:
             f"- HEN eslestirme onerileri: {len(pinch.hen_matches)} adet",
             f"- Termal akislar: {pinch.hot_stream_count} sicak + {pinch.cold_stream_count} soguk",
         ]
-        return "\n".join(lines)
+        result = "\n".join(lines)
+        if len(result) > 500:
+            result = result[:480] + "\n[...truncated...]"
+        return result
     except Exception:
         return ""
 
@@ -811,20 +814,20 @@ def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     total_count = len(equipment_list)
     lines.append(f"**Toplam Ekipman:** {total_count}")
 
-    # Extract and sort by exergy destruction
+    # Extract, summarize, and sort by exergy destruction
     eq_data = []
     for eq in equipment_list:
         result = eq.get("analysis_result")
         if not result:
             continue
-        destroyed = result.get("exergy_destroyed_kW", 0) or 0
+        summary = _summarize_equipment_for_prompt(result)
+        destroyed = summary.get("exergy_destroyed_kW", 0) or 0
         eq_data.append({
             "name": eq.get("name", "N/A"),
             "type": eq.get("type", ""),
             "subtype": eq.get("subtype", ""),
-            "efficiency": result.get("exergy_efficiency_pct", "N/A"),
+            "summary": summary,
             "destroyed": destroyed,
-            "annual_loss": result.get("annual_loss_EUR", "N/A"),
         })
 
     # Sort by destruction (highest first) and limit
@@ -836,16 +839,48 @@ def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     lines.append("")
 
     for eq in top_equipment:
-        lines.append(
+        s = eq["summary"]
+        line = (
             f"- {eq['name']} ({eq['type']}/{eq['subtype']}): "
-            f"Verim={eq['efficiency']}%, Yikim={eq['destroyed']} kW, "
-            f"Yillik Kayip={eq['annual_loss']} EUR"
+            f"Verim={s.get('exergy_efficiency_pct', 'N/A')}%, "
+            f"Yikim={s.get('exergy_destroyed_kW', 'N/A')} kW, "
+            f"Yillik Kayip={s.get('annual_loss_EUR', 'N/A')} EUR"
         )
+        # Append AV/UN split if available
+        av = s.get("exergy_destroyed_avoidable_kW")
+        if av is not None:
+            line += f", AV={av} kW ({s.get('avoidable_ratio_pct', 'N/A')}%)"
+        # Append exergoeconomic factors if available
+        f_factor = s.get("exergoeconomic_f_factor")
+        if f_factor is not None:
+            line += f", f={f_factor:.3f}, r={s.get('exergoeconomic_r_factor', 'N/A')}"
+        lines.append(line)
 
     if total_count > max_equipment:
         lines.append(f"\n*({total_count - max_equipment} ekipman daha truncate edildi)*")
 
     return "\n".join(lines)
+
+
+def _summarize_equipment_for_prompt(result: dict) -> dict:
+    """Whitelist equipment result fields to only those needed for the AI prompt.
+
+    Keeps the prompt compact by discarding intermediate calculation fields,
+    Sankey data, radar arrays, and other verbose outputs.
+    """
+    PROMPT_KEYS = [
+        "exergy_in_kW", "exergy_out_kW", "exergy_destroyed_kW",
+        "exergy_efficiency_pct", "thermal_efficiency_pct",
+        "annual_loss_kWh", "annual_loss_EUR",
+        "recoverable_heat_kW",
+        "exergy_destroyed_avoidable_kW", "exergy_destroyed_unavoidable_kW",
+        "avoidable_ratio_pct",
+        "exergoeconomic_f_factor", "exergoeconomic_r_factor",
+        "exergoeconomic_Z_dot_eur_h", "exergoeconomic_C_dot_destruction_eur_h",
+        "exergoeconomic_c_product_eur_kWh", "exergoeconomic_total_cost_rate_eur_h",
+        "grade",
+    ]
+    return {k: v for k, v in result.items() if k in PROMPT_KEYS and v is not None}
 
 
 def _fallback_factory_response() -> dict:
@@ -882,15 +917,30 @@ async def interpret_factory_analysis(
     skills_content = client._load_skills("factory")
     knowledge_content = client._load_relevant_knowledge("factory", sector=sector_label)
 
-    # Truncate knowledge content (100 lines per file) to avoid ARG_MAX issues
+    # 4a. Truncate skills content — each skill chunk to max 40 lines, total 12K cap
+    if skills_content:
+        skill_chunks = skills_content.split("\n\n---\n\n")
+        truncated_chunks = []
+        for chunk in skill_chunks:
+            chunk_lines = chunk.split("\n")
+            if len(chunk_lines) > 40:
+                chunk = "\n".join(chunk_lines[:40]) + "\n[...truncated...]"
+            truncated_chunks.append(chunk)
+        skills_content = "\n\n---\n\n".join(truncated_chunks)
+        if len(skills_content) > 12000:
+            skills_content = skills_content[:11900] + "\n[...skills truncated...]"
+
+    # 4b. Truncate knowledge content — 30 lines per file, 12K total cap
     if knowledge_content:
         truncated_parts = []
         for part in knowledge_content.split("\n\n---\n\n"):
             lines = part.split("\n")
-            if len(lines) > 100:
-                part = "\n".join(lines[:100]) + "\n\n[...truncated...]"
+            if len(lines) > 30:
+                part = "\n".join(lines[:30]) + "\n\n[...truncated...]"
             truncated_parts.append(part)
         knowledge_content = "\n\n---\n\n".join(truncated_parts)
+        if len(knowledge_content) > 12000:
+            knowledge_content = knowledge_content[:11900] + "\n[...knowledge truncated...]"
 
     # Build knowledge section
     knowledge_section = ""
@@ -973,81 +1023,11 @@ Asagidaki JSON semasina uygun yanit ver. Markdown fence kullanma, saf JSON dondu
   "warnings": ["Uyari 1"]
 }}"""
 
-    # Log prompt length and apply hard limit if needed
+    # Log prompt length
     prompt_len = len(prompt)
-    logger.info("Factory interpretation prompt length: %d chars", prompt_len)
-
-    MAX_PROMPT_LEN = 50000
-    if prompt_len > MAX_PROMPT_LEN:
-        logger.warning(
-            "Factory prompt exceeds %d chars (%d), truncating knowledge section",
-            MAX_PROMPT_LEN,
-            prompt_len,
-        )
-        # Reduce knowledge section to fit within limit
-        overage = prompt_len - MAX_PROMPT_LEN
-        if knowledge_section and len(knowledge_section) > overage + 500:
-            knowledge_section = knowledge_section[: len(knowledge_section) - overage - 500]
-            knowledge_section += "\n\n[...knowledge truncated due to size limit...]"
-            # Rebuild prompt with truncated knowledge
-            prompt = f"""Sen bir endustriyel exergy analizi uzmanisin. Asagidaki fabrika seviyesi analiz sonuclarini yorumla.
-
-{skills_section}
-{knowledge_section}
-## Fabrika Verileri
-
-{analysis_summary}
-
-**Sektor:** {sector_label}
-
-## Gorev
-
-Fabrika genelindeki exergy kayiplarini, hotspot'lari, capraz ekipman entegrasyon firsatlarini ve oncelikli aksiyonlari analiz et.
-Sektore ozel bulgulari belirt.
-
-Ileri analiz yontemlerini uygun oldugunda oner:
-- 3+ sicak ve 2+ soguk akis varsa → Pinch analizi oner
-- Toplam exergy yikim maliyeti > 50.000 EUR/yil → Termoekonomik optimizasyon oner
-- 3+ ekipman ve toplam I_total > 100 kW → Ileri exergy analizi (AV/UN, EN/EX) oner
-- Yuksek entropi uretimi → EGM (Entropy Generation Minimization) oner
-
-Asagidaki JSON semasina uygun yanit ver. Markdown fence kullanma, saf JSON dondur.
-
-{{
-  "summary": "Fabrika geneli 2-3 cumlelik ozet",
-  "hotspot_analysis": [
-    {{
-      "equipment_name": "Ekipman adi",
-      "equipment_type": "compressor|boiler|chiller|pump|heat_exchanger|steam_turbine|dryer",
-      "exergy_destroyed_kW": 15.5,
-      "priority": "high|medium|low",
-      "finding": "Bulgu aciklamasi"
-    }}
-  ],
-  "integration_opportunities": [
-    {{
-      "title": "Entegrasyon firsati",
-      "source": "Kaynak ekipman",
-      "target": "Hedef ekipman/proses",
-      "potential_savings_eur_year": 5000,
-      "complexity": "low|medium|high",
-      "description": "Detayli aciklama"
-    }}
-  ],
-  "prioritized_actions": [
-    {{
-      "rank": 1,
-      "action": "Aksiyon aciklamasi",
-      "estimated_savings_eur_year": 10000,
-      "estimated_investment_eur": 15000,
-      "payback_years": 1.5,
-      "priority": "high|medium|low"
-    }}
-  ],
-  "sector_specific_insights": ["Sektore ozel bulgu 1", "Bulgu 2"],
-  "warnings": ["Uyari 1"]
-}}"""
-            logger.info("Truncated prompt length: %d chars", len(prompt))
+    logger.info("Factory prompt: %d chars", prompt_len)
+    if prompt_len > 40000:
+        logger.warning("Factory prompt exceeds 40K chars (%d)", prompt_len)
 
     try:
         logger.info("Claude Code CLI called for factory interpretation")
