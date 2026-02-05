@@ -1,515 +1,786 @@
-# ExergyLab — Proje Analiz Raporu
+# ExergyLab - Kapsamli Proje Analizi
 
-> Otomatik uretim tarihi: 2026-02-02
-> Analiz yontemi: Statik kod analizi + test yurutme + dizin taramasi
+> **Son Guncelleme:** 2026-02-05
+> **Versiyon:** 2.0
+> **Durum:** Uretim (Production)
+
+---
+
+## Icindekiler
+
+1. [Proje Ozeti](#1-proje-ozeti)
+2. [Hizli Baslangic](#2-hizli-baslangic)
+3. [Mimari Genel Bakis](#3-mimari-genel-bakis)
+4. [Dizin Yapisi](#4-dizin-yapisi-guncel)
+5. [Backend Detaylari](#5-backend-detaylari)
+6. [Frontend Detaylari](#6-frontend-detaylari)
+7. [Knowledge Base](#7-knowledge-base)
+8. [AI Sistemi](#8-ai-sistemi)
+9. [Test Kapsamsi](#9-test-kapsamsi)
+10. [Bagimliliklar](#10-bagimliliklar)
+11. [Guvenlik](#11-guvenlik)
+12. [Bilinen Sorunlar](#12-bilinen-sorunlar)
+13. [Gelistirme Onerileri](#13-gelistirme-onerileri)
+14. [Commit Gecmisi](#14-commit-gecmisi)
+15. [Metrik Ozeti](#15-metrik-ozeti)
 
 ---
 
 ## 1. Proje Ozeti
 
-**ExergyLab**, endustriyel tesislerdeki 7 ekipman tipinin ve fabrika genelinin exergy analizini yapan, 6 ileri analiz yontemi icin bilgi tabani sunan ve Claude AI destekli yorumlar ureten bir enerji verimliligi platformudur.
+ExergyLab, 7 endustriyel ekipman tipinin ve fabrikalarin exergy analizini yapan, 6 ileri analiz yontemi ve AI destekli yorumlar sunan bir enerji verimliligi platformudur.
 
-**Temel Odak:** Enerji verimi yerine **exergy verimi** — termodinamigin 2. yasasina dayali gercek verimlilik olcumu. Dusuk sicakliktaki isi, dusuk exergy'dir; bu platform bu farki olcer ve raporlar.
+**Temel Fark:** Enerji verimi yerine **exergy verimi** odakli analiz -- termodinamigin 2. yasasina dayali gercek verimlilik olcumu.
 
-**Mevcut Durum:** 4/7 ekipman tipi icin hesaplama motoru hazir, 7/7 ekipman tipi icin AI bilgi tabani ve skill dosyalari mevcut, fabrika seviyesi aggregation ve cross-equipment entegrasyon tespiti calisiyor. 243 test %100 basarili.
+### Platform Ozellikleri
 
-### Teknoloji Yigini
+| Ozellik | Aciklama |
+|---------|----------|
+| 7 Ekipman Tipi | Kompresor, kazan, chiller, pompa, isi esanjoru, buhar turbini, kurutma firini |
+| 46 Alt Tip | Her ekipman icin detayli alt tip destegi |
+| 6 Ileri Analiz | Pinch, ileri exergy, exergoekonomik, termoekonomik, EGM, enerji yonetimi |
+| AI Yorumlama | Claude API ile Turkce teknik yorumlar |
+| What-If Senaryolar | Baseline vs senaryo karsilastirmasi |
+| Radar Benchmark | 6 eksenli performans degerlendirme (A-F not) |
+| AV/UN Ayrisim | Kacinilinabilir/kacinilmaz exergy yikim analizi |
+| Exergoekonomik | SPECO metodolojisi, f-faktor, r-faktor |
+| Fabrika Analizi | Coklu ekipman agregasyonu, hotspot tespiti, entegrasyon firsatlari |
+| SQLite Kalicilik | Proje ve analiz sonuclarinin veritabaninda saklanmasi |
+| JWT Kimlik Dogrulama | Opsiyonel kullanici yetkilendirmesi |
 
-| Katman | Teknoloji | Versiyon |
-|--------|-----------|----------|
-| Backend | Python, FastAPI, Pydantic | 3.10+, >=0.109, >=2.0 |
-| Frontend | React, Vite, TailwindCSS | 19.2, Vite 6.x |
-| AI | Claude Code CLI | - |
-| Termodinamik | CoolProp | >=6.4.0 |
-| Grafik | Plotly, Recharts (react-plotly.js) | >=5.0, 2.6 |
-| Test | Pytest, httpx | >=7.0, >=0.26 |
+### Teknoloji Stack
 
----
-
-## 2. Proje Istatistikleri
-
-| Metrik | Deger |
-|--------|-------|
-| Toplam Python satiri | 6,976 |
-| Toplam JSX satiri | 2,676 |
-| Toplam JS satiri (hooks + services) | 282 |
-| Toplam Knowledge Base satiri | ~141,233 |
-| Toplam Skill satiri | 3,146 |
-| Knowledge dosya sayisi | 305 |
-| Skill dosya sayisi | 17 |
-| Engine modulleri | 10 (.py dosyasi, `__init__` dahil) |
-| API dosyalari | 11 (.py) |
-| Frontend component/sayfa | 31 JSX dosyasi |
-| Test dosyalari | 6 (conftest + 4 test modulu + `__init__`) |
-| Test metodu sayisi | 243 |
-| Test basari orani | %100 (243/243 passed, 1.73s) |
-| Git commit sayisi | 21 |
-| Git branch | master (tekil) |
-| TODO/FIXME sayisi | 0 |
+| Katman | Teknoloji |
+|--------|-----------|
+| Backend | Python 3.10+, FastAPI, Pydantic v2, SQLAlchemy 2.0 |
+| Frontend | React 19, Vite 7, TailwindCSS 3, Plotly.js |
+| AI | Claude API (yorumlama + sohbet) |
+| Termodinamik | CoolProp (buhar/su ozellikleri) |
+| Veritabani | SQLite + aiosqlite |
+| Auth | python-jose (JWT), passlib (bcrypt) |
 
 ---
 
-## 3. Dizin Yapisi
+## 2. Hizli Baslangic
 
+### Backend
+
+```bash
+cd exergy-lab
+pip install -r requirements.txt
+uvicorn api.main:app --reload --port 8000
 ```
-exergy-lab/                          # Proje koku
-├── CLAUDE.md                        # Proje talimatlari (Claude Code icin)
-├── requirements.txt                 # Python bagimliliklari (14 paket)
-│
-├── api/                             # FastAPI backend (2,177 satir)
-│   ├── __init__.py
-│   ├── main.py                      # 49 sat. — App factory, router mount
-│   ├── routes/
-│   │   ├── __init__.py
-│   │   ├── analysis.py              # 500 sat. — /analyze, /types, /config
-│   │   ├── benchmarks.py            # 93 sat.  — /benchmarks/{type}/{subtype}
-│   │   ├── factory.py               # 214 sat. — /factory CRUD + /analyze
-│   │   ├── interpret.py             # 62 sat.  — /interpret (AI)
-│   │   └── solutions.py             # 85 sat.  — /solutions/{type}
-│   ├── schemas/
-│   │   ├── __init__.py
-│   │   ├── factory.py               # 62 sat.  — FactoryProject, EquipmentItem
-│   │   ├── requests.py              # 132 sat. — Pydantic request modelleri
-│   │   └── responses.py             # 150 sat. — Pydantic response modelleri
-│   └── services/
-│       ├── __init__.py
-│       ├── claude_code_service.py   # 654 sat. — AI entegrasyonu (singleton)
-│       └── equipment_registry.py    # 173 sat. — 7 ekipman tip kaydi
-│
-├── engine/                          # Hesaplama motoru (3,023 satir)
-│   ├── __init__.py                  # 26 sat.  — Public API export
-│   ├── core.py                      # 119 sat. — DeadState, ExergyResult, yardimci
-│   ├── utils.py                     # 113 sat. — Birim cevrim, validasyon, I/O
-│   ├── compressor.py                # 529 sat. — 4 alt tip, 5 class, 17 fonk.
-│   ├── boiler.py                    # 627 sat. — 7 alt tip, 2 class, 13 fonk.
-│   ├── chiller.py                   # 466 sat. — Vapor comp. + absorption, 10 fonk.
-│   ├── pump.py                      # 439 sat. — VSD analizi dahil, 10 fonk.
-│   ├── factory.py                   # 592 sat. — Aggregation, hotspot, entegrasyon
-│   └── sankey.py                    # 112 sat. — Sankey dispatcher (4 tip)
-│
-├── knowledge/                       # AI Bilgi Tabani (305 dosya, ~141K satir)
-│   ├── INDEX.md                     # Master navigasyon haritasi
-│   ├── compressor/                  # 19 dosya — 3,803 satir
-│   ├── boiler/                      # 23 dosya — 7,760 satir
-│   ├── chiller/                     # 25 dosya — 7,981 satir
-│   ├── pump/                        # 23 dosya — 5,750 satir
-│   ├── heat_exchanger/              # 21 dosya — 7,737 satir
-│   ├── steam_turbine/               # 23 dosya — 10,071 satir
-│   ├── dryer/                       # 26 dosya — 12,005 satir
-│   └── factory/                     # 144 dosya — ~85,740 satir
-│       ├── pinch/                   # 18 dosya
-│       ├── advanced_exergy/         # 18 dosya
-│       ├── exergoeconomic/          # 18 dosya
-│       ├── thermoeconomic_opt./     # 16 dosya
-│       ├── entropy_generation/      # 19 dosya
-│       ├── energy_management/       # 21 dosya
-│       └── (genel dosyalar)         # 34 dosya
-│
-├── skills/                          # AI Skill Dosyalari (17 dosya, 3,146 satir)
-│   ├── README.md                    # 97 sat.
-│   ├── SKILL_exergy_calculator.md   # 135 sat. (legacy)
-│   ├── SKILL_exergy_interpreter.md  # 227 sat. (legacy)
-│   ├── core/                        # 3 dosya — 738 satir
-│   ├── equipment/                   # 7 dosya — 1,247 satir
-│   ├── factory/                     # 3 dosya — 641 satir
-│   └── output/                      # 1 dosya — 61 satir
-│
-├── frontend/                        # React frontend
-│   ├── package.json                 # 7 runtime dependency
-│   └── src/
-│       ├── App.jsx                  # 34 sat. — Router tanimlamasi
-│       ├── main.jsx                 # 10 sat. — Entry point
-│       ├── pages/                   # 5 sayfa — 900 satir
-│       │   ├── Dashboard.jsx        # 103 sat.
-│       │   ├── EquipmentAnalysis.jsx# 139 sat.
-│       │   ├── FactoryDashboard.jsx # 261 sat.
-│       │   ├── FactoryList.jsx      # 126 sat.
-│       │   └── FactoryWizard.jsx    # 271 sat.
-│       ├── components/              # 24 component — 1,732 satir
-│       │   ├── common/              # 4 (Button, Card, Loading, Tooltip)
-│       │   ├── equipment/           # 1 (SubtypeSelector)
-│       │   ├── factory/             # 6 (AddEquipmentModal, EquipmentInventory, ...)
-│       │   ├── forms/               # 3 (CompressorTypeSelector, FormField, ParameterForm)
-│       │   ├── layout/              # 4 (Footer, Header, Layout, Sidebar)
-│       │   └── results/             # 6 (AIInterpretation, BenchmarkChart, ...)
-│       ├── hooks/                   # 2 hook — 100 satir
-│       │   ├── useAnalysis.js       # 75 sat.
-│       │   └── useCompressorTypes.js# 25 sat.
-│       └── services/                # 2 API client — 182 satir
-│           ├── api.js               # 146 sat.
-│           └── factoryApi.js        # 36 sat.
-│
-└── tests/                           # Pytest testleri (1,776 satir)
-    ├── conftest.py                  # 7 sat. — TestClient fixture
-    ├── test_api.py                  # 596 sat. — API entegrasyon testleri
-    ├── test_engine.py               # 550 sat. — Engine birim testleri
-    ├── test_equipment_registry.py   # 170 sat. — Registry testleri
-    └── test_skills.py               # 453 sat. — Skill/knowledge testleri
+
+Backend basladiginda:
+- API dokumantasyonu: http://localhost:8000/docs
+- Saglik kontrolu: http://localhost:8000/health
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend basladiginda:
+- Uygulama: http://localhost:5173
+- Vite proxy: `/api/*` -> `http://localhost:8000`
+
+### Testler
+
+```bash
+pytest tests/ -v                          # Tum testler
+pytest tests/test_api.py -v               # Sadece API testleri
+pytest tests/test_engine.py -v            # Sadece motor testleri
+pytest tests/test_exergoeconomic.py -v    # Exergoekonomik testler
 ```
 
 ---
 
-## 4. Mimari Genel Bakis
-
-### 4.1 Katmanli Mimari
+## 3. Mimari Genel Bakis
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  Frontend (React 19 + Vite)                         │
-│  5 sayfa, 24 component, 2 hook, 2 API servisi       │
-│  TailwindCSS + react-plotly.js + lucide-react       │
-├─────────────────────────────────────────────────────┤
-│  API Gateway (FastAPI)                              │
-│  5 route modulu, Pydantic validasyon                │
-│  Equipment Registry (7 tip, alt tipler)              │
-├──────────────┬──────────────────────────────────────┤
-│  Engine      │  AI Service                          │
-│  core.py     │  claude_code_service.py              │
-│  4 ekipman   │  Skill + Knowledge yukleyici         │
-│  factory.py  │  Claude CLI subprocess               │
-│  sankey.py   │  3-tier JSON parser                  │
-├──────────────┴──────────────────────────────────────┤
-│  Knowledge Base (305 dosya) + Skills (17 dosya)      │
-│  7 ekipman + factory + 6 ileri analiz yontemi       │
-└─────────────────────────────────────────────────────┘
++-------------------+         +-------------------+         +------------------+
+|                   |  HTTP   |                   |         |                  |
+|   React Frontend  | ------> |   FastAPI Backend  | ------> |  Engine Modules  |
+|   (Vite + Tailwind)|  /api  |   (REST API)      |         |  (Hesaplamalar)  |
+|                   |         |                   |         |                  |
++-------------------+         +--------+----------+         +------------------+
+                                       |
+                              +--------+----------+
+                              |                   |
+                    +---------+---------+ +-------+---------+
+                    |                   | |                 |
+                    |   Claude AI API   | |  SQLite DB      |
+                    |   (Yorumlama)     | |  (Kalicilik)    |
+                    |                   | |                 |
+                    +-------------------+ +-----------------+
 ```
 
-### 4.2 Veri Akisi
+### Veri Akisi
 
-1. **Kullanici** → Frontend formu doldurur (ekipman parametreleri)
-2. **Frontend** → `POST /api/analyze` veya `POST /api/factory/{id}/analyze`
-3. **API Routes** → Pydantic ile validasyon, engine dispatcher
-4. **Engine** → Termodinamik hesaplama (exergy in/out/destroyed, verim, kayip)
-5. **Sankey** → Exergy akis diyagrami verisi uretimi
-6. **AI (opsiyonel)** → `POST /api/interpret` → Claude CLI subprocess
-7. **Claude CLI** → Skills + Knowledge yuklenir, JSON yanit parse edilir
-8. **Frontend** → Sonuclari gorsellestirir (metrik kartlari, Sankey, AI yorumu)
-
-### 4.3 Fabrika Analiz Akisi
-
-1. Frontend'den proje olusturulur (ad, sektor)
-2. Ekipmanlar tek tek eklenir (tip, alt tip, parametreler)
-3. `POST /api/factory/{id}/analyze` → `engine.factory.analyze_factory()`
-4. Her ekipman icin ilgili engine calisir
-5. Aggregate metrikler hesaplanir (toplam exergy in/out/destroyed)
-6. Hotspot tespiti (verim + kayip orani + mutlak kayip)
-7. Cross-equipment entegrasyon firsatlari (5 desen)
-8. Fabrika Sankey diyagrami uretilir
-9. Opsiyonel AI yorumu: `interpret_factory_analysis()`
+```
+Kullanici Girisi
+    |
+    v
+Ekipman Input Sinifi (CompressorInput, BoilerInput, vb.)
+    |
+    v
+Ekipman Analizoru (analyze_compressor, analyze_boiler, vb.)
+    |
+    v
+ExergyResult (temel exergy metrikleri)
+    |
+    +---> _apply_exergoeconomic()  [ekonomik alanlar eklenir]
+    +---> generate_*_sankey_data() [diagram verisi]
+    +---> generate_radar_data()    [6 eksenli benchmark]
+    +---> compute_comparison()     [what-if senaryo]
+    |
+    v
+API Response (to_dict() serializasyonu)
+```
 
 ---
 
-## 5. Engine Detayli Analiz
-
-### 5.1 core.py (119 satir)
-
-Temel yapitaslari:
-
-| Oge | Tip | Aciklama |
-|-----|-----|----------|
-| `DeadState` | dataclass | Referans cevre: T₀=298.15 K, P₀=101.325 kPa |
-| `ExergyResult` | dataclass | Standart sonuc yapisi (in/out/destroyed/efficiency + yillik) |
-| `heat_exergy()` | fonksiyon | Ex_Q = Q × (1 - T₀/T) — isitma ve sogutma durumu |
-| `carnot_factor()` | fonksiyon | η_carnot = 1 - T_cold/T_hot |
-| Birim ceviriciler | fonksiyonlar | celsius↔kelvin, bar↔kPa, m³/min→m³/s |
-| `air_density()` | fonksiyon | Ideal gaz yasasi: ρ = P/(R×T) |
-
-**Sabitler:** R_AIR = 0.287 kJ/kg·K, R_UNIVERSAL = 8.314 J/mol·K, CP_AIR = 1.005 kJ/kg·K
-
-### 5.2 compressor.py (529 satir, 5 class, 17 fonksiyon)
-
-**Desteklenen Alt Tipler:**
-
-| Alt Tip | Input Class | Analiz Fonksiyonu | Ozel Ozellik |
-|---------|-------------|-------------------|--------------|
-| Vidali (screw) | `CompressorInput` | `analyze_compressor()` | Standart referans |
-| Pistonlu | `PistonCompressorInput` | `analyze_piston_compressor()` | Kademe sayisi, sogutma tipi |
-| Scroll | `ScrollCompressorInput` | `analyze_scroll_compressor()` | Yagsiz secenegi |
-| Santrifuj | `CentrifugalCompressorInput` | `analyze_centrifugal_compressor()` | Surge/choke, guide vane |
-
-**Hesaplama Akisi:**
-1. Izentropik is hesabi: W_isen = (k/(k-1)) × P₁V₁ × [(P₂/P₁)^((k-1)/k) - 1]
-2. Gercek guc ve spesifik guc
-3. Exergy girisi = elektrik gucu
-4. Exergy cikisi = basinc exergy'si
-5. Exergy yikimi = giris - cikis
-6. Isi geri kazanim potansiyeli (~%67.5 recoverable)
-7. Benchmark karsilastirma (yuzdelik hesabi)
-8. Yillik maliyet (kayip × calissma saati × fiyat)
-
-**Benchmark Sistemi:** Alt tip bazli spesifik guc (kW/m³/min) karsilastirmasi. Good/average/poor/critical derecelendirme.
-
-### 5.3 boiler.py (627 satir, 2 class, 13 fonksiyon)
-
-**Desteklenen Alt Tipler:** steam_firetube, steam_watertube, hotwater, condensing, waste_heat, electric, biomass
-
-**Hesaplama Akisi:**
-1. Yakit exergy'si (yakit tipi bazli exergy/enerji oranlari)
-2. Buhar/su exergy cikisi (CoolProp ile buhar ozellikleri veya ampirik formul)
-3. Kayip ayristirma: baca gazi, radyasyon, blowdown, yanmamis yakit
-4. Exergy yikimi = yakit exergy - cikis exergy - kayiplar
-5. Sankey verisi uretimi (baca, radyasyon, blowdown, faydali)
-
-**Ozel:** CoolProp entegrasyonu buhar/su ozelliklerini hassas hesaplar. Yakit tipleri icin exergy/enerji katsayilari tanimli (dogalgaz: 1.04, komur: 1.06, fuel_oil: 1.06, LPG: 1.06, biomass: 1.11, hydrogen: 0.985).
-
-### 5.4 chiller.py (466 satir, 2 class, 10 fonksiyon)
-
-**Desteklenen Alt Tipler:** Vapor compression (screw, centrifugal, scroll, reciprocating, air/water cooled) + Absorption
-
-**Hesaplama Akisi:**
-1. Sogutma exergy'si: Ex_cool = Q_cool × (T₀/T_cold - 1)
-2. Elektrik/isi girdisi exergy'si
-3. COP vs exergetic COP ayristirmasi
-4. Absorption chiller: isi kaynagiyla calistirma, COP_th bazli
-5. Kondenser kaybi, elektrik-exergy kaybi hesabi
-
-**Ozel:** Absorption ve vapor compression icin ayri analiz yollari. Condenser heat = cooling + compressor power.
-
-### 5.5 pump.py (439 satir, 2 class, 10 fonksiyon)
-
-**Hesaplama Akisi:**
-1. Hidrolik guc: P_hyd = ρ × g × Q × H
-2. Motor → saft → pompa verim zinciri
-3. Kisma kaybi analizi (throttle kontrolu icin)
-4. VSD tasarruf potansiyeli (affinite yasalari)
-5. Kavitasyon riski kontrolu (NPSH)
-
-**Ozel:** Kontrol yontemi bazli analiz (throttle vs VSD vs on-off). `vsd_savings_potential_kW` ciktisi factory entegrasyon deseni icin kullanilir.
-
-### 5.6 factory.py (592 satir, 14 fonksiyon)
-
-**Ana Fonksiyon:** `analyze_factory(equipment_list)` → `FactoryAnalysisResult`
-
-**Alt Moduller:**
-
-| Modul | Fonksiyon | Satir Aralik | Aciklama |
-|-------|-----------|-------------|----------|
-| Dispatcher | `analyze_factory()` | 1-234 | Her ekipmani ilgili engine'e yonlendirir |
-| Aggregates | `_calculate_aggregates()` | 237-267 | Toplam exergy in/out/destroyed |
-| Hotspots | `_identify_hotspots()` | 270-322 | Priority: high/medium/low |
-| Integration | `_detect_integration_opportunities()` | 325-491 | 5 cross-equipment deseni |
-| Sankey | `_generate_factory_sankey()` | 494-592 | Fabrika seviyesi akis diyagrami |
-
-**Hotspot Onceliklendirme Mantigi:**
-- **high:** verim < %30 VEYA kayip > toplamın %40'ı VEYA mutlak kayip > 20 kW
-- **medium:** verim < %50 VEYA kayip > toplamın %20'si VEYA mutlak kayip > 5 kW
-- **low:** diger
-
-**5 Cross-Equipment Entegrasyon Deseni:**
-
-| # | Desen | Kaynak → Hedef | Karmasiklik |
-|---|-------|----------------|-------------|
-| 1 | Kompresor → Kazan besleme suyu | Atik isi (%67.5 recoverable × %60 HX) | medium |
-| 2 | Kompresor → Mekan isitma | Atik isi (%50 kullanilabilir, 2000h sezon) | low |
-| 3 | Kazan baca gazi → Absorpsiyonlu chiller | Baca gazi (%50 capture × COP 0.7) | high |
-| 4 | Chiller kondenser → Sicak su | Kondenser (%30 kullanilabilir) | medium |
-| 5 | Pompa VSD retrofit | Kisma → VSD gecisi | low |
-
-### 5.7 sankey.py (112 satir, 2 fonksiyon)
-
-Dispatcher yapisi: `generate_sankey_data(result)` → result tipine gore (isinstance) uygun fonksiyona yonlendirir.
-
-- `CompressorResult` → `_generate_compressor_sankey_data()` (bu dosyada)
-- `BoilerResult` → `generate_boiler_sankey_data()` (boiler.py'de)
-- `ChillerResult` → `generate_chiller_sankey_data()` (chiller.py'de)
-- `PumpResult` → `generate_pump_sankey_data()` (pump.py'de)
-
-Kompressor Sankey'de enerji dengelemesi normalizasyonu yapilir: giris = cikis + recoverable + irreversibility.
-
-### 5.8 utils.py (113 satir, 10 fonksiyon)
-
-Yardimci araclar:
-- Birim cevrim (`convert_pressure`, `convert_temperature`) — coklu birim destegi (kPa, bar, psi, atm, mbar)
-- Validasyon (`validate_positive`, `validate_range`)
-- Formatlama (`format_currency`, `format_percentage`, `format_power`)
-- I/O (`save_analysis_result`, `load_analysis_result`) — JSON kaydedici/yukleyici
-
-### 5.9 Pattern Tutarlilik Matrisi
-
-| Ozellik | compressor | boiler | chiller | pump |
-|---------|-----------|--------|---------|------|
-| Input dataclass | ✅ | ✅ | ✅ | ✅ |
-| Result dataclass | ✅ | ✅ | ✅ | ✅ |
-| analyze_*() | ✅ | ✅ | ✅ | ✅ |
-| get_*_recommendations() | ✅ | ✅ | ✅ | ✅ |
-| to_api_dict() | ✅ | ✅ | ✅ | ✅ |
-| Sankey verisi | ✅ | ✅ | ✅ | ✅ |
-| Benchmark sistemi | ✅ | ✅ | ✅ | ✅ |
-| Type hints | ✅ | ✅ | ✅ | ✅ |
-| Docstrings | ✅ | ✅ | ✅ | ✅ |
-| Yillik maliyet | ✅ | ✅ | ✅ | ✅ |
-
-**Tutarlilik Notu:** 4 mevcut engine ayni dataclass → analyze → to_api_dict → sankey → recommendations kalibini takip eder. Bu kalibin heat_exchanger, steam_turbine ve dryer icin de tekrarlanmasi beklenir.
-
----
-
-## 6. Knowledge Base Detayli Envanter
-
-### 6.1 Genel Istatistikler
-
-| Metrik | Deger |
-|--------|-------|
-| Toplam dosya | 305 |
-| Toplam satir | ~141,233 |
-| Ekipman bazli dosya | 160 (7 tip) |
-| Fabrika bazli dosya | 144 |
-| Master INDEX | 1 |
-| Ortalama dosya uzunlugu | ~463 satir |
-
-### 6.2 Ekipman Bazli Knowledge
-
-| Ekipman | Dosya | Satir | Alt Dizinler |
-|---------|-------|-------|-------------|
-| compressor | 19 | 3,803 | equipment/ (7), solutions/ (8), INDEX, audit, benchmarks, formulas |
-| boiler | 23 | 7,760 | equipment/ (9), solutions/ (10), INDEX, audit, benchmarks, formulas |
-| chiller | 25 | 7,981 | equipment/ (11), solutions/ (10), INDEX, audit, benchmarks, formulas |
-| pump | 23 | 5,750 | equipment/ (9), solutions/ (10), INDEX, audit, benchmarks, formulas |
-| heat_exchanger | 21 | 7,737 | equipment/ (9), solutions/ (6), INDEX, audit, benchmarks, formulas, case_studies, standards |
-| steam_turbine | 23 | 10,071 | equipment/ (5), solutions/ (5), systems/ (5), economics/ (3), INDEX, audit, benchmarks, formulas, case_studies |
-| dryer | 26 | 12,005 | equipment/ (8), solutions/ (7), sectors/ (5), INDEX, audit, benchmarks, formulas, psychrometrics, case_studies |
-
-**Her ekipman dizini standart olarak icerir:**
-- `INDEX.md` — Navigasyon haritasi
-- `benchmarks.md` — Verimlilik karsilastirma verileri
-- `formulas.md` — Hesaplama formulleri
-- `audit.md` — Denetim rehberi
-- `equipment/` — Alt tip teknik detaylari
-- `solutions/` — Iyilestirme onerileri
-
-**Ek dizinler (bazi ekipmanlarda):**
-- `sectors/` (dryer) — Sektor bazli kurutma (gida, tekstil, kagit, seramik, ahsap)
-- `systems/` (steam_turbine) — CHP, HRSG, trigeneration
-- `economics/` (steam_turbine) — Fizibilite, FiT, finansman
-- `standards.md` (heat_exchanger) — TEMA, ASME standartlari
-
-### 6.3 Fabrika Bazli Knowledge (144 dosya, ~85,740 satir)
-
-#### 6.3.1 Ileri Analiz Yontemleri
-
-| Yontem | Dizin | Dosya | Icerik |
-|--------|-------|-------|--------|
-| Pinch Analizi | `pinch/` | 18 | Composite curve, GCC, HEN tasarimi, delta-T min, targeting, retrofit, batch, total site |
-| Ileri Exergy | `advanced_exergy/` | 18 | AV/UN, EN/EX, 4-way splitting, ideal conditions, equipment-specific (6 tip), limitations |
-| Exergoekonomik | `exergoeconomic/` | 18 | SPECO, maliyet denklemleri, fuel-product, matris formulasyon, worked examples (3) |
-| Termoekonomik Opt. | `thermoeconomic_optimization/` | 16 | Parametrik, yapisal, cok amacli, karar degiskenleri, trade-off, worked examples (3) |
-| EGM | `entropy_generation/` | 19 | Bejan sayisi, constructal, sonlu zaman, akis/isi transfer/pipe EGM, worked examples (3) |
-| Enerji Yonetimi | `energy_management/` | 21 | ISO 50001, EN 16247, IPMVP, EnPI, CUSUM, M&V, Turkiye mevzuati/tesvik |
-
-#### 6.3.2 Genel Fabrika Dosyalari (34 dosya)
-
-Sektor dosyalari: `sector_food.md`, `sector_cement.md`, `sector_chemical.md`, `sector_textile.md`, `sector_paper.md`, `sector_metal.md`, `sector_automotive.md` (7 sektor)
-
-Diger: `cross_equipment.md`, `prioritization.md`, `factory_benchmarks.md`, `methodology.md`, `data_collection.md`, `system_boundaries.md`, `exergy_fundamentals.md`, `exergy_flow_analysis.md`, `energy_flow_analysis.md`, `mass_balance.md`, `heat_integration.md`, `process_integration.md`, `cogeneration.md`, `waste_heat_recovery.md`, `economic_analysis.md`, `energy_pricing.md`, `life_cycle_cost.md`, `kpi_definitions.md`, `performance_indicators.md`, `measurement_verification.md`, `implementation.md`, `reporting.md`, `case_studies.md`, `utility_analysis.md`, `energy_management.md` (kok dosya), `pinch_analysis.md` (kok dosya)
-
-### 6.4 Frontmatter Kontrolu
-
-Test sonuclarina gore:
-- 7/7 ekipman `benchmarks.md` dosyasinda frontmatter ✅
-- 7/7 ekipman `formulas.md` dosyasinda frontmatter ✅
-- 7/7 ekipman `INDEX.md` dosyasi mevcut ✅
-- `factory/cross_equipment.md` frontmatter ✅
-- `factory/INDEX.md` mevcut ✅
-
----
-
-## 7. Skills Sistemi
-
-### 7.1 Dosya Listesi
-
-| Dosya | Satir | Kategori | Aciklama |
-|-------|-------|----------|----------|
-| `core/exergy_fundamentals.md` | 198 | Core | Exergy kavramlari, EGM, exergoekonomik, pinch |
-| `core/response_format.md` | 170 | Core | JSON semalari (tek ekipman, fabrika, ileri) |
-| `core/decision_trees.md` | 370 | Core | 7 ekipman + fabrika + ileri analiz karar agaclari |
-| `equipment/compressor_expert.md` | 162 | Equipment | Kompresor uzmani |
-| `equipment/boiler_expert.md` | 166 | Equipment | Kazan uzmani |
-| `equipment/chiller_expert.md` | 152 | Equipment | Chiller uzmani |
-| `equipment/pump_expert.md` | 169 | Equipment | Pompa uzmani |
-| `equipment/heat_exchanger_expert.md` | 265 | Equipment | Isi esanjoru uzmani |
-| `equipment/steam_turbine_expert.md` | 187 | Equipment | Buhar turbini uzmani |
-| `equipment/dryer_expert.md` | 146 | Equipment | Kurutma firini uzmani |
-| `factory/factory_analyst.md` | 310 | Factory | Hotspot, cross-equipment, ileri analiz |
-| `factory/integration_expert.md` | 179 | Factory | HEN optimizasyonu, pinch eslestime |
-| `factory/economic_advisor.md` | 152 | Factory | Exergoekonomik degerlendirme |
-| `output/turkish_style.md` | 61 | Output | Turkce yazi stili kurallari |
-| `SKILL_exergy_interpreter.md` | 227 | Legacy | Geriye uyumlu tek dosya skill |
-| `SKILL_exergy_calculator.md` | 135 | Legacy | Hesaplama skill'i |
-| `README.md` | 97 | Meta | Skill sistemi dokumanasyonu |
-
-### 7.2 Skill Yukleme Sirasi
-
-`claude_code_service.py` icerisinde `_load_skills()` metodu:
-
-**Tek Ekipman Analizi:**
-1. `core/exergy_fundamentals.md` (her zaman)
-2. `core/response_format.md` (her zaman)
-3. `core/decision_trees.md` (her zaman)
-4. `equipment/{type}_expert.md` (ekipman tipine gore)
-5. `output/turkish_style.md` (her zaman)
-
-**Fabrika Analizi:**
-1. Core skills (3 dosya — her zaman)
-2. `factory/factory_analyst.md`
-3. `factory/integration_expert.md`
-4. `factory/economic_advisor.md`
-5. `output/turkish_style.md` (her zaman)
-
-**Fallback:** Moduler skill'ler bos ise legacy `SKILL_exergy_interpreter.md` kullanilir.
-
----
-
-## 8. AI Servis Katmani
-
-### 8.1 claude_code_service.py Mimarisi (654 satir)
-
-| Sinif/Fonksiyon | Satir | Aciklama |
-|-----------------|-------|----------|
-| `EQUIPMENT_LABELS` | 12-21 | 7 ekipman Turkce etiketleri |
-| `EQUIPMENT_PARAMS_TEMPLATE` | 23-81 | 7 ekipman parametre sablonu |
-| `EQUIPMENT_CATEGORIES` | 83-91 | Ekipman bazli cozum kategorileri |
-| `_SafeDict` | 94-98 | Eksik key'ler icin 'N/A' donduren dict |
-| `_read_file_cached()` | 101-111 | LRU cache ile dosya okuma (maxsize=100) |
-| `ClaudeCodeClient` | 114-462 | Singleton AI client |
-| `ClaudeCodeClient._load_skills()` | 151-198 | Moduler skill yukleyici |
-| `ClaudeCodeClient._load_relevant_knowledge()` | 209-247 | Context-aware knowledge yukleyici |
-| `ClaudeCodeClient._build_prompt()` | 249-362 | Tek ekipman icin prompt builder |
-| `ClaudeCodeClient._extract_json()` | 364-389 | 3-tier JSON parser |
-| `ClaudeCodeClient.interpret()` | 405-462 | Claude CLI subprocess cagirici |
-| `interpret_with_claude_code()` | 465-476 | Module-level wrapper (geriye uyumluluk) |
-| `_format_factory_analysis()` | 479-500 | Fabrika verisi formatlayici |
-| `interpret_factory_analysis()` | 516-654 | Fabrika AI yorumlayici |
-
-### 8.2 AI Yorum Akisi
+## 4. Dizin Yapisi (Guncel)
 
 ```
-Kullanici Istegi
-    ↓
-API Route (interpret.py)
-    ↓
-ClaudeCodeClient.get_instance() ← Singleton
-    ↓
-_load_skills(type) ← Core + Equipment/Factory + Output
-    ↓
-_load_relevant_knowledge(type) ← Benchmarks + Formulas (+ Factory files)
-    ↓
-_build_prompt() ← Skills + Knowledge + Analysis Data → Tek string
-    ↓
-asyncio.create_subprocess_exec("claude", "-p", prompt)
-    ↓ 120s timeout
-_extract_json(stdout) ← 3-tier parser
-    ↓
-Tier 1: json.loads(raw)        → Basarili? Dondur.
-Tier 2: regex ```json...```    → Basarili? Dondur.
-Tier 3: regex {.*}             → Basarili? Dondur.
-    ↓ (hepsi basarisiz)
-_fallback_response() ← ai_available: false
+exergy-lab/
+|
+|-- api/                              # FastAPI backend (4,236 satir)
+|   |-- main.py                       # App, CORS, lifespan, router kaydi (66 satir)
+|   |-- __init__.py
+|   |-- auth/                         # Kimlik dogrulama modulu
+|   |   |-- config.py                 # JWT ayarlari (10 satir)
+|   |   |-- dependencies.py           # Auth dependency injection (66 satir)
+|   |   |-- schemas.py                # User/Token skemalari (26 satir)
+|   |   |-- security.py               # Parola hash, JWT olusturma (40 satir)
+|   |-- database/                     # Veritabani katmani
+|   |   |-- __init__.py               # DB init/close (23 satir)
+|   |   |-- config.py                 # DB ayarlari (8 satir)
+|   |   |-- crud.py                   # CRUD operasyonlari (230 satir)
+|   |   |-- models.py                 # 7 SQLAlchemy modeli (145 satir)
+|   |   |-- session.py                # Oturum yonetimi (38 satir)
+|   |-- routes/                       # API endpointleri
+|   |   |-- analysis.py               # Ekipman analizi (943 satir)
+|   |   |-- auth.py                   # Kimlik dogrulama (60 satir)
+|   |   |-- benchmarks.py             # Benchmark verileri (93 satir)
+|   |   |-- chat.py                   # AI sohbet (75 satir)
+|   |   |-- factory.py                # Fabrika CRUD + analiz (279 satir)
+|   |   |-- interpret.py              # AI yorumlama (62 satir)
+|   |   |-- solutions.py              # Cozum onerileri (85 satir)
+|   |-- schemas/                      # Pydantic modelleri
+|   |   |-- requests.py               # Istek skemalari (211 satir)
+|   |   |-- responses.py              # Yanit skemalari (225 satir)
+|   |   |-- factory.py                # Fabrika skemalari (65 satir)
+|   |-- services/                     # Business logic
+|       |-- claude_code_service.py     # AI entegrasyonu (1,036 satir)
+|       |-- equipment_registry.py      # Ekipman tip kayit defteri (173 satir)
+|       |-- knowledge_router.py        # Bilgi yonlendirme (274 satir)
+|
+|-- engine/                            # Exergy hesaplama motorlari (5,870 satir)
+|   |-- __init__.py                    # Modul baslangici (47 satir)
+|   |-- core.py                        # DeadState, ExergyResult, temel fonksiyonlar (171 satir)
+|   |-- exergoeconomic.py             # SPECO analizi, f/r faktorleri (242 satir)
+|   |-- compressor.py                  # Kompresor analizi (656 satir)
+|   |-- boiler.py                      # Kazan analizi (678 satir)
+|   |-- chiller.py                     # Chiller analizi (522 satir)
+|   |-- pump.py                        # Pompa analizi (497 satir)
+|   |-- heat_exchanger.py             # Isi esanjoru analizi (513 satir)
+|   |-- steam_turbine.py              # Buhar turbini analizi (580 satir)
+|   |-- dryer.py                       # Kurutma firini analizi (555 satir)
+|   |-- factory.py                     # Fabrika agregasyonu (824 satir)
+|   |-- sankey.py                      # Sankey diyagrami verisi (158 satir)
+|   |-- radar.py                       # Radar benchmark (159 satir)
+|   |-- compare.py                     # What-if karsilastirma (155 satir)
+|   |-- utils.py                       # Yardimci fonksiyonlar (113 satir)
+|
+|-- knowledge/                         # AI Knowledge Base (305 dosya)
+|   |-- INDEX.md                       # Navigasyon haritasi
+|   |-- compressor/                    # 19 dosya
+|   |-- boiler/                        # 23 dosya
+|   |-- chiller/                       # 25 dosya
+|   |-- pump/                          # 23 dosya
+|   |-- heat_exchanger/                # 21 dosya
+|   |-- steam_turbine/                 # 23 dosya
+|   |-- dryer/                         # 26 dosya
+|   |-- factory/                       # 144 dosya
+|       |-- pinch/                     # Pinch analizi
+|       |-- advanced_exergy/           # Ileri exergy analizi
+|       |-- exergoeconomic/            # Exergoekonomik analiz
+|       |-- thermoeconomic_optimization/ # Termoekonomik optimizasyon
+|       |-- entropy_generation/        # Entropi uretim minimizasyonu
+|       |-- energy_management/         # Enerji yonetimi
+|
+|-- skills/                            # AI Skill dosyalari (17 dosya)
+|   |-- core/                          # Temel beceriler (3 dosya)
+|   |   |-- exergy_fundamentals.md     # Exergy kavramlari + EGM + exergoekonomik + pinch
+|   |   |-- response_format.md         # JSON semalari
+|   |   |-- decision_trees.md          # 7 ekipman + fabrika karar agaclari
+|   |-- equipment/                     # Ekipman uzmanlari (7 dosya)
+|   |   |-- compressor_expert.md
+|   |   |-- boiler_expert.md
+|   |   |-- chiller_expert.md
+|   |   |-- pump_expert.md
+|   |   |-- heat_exchanger_expert.md
+|   |   |-- steam_turbine_expert.md
+|   |   |-- dryer_expert.md
+|   |-- factory/                       # Fabrika analizi (3 dosya)
+|   |   |-- factory_analyst.md         # Hotspot, cross-equipment onerileri
+|   |   |-- integration_expert.md      # HEN optimizasyonu, pinch eslestirme
+|   |   |-- economic_advisor.md        # Exergoekonomik degerlendirme
+|   |-- output/                        # Cikti formati (1 dosya)
+|       |-- turkish_style.md           # Turkce cikti stili
+|
+|-- frontend/                          # React frontend (5,199 satir)
+|   |-- src/
+|       |-- main.jsx                   # React giris noktasi
+|       |-- App.jsx                    # Routing yapilandirmasi
+|       |-- pages/                     # 6 sayfa componenti
+|       |-- components/                # ~50 UI componenti
+|       |   |-- layout/               # Layout, Header, Sidebar, Footer
+|       |   |-- dashboard/            # DashboardLayout, TabContainer, OverviewTab, FlowTab, AITab, ScenarioTab
+|       |   |-- forms/                # ParameterForm, FormField
+|       |   |-- equipment/            # SubtypeSelector
+|       |   |-- results/              # AIInterpretation, SankeyDiagram, RadarBenchmark
+|       |   |-- whatif/               # ScenarioEditor, ComparisonPanel, RadarComparison
+|       |   |-- factory/              # FactoryHeader, PriorityList, IntegrationPanel, FactorySankey
+|       |   |-- chat/                 # ChatPanel (markdown render, sohbet)
+|       |   |-- common/              # Card, Button, Loading, Tooltip
+|       |-- services/                  # API istemcileri
+|       |   |-- api.js                 # Axios instance + ekipman API'leri
+|       |   |-- factoryApi.js          # Fabrika API'leri
+|       |-- hooks/                     # Custom React hooks
+|       |   |-- useAnalysis.js         # Analiz state yonetimi
+|       |   |-- useCompressorTypes.js  # Kompresor tipleri
+|       |-- utils/
+|           |-- formatters.js          # Sayi/para birimi formatlama
+|
+|-- tests/                             # Pytest testleri (3,712 satir)
+|   |-- conftest.py                    # DB fixture + TestClient
+|   |-- test_api.py                    # API endpoint testleri (48 test)
+|   |-- test_engine.py                 # Motor testleri (60 test)
+|   |-- test_avoidable_unavoidable.py  # AV/UN testleri (29 test)
+|   |-- test_compare.py               # What-if testleri (12 test)
+|   |-- test_dryer.py                  # Kurutma firini testleri (23 test)
+|   |-- test_equipment_registry.py     # Kayit defteri testleri (18 test)
+|   |-- test_exergoeconomic.py         # Exergoekonomik testler (22 test)
+|   |-- test_heat_exchanger.py         # Isi esanjoru testleri (23 test)
+|   |-- test_knowledge_router.py       # Bilgi yonlendirme testleri (24 test)
+|   |-- test_radar.py                  # Radar chart testleri (20 test)
+|   |-- test_skills.py                 # AI beceri testleri (71 test)
+|   |-- test_steam_turbine.py          # Buhar turbini testleri (20 test)
+|
+|-- requirements.txt                   # Python bagimliliklari (17 paket)
+|-- CLAUDE.md                         # Proje talimat dosyasi
+|-- PROJECT_ANALYSIS.md               # Bu dosya
+|-- exergylab.db                       # SQLite veritabani
 ```
 
-### 8.3 Knowledge Yukleme Stratejisi
+---
+
+## 5. Backend Detaylari
+
+### 5.1 API Endpointleri
+
+Toplam **21 endpoint** -- 7 route dosyasi uzerinden:
+
+#### Kok Endpointler (api/main.py)
+
+| Metot | Yol | Aciklama |
+|-------|-----|----------|
+| GET | `/` | API bilgi + docs linki |
+| GET | `/health` | Saglik kontrolu `{"status": "ok"}` |
+
+#### Ekipman Analizi (api/routes/analysis.py -- 943 satir)
+
+| Metot | Yol | Aciklama |
+|-------|-----|----------|
+| GET | `/api/equipment-types` | 7 ekipman tipi listesi |
+| GET | `/api/equipment-types/{type}/subtypes` | Alt tip listesi |
+| GET | `/api/equipment-types/{type}/config` | Alan tanimlari + varsayilan degerler |
+| POST | `/api/analyze` | Tek ekipman exergy analizi |
+| POST | `/api/compare` | Baseline vs senaryo karsilastirmasi |
+| GET | `/api/compressor-types` | Legacy geriye uyumluluk |
+
+#### Benchmark & Cozumler (api/routes/benchmarks.py, solutions.py)
+
+| Metot | Yol | Aciklama |
+|-------|-----|----------|
+| GET | `/api/benchmarks/{type}` | Verimlilik karsilastirma verileri |
+| GET | `/api/solutions/{type}` | Filtrelenmis cozum onerileri |
+
+#### AI Yorumlama & Sohbet (api/routes/interpret.py, chat.py)
+
+| Metot | Yol | Aciklama |
+|-------|-----|----------|
+| POST | `/api/interpret` | Tek ekipman AI yorumu |
+| POST | `/api/chat` | Bilgi tabani destekli AI sohbet |
+
+#### Kimlik Dogrulama (api/routes/auth.py)
+
+| Metot | Yol | Auth | Aciklama |
+|-------|-----|------|----------|
+| POST | `/api/auth/register` | Hayir | Kullanici kaydi |
+| POST | `/api/auth/login` | Hayir | JWT token alma |
+| GET | `/api/auth/me` | Evet | Mevcut kullanici bilgisi |
+
+#### Fabrika Yonetimi (api/routes/factory.py -- 279 satir)
+
+| Metot | Yol | Auth | Aciklama |
+|-------|-----|------|----------|
+| POST | `/api/factory/projects` | Opsiyonel | Yeni proje olustur |
+| GET | `/api/factory/projects` | Opsiyonel | Proje listesi |
+| GET | `/api/factory/projects/{id}` | Opsiyonel | Proje detayi |
+| POST | `/api/factory/projects/{id}/equipment` | Opsiyonel | Ekipman ekle |
+| DELETE | `/api/factory/projects/{id}/equipment/{eid}` | Opsiyonel | Ekipman kaldir |
+| POST | `/api/factory/projects/{id}/analyze` | Opsiyonel | Fabrika analizi calistir |
+| POST | `/api/factory/projects/{id}/interpret` | Opsiyonel | Fabrika AI yorumu |
+
+### 5.2 Veritabani Semasi
+
+6 SQLAlchemy modeli (`api/database/models.py` -- 145 satir):
+
+#### users
+
+| Sutun | Tip | Aciklama |
+|-------|-----|----------|
+| id | str (UUID) | Primary key |
+| email | str | Benzersiz, indeksli |
+| hashed_password | str | bcrypt hash |
+| full_name | str? | Kullanici adi |
+| is_active | bool | Aktiflik durumu (varsayilan True) |
+| created_at | datetime | Kayit tarihi |
+
+#### factory_projects
+
+| Sutun | Tip | Aciklama |
+|-------|-----|----------|
+| id | str (8-char UUID) | Primary key |
+| name | str | Proje adi |
+| sector | str? | Sektor (tekstil, gida, kimya, vb.) |
+| description | str? | Aciklama |
+| owner_id | str? | FK -> users.id |
+| created_at | datetime | Olusturma tarihi |
+| updated_at | datetime | Son guncelleme |
+
+#### equipment
+
+| Sutun | Tip | Aciklama |
+|-------|-----|----------|
+| id | str (8-char UUID) | Primary key |
+| project_id | str | FK -> factory_projects.id |
+| name | str | Ekipman adi |
+| equipment_type | str | 7 tip birinden |
+| subtype | str? | Alt tip |
+| parameters | JSON | Ekipman parametreleri |
+| created_at | datetime | Ekleme tarihi |
+
+#### analysis_results
+
+| Sutun | Tip | Aciklama |
+|-------|-----|----------|
+| id | str (8-char UUID) | Primary key |
+| equipment_id | str | FK -> equipment.id (unique, 1-to-1) |
+| result_data | JSON | Tam analiz ciktisi |
+| analyzed_at | datetime | Analiz tarihi |
+
+#### factory_analyses
+
+| Sutun | Tip | Aciklama |
+|-------|-----|----------|
+| id | str (8-char UUID) | Primary key |
+| project_id | str | FK -> factory_projects.id |
+| aggregates | JSON | Toplam metrikler |
+| hotspots | JSON | Oncelik sirali ekipmanlar |
+| integration_opportunities | JSON | Entegrasyon firsatlari |
+| sankey_data | JSON | Fabrika Sankey verisi |
+| analyzed_at | datetime | Analiz tarihi |
+
+#### ai_interpretations
+
+| Sutun | Tip | Aciklama |
+|-------|-----|----------|
+| id | str (8-char UUID) | Primary key |
+| project_id | str? | FK -> factory_projects.id |
+| equipment_id | str? | FK -> equipment.id |
+| interpretation_data | JSON | AI yorum ciktisi |
+| created_at | datetime | Olusturma tarihi |
+
+#### Iliskiler
+
+```
+User 1---* FactoryProject 1---* Equipment 1---1 AnalysisResult
+                           1---* FactoryAnalysis
+                           1---* AIInterpretation
+```
+
+Tum alt iliskiler `cascade="all, delete-orphan"` ile yapilandirilmistir.
+
+### 5.3 Engine Modulleri
+
+14 Python dosyasi, toplam **5,870 satir**:
+
+#### core.py (171 satir) -- Temel Veri Yapilari
+
+**Siniflar:**
+- `DeadState` -- Referans ortam kosullari (T0=298.15K, P0=101.325kPa)
+- `ExergyResult` -- Tum ekipman sonuclarinin temel sinifi
+
+**ExergyResult Alanlari:**
+- Exergy: `exergy_in_kW`, `exergy_out_kW`, `exergy_destroyed_kW`, `exergy_efficiency_pct`
+- Ekonomik: `annual_loss_kWh`, `annual_loss_EUR`, `recoverable_heat_kW`
+- AV/UN: `exergy_destroyed_avoidable_kW`, `exergy_destroyed_unavoidable_kW`, `avoidable_ratio_pct`
+- Exergoekonomik: `exergoeconomic_Z_dot_eur_h`, `exergoeconomic_C_dot_destruction_eur_h`, `exergoeconomic_f_factor`, `exergoeconomic_r_factor`, `exergoeconomic_c_product_eur_kWh`, `exergoeconomic_total_cost_rate_eur_h`
+
+**Yardimci Fonksiyonlar:**
+- `heat_exergy(Q_kW, T_K)` -- Isi exergisi: Ex_Q = Q x (1 - T0/T)
+- `carnot_factor(T_hot_K, T_cold_K)` -- Carnot verimi
+- `celsius_to_kelvin()`, `bar_to_kpa()`, `air_density()` -- Birim donusumleri
+- `compute_avoidable_split()` -- AV/UN ayrisimi (Tsatsaronis & Morosuk 2008)
+
+#### exergoeconomic.py (242 satir) -- SPECO Analizi
+
+**Siniflar:**
+- `ExergoeconomicInput` -- PEC, faiz orani, ekipman omru, bakim faktoru
+- `ExergoeconomicResult` -- Z_dot, C_dot_D, f-faktor, r-faktor, c_product
+
+**Fonksiyonlar:**
+- `compute_crf()` -- Sermaye geri kazanim faktoru
+- `compute_z_dot()` -- Yilliklandirilmis yatirim maliyeti orani
+- `estimate_equipment_cost()` -- Guc yasasi maliyet korelasyonu (PEC = a x W^b)
+- `analyze_exergoeconomic()` -- Tam SPECO analizi
+- `_apply_exergoeconomic()` -- ExergyResult'a ekonomik alanlari enjekte eder
+
+**Maliyet Korelasyonlari:**
+| Ekipman | a | b | Formul |
+|---------|---|---|--------|
+| Kompresor | 3,500 | 0.70 | PEC = 3500 x W^0.70 |
+| Kazan | 2,000 | 0.75 | PEC = 2000 x W^0.75 |
+| Chiller | 1,200 | 0.80 | PEC = 1200 x W^0.80 |
+| Pompa | 1,000 | 0.65 | PEC = 1000 x W^0.65 |
+
+#### 7 Ekipman Modulu
+
+Her ekipman modulu asagidaki standart yapiyi izler:
+
+| Modul | Satir | Alt Tip Sayisi | Analiz Fonksiyonu |
+|-------|-------|----------------|-------------------|
+| compressor.py | 656 | 4 (screw, piston, scroll, centrifugal) | `analyze_compressor()` + 3 ozel |
+| boiler.py | 678 | 7 (firetube, watertube, hotwater, condensing, waste_heat, electric, biomass) | `analyze_boiler()` |
+| chiller.py | 522 | 7 (screw, centrifugal, scroll, reciprocating, absorption, air_cooled, water_cooled) | `analyze_chiller()` |
+| pump.py | 497 | 6 (centrifugal, positive_displacement, submersible, vertical_turbine, booster, vacuum) | `analyze_pump()` |
+| heat_exchanger.py | 513 | 7 (shell_tube, plate, air_cooled, double_pipe, spiral, economizer, recuperator) | `analyze_heat_exchanger()` |
+| steam_turbine.py | 580 | 5 (back_pressure, condensing, extraction, orc, micro_turbine) | `analyze_steam_turbine()` |
+| dryer.py | 555 | 8+ (convective, rotary, fluidized_bed, spray, belt, heat_pump, infrared, drum) | `analyze_dryer()` |
+
+Her moduldeki ortak fonksiyonlar:
+- `analyze_{equipment}(input_data, dead_state, _calc_avoidable)` -- Ana analiz
+- `generate_{equipment}_sankey_data(result, subtype)` -- Sankey verisi
+- `get_{equipment}_recommendations(result, input_data)` -- Cozum onerileri
+- `_get_benchmark_comparison(eta_ex, subtype)` -- Benchmark eslestirme
+- `_calculate_percentile(eta_ex, subtype)` -- Sektor yuzdelik dilimi
+
+Her modulde `UNAVOIDABLE_REF_{EQUIPMENT}` sozlugu var -- en iyi ulasilabilir referans degerleri (Tsatsaronis metodolojisi).
+
+#### factory.py (824 satir) -- Fabrika Agregasyonu
+
+**Siniflar:**
+- `EquipmentType` -- Enum (7 tip)
+- `EquipmentItem` -- Tek ekipman kaydi
+- `FactoryAnalysisResult` -- Fabrika ciktisi
+
+**Fonksiyonlar:**
+- `analyze_factory(equipment_list)` -- Ana fabrika analizi
+- `analyze_equipment_item(item)` -- Tek ekipman dispatch
+- `_calculate_aggregates(results)` -- Toplam exergy metrikleri
+- `_identify_hotspots(results)` -- Oncelikli exergy kayiplari siralamassi
+- `_detect_integration_opportunities(equipment_list, results)` -- Capraz ekipman firsatlari
+- `_generate_factory_sankey(results, aggregates)` -- Birlesmis Sankey
+
+#### Diger Moduller
+
+| Modul | Satir | Aciklama |
+|-------|-------|----------|
+| sankey.py | 158 | Sankey diyagrami dispatcher (ekipman tipine gore) |
+| radar.py | 159 | 6 eksenli benchmark: Exergy Verimi, Iyilestirme, Sektor, Isi Geri Kazanim, Yikim Orani, Maliyet Verimliligi. Not: A(85+), B(70+), C(50+), D(30+), F(<30) |
+| compare.py | 155 | What-if: delta hesaplama, iyilesen/kotulesen metrikler, Turkce ozet |
+| utils.py | 113 | Birim donusumu, dogrulama, formatlama, JSON I/O |
+
+### 5.4 Kimlik Dogrulama Sistemi
+
+**Mimari:** JWT tabanli, opsiyonel (geriye uyumlu)
+
+**Bilesenler:**
+- `api/auth/config.py` -- SECRET_KEY, ALGORITHM (HS256), TOKEN_EXPIRE (24 saat)
+- `api/auth/security.py` -- `create_access_token()`, `get_password_hash()`, `verify_password()`
+- `api/auth/dependencies.py` -- `require_auth` (zorunlu), `optional_auth` (opsiyonel)
+
+**Yetki Kontrol Kurallari:**
+1. Kullanici yok -> izin ver
+2. Proje sahibi yok -> izin ver
+3. Kullanici == sahip -> izin ver
+4. Kullanici != sahip -> 403 Forbidden
+
+**Akis:**
+```
+POST /api/auth/register -> bcrypt hash + DB kayit
+POST /api/auth/login    -> JWT token uretimi
+GET  /api/auth/me       -> Token dogrulama + kullanici bilgisi
+```
+
+### 5.5 Ekipman Kayit Defteri
+
+`api/services/equipment_registry.py` (173 satir) -- 7 ekipman tipi ve 46 alt tip:
+
+| Ekipman | Alt Tipler | engine_ready |
+|---------|------------|-------------|
+| Kompresor | screw, screw_oilfree, piston, scroll, centrifugal, roots | Evet |
+| Kazan | steam_firetube, steam_watertube, hotwater, condensing, waste_heat, electric, biomass | Evet |
+| Chiller | screw, centrifugal, scroll, reciprocating, absorption, air_cooled, water_cooled | Evet |
+| Pompa | centrifugal, positive_displacement, submersible, vertical_turbine, booster, vacuum | Evet |
+| Isi Esanjoru | shell_tube, plate, air_cooled, double_pipe, spiral, economizer, recuperator | Evet |
+| Buhar Turbini | back_pressure, condensing, extraction, orc, micro_turbine | Evet |
+| Kurutma Firini | convective, rotary, fluidized_bed, spray, belt, heat_pump, infrared, drum | Evet |
+
+---
+
+## 6. Frontend Detaylari
+
+### 6.1 Sayfa Yapisi
+
+6 sayfa + routing (`App.jsx`):
+
+```
+BrowserRouter
+|-- /login           -> Login (tam sayfa, layout yok)
+|-- Layout (sidebar + ana icerik)
+    |-- /                          -> Dashboard (7 ekipman karti)
+    |-- /equipment/:equipmentType  -> EquipmentAnalysis
+    |-- /factory                   -> FactoryList
+    |-- /factory/new               -> FactoryWizard
+    |-- /factory/:projectId        -> FactoryDashboard
+    |-- /reports                   -> ReportsPlaceholder (yakinday)
+    |-- *                          -> Redirect -> /
+```
+
+#### Dashboard.jsx
+- 7 ekipman karti gosterir
+- Fabrika analizi tanitim karti
+- Tek ekipman analiz sayfasina yonlendirir
+
+#### EquipmentAnalysis.jsx
+- Iki modlu layout: analiz oncesi (form) / analiz sonrasi (dashboard)
+- 4 sekme: Genel Bakis (Radar + AV/UN), Akis (Sankey), AI (Yorum + Sohbet), Senaryo (What-if)
+- `useAnalysis()` hook ile state yonetimi
+- Asenkron AI yorumlama (ana analizi engellemez)
+
+#### FactoryList.jsx
+- Fabrika projelerini listeler
+- Sektor rozeti, ekipman sayisi, tarih bilgisi
+
+#### FactoryWizard.jsx
+- 2 adimli sihirbaz: proje bilgileri -> ekipman ekleme
+- `AddEquipmentModal`: 3 adim (tip -> alt tip -> parametreler)
+
+#### FactoryDashboard.jsx
+- Uc gorunum modu:
+  1. Bos: ekipman yok -> "Ekipman Ekle" yonlendirmesi
+  2. Ekipmanli: analiz yok -> "Analiz Calistir" butonu
+  3. Tam Dashboard: metrik bar + oncelik listesi + entegrasyon + Sankey + AI
+
+#### Login.jsx
+- Giris/kayit gecisi
+- JWT token localStorage'a kayit
+- Otomatik `/factory` yonlendirmesi
+
+### 6.2 Component Hiyerarsisi
+
+50 JSX + 5 JS dosyasi, 10 alt dizin:
+
+#### Layout (4 dosya)
+- `Layout.jsx` -- Ana sarmalayici (sidebar + icerik)
+- `Header.jsx` -- Kullanici bilgisi, cikis butonu
+- `Sidebar.jsx` -- 64px genislik, katlanabilir gruplar, NavLink
+- `Footer.jsx` -- Alt bilgi
+
+#### Dashboard (8 dosya)
+- `DashboardLayout.jsx` -- Analiz oncesi/sonrasi layout degistirici
+- `TabContainer.jsx` -- Sekme navigasyonu (hidden class ile state koruma)
+- `OverviewTab.jsx` -- RadarBenchmark + AV/UN stacked bar + temel metrikler
+- `FlowTab.jsx` -- Sankey diyagrami
+- `AITab.jsx` -- AI yorumlama + sohbet paneli
+- `ScenarioTab.jsx` -- What-if senaryo editoru + karsilastirma
+- `ParameterSidebar.jsx` -- Sol kenar cubugu (parametreler + yeniden analiz)
+- `MetricBar.jsx` -- Ust yatay metrik cubugu
+
+#### Forms (3 dosya)
+- `ParameterForm.jsx` -- 2 sutunlu alan gridi
+- `FormField.jsx` -- Dinamik alan render (input/select/checkbox)
+- `CompressorTypeSelector.jsx` -- Kompresor tipi butonlari
+
+#### Results (7 dosya)
+- `AIInterpretation.jsx` -- Ozet, detayli analiz, oneriler, aksiyon plani, uyarilar
+- `SankeyDiagram.jsx` -- Plotly sankey (node -> link -> value)
+- `RadarBenchmark.jsx` -- 6 eksenli Plotly polar/radar grafigi (A-F not rozeti)
+- `BenchmarkChart.jsx` -- Benchmark cubuk grafigi
+- `MetricsCard.jsx` -- Metrik ozet karti
+- `SolutionsList.jsx` -- Oneri listesi
+- `ResultsPanel.jsx` -- Sonuc konteyner
+
+#### What-if (3 dosya)
+- `ScenarioEditor.jsx` -- Baseline/senaryo parametre editoru
+- `ComparisonPanel.jsx` -- Delta karsilastirma tablosu (yesil/kirmizi gosterge)
+- `RadarComparison.jsx` -- Iki katmanli radar grafigi
+
+#### Factory (11 dosya)
+- `FactoryHeader.jsx` -- Proje adi, sektor rozeti, butonlar
+- `FactoryMetricBar.jsx` -- Fabrika seviyesi metrikler
+- `EquipmentInventory.jsx` -- Ekipman tablosu (tip, alt tip, durum, silme)
+- `AddEquipmentModal.jsx` -- 3 adimli modal sihirbaz
+- `PriorityList.jsx` -- Oncelik sirali hotspot listesi (verimlilik cubugu, AV%, not rozeti, kW + EUR)
+- `HotspotList.jsx` -- Basitlesmis hotspot gorunumu
+- `IntegrationPanel.jsx` -- Capraz ekipman firsatlari (kaynak -> hedef oklari)
+- `IntegrationOpportunities.jsx` -- Entegrasyon detaylari
+- `FactoryAIPanel.jsx` -- Fabrika AI yorumlama butonu + sonuclari
+- `FactoryAIInterpretation.jsx` -- Fabrika seviyesi AI gorunumu
+- `FactorySankey.jsx` -- Fabrika seviyesi Sankey
+
+#### Chat (1 dosya)
+- `ChatPanel.jsx` -- Tam sohbet arayuzu: markdown render, mavi/beyaz mesaj balonlari, bilgi kaynagi rozetleri, oneri butonlari
+
+#### Common (4 dosya)
+- `Card.jsx`, `Button.jsx`, `Loading.jsx`, `Tooltip.jsx`
+
+### 6.3 Servisler
+
+#### api.js -- Ana API Istemcisi
+```javascript
+const api = axios.create({
+  baseURL: '/api',
+  headers: { 'Content-Type': 'application/json' },
+});
+// Otomatik JWT token ekleme (localStorage'dan)
+```
+
+**Ekipman API'leri:**
+- `getEquipmentConfig(type)` -- Alan tanimlari
+- `analyzeEquipment(type, subtype, params)` -- Analiz
+- `getEquipmentTypes()` -- Tip listesi
+
+**AI API'leri:**
+- `interpretAnalysis(result, type, subtype, params)` -- AI yorumu
+- `compareScenarios({...})` -- What-if
+- `chatWithAI({type, subtype, question, data, history})` -- Sohbet
+
+**Auth API'leri:**
+- `register()`, `login()`, `getMe()`, `logout()`
+
+#### factoryApi.js -- Fabrika API Istemcisi
+- `createFactoryProject()`, `getFactoryProjects()`, `getFactoryProject()`
+- `addEquipmentToProject()`, `removeEquipmentFromProject()`
+- `analyzeFactory()`, `interpretFactory()`
+
+### 6.4 Custom Hooks
+
+#### useAnalysis
+```javascript
+const { result, solutions, loading, error, analyze, reset, interpretation, aiLoading } = useAnalysis();
+```
+2 fazli analiz:
+1. Faz 1: Ana analiz + cozumler (engelleyici)
+2. Faz 2: AI yorumlama (arka planda, engellemez)
+
+#### useCompressorTypes
+```javascript
+const { types, loading, error } = useCompressorTypes();
+```
+
+### 6.5 Vite Yapilandirmasi
+
+```javascript
+defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
+  },
+})
+```
+
+---
+
+## 7. Knowledge Base
+
+305 markdown dosyasi, 8 ana dizin:
+
+| Dizin | Dosya Sayisi | Icerik |
+|-------|-------------|--------|
+| compressor/ | 19 | Benchmark, formuller, cozumler, alt tip detaylari |
+| boiler/ | 23 | Yakit exergy faktorleri, baca gazi analizi, yoğusma |
+| chiller/ | 25 | COP, absorption, serbest sogutma, termal depolama |
+| pump/ | 23 | Hidrolik guc, VSD, kavitasyon, sistem egrisi |
+| heat_exchanger/ | 21 | U-deger, LMTD, NTU, fouling, etkinlik |
+| steam_turbine/ | 23 | Izentropik verim, CHP, PRV ikamesi, ORC |
+| dryer/ | 26 | SMER, SEC, psikrometri, tip secimi |
+| factory/ | 144 | 6 ileri analiz yontemi (asagida detay) |
+
+### Fabrika Knowledge (144 dosya, 6 ileri yontem)
+
+| Alt Dizin | Dosya | Yontem | Uygulama Kosulu |
+|-----------|-------|--------|-----------------|
+| pinch/ | ~18 | Linnhoff Pinch Analizi | 3+ sicak/soguk akis, toplam isi > 500 kW |
+| advanced_exergy/ | ~18 | AV/UN + EN/EX dekompozisyon | 3+ ekipman, I_total > 100 kW |
+| exergoeconomic/ | ~21 | SPECO, C_D, f_k/r_k | f_k < 0.25 veya f_k > 0.65 |
+| thermoeconomic_optimization/ | ~16 | Parametrik/yapisal optimizasyon | C_D > 50,000 EUR/yil |
+| entropy_generation/ | ~19 | Bejan sayisi, Gouy-Stodola | N_s > 0.5 |
+| energy_management/ | ~10 | ISO 50001, enerji denetimi | Sistematik yonetim ihtiyaci |
+
+Her knowledge dosyasinda:
+- YAML frontmatter (skill_id, versiyon, ekipman)
+- Turkce basliklar, teknik terimler Ingilizce parantez icinde
+- Tablolar, formuller, pratik ornekler
+- "Ilgili Dosyalar" ve "Referanslar" bolumleri
+
+---
+
+## 8. AI Sistemi
+
+### 8.1 Skill Yukleme Sirasi
+
+`claude_code_service.py` (1,036 satir) AI yorumlama sirasinda:
+
+```
+1. Core Skills (her zaman):
+   |-- exergy_fundamentals.md    # Exergy kavramlari
+   |-- response_format.md       # JSON semalari
+   |-- decision_trees.md        # Karar agaclari
+
+2. Equipment Skill (tek ekipman):
+   |-- equipment/{type}_expert.md
+
+3. Factory Skills (fabrika analizi):
+   |-- factory_analyst.md        # Hotspot, capraz ekipman
+   |-- integration_expert.md     # HEN, pinch eslestirme
+   |-- economic_advisor.md       # Exergoekonomik
+
+4. Output Skill (her zaman):
+   |-- output/turkish_style.md   # Turkce cikti stili
+```
+
+### 8.2 Knowledge Yonlendirme
+
+`knowledge_router.py` (274 satir) -- soru/analiz turune gore dosya yonlendirme:
 
 **Tek Ekipman:**
-- `knowledge/{type}/benchmarks.md`
-- `knowledge/{type}/formulas.md`
+- `knowledge/{equipment}/benchmarks.md`
+- `knowledge/{equipment}/formulas.md`
+- Cozum dosyalari (soru icerigi bazli)
 
 **Fabrika:**
 - `knowledge/factory/cross_equipment.md`
@@ -519,326 +790,266 @@ _fallback_response() ← ai_available: false
 - `knowledge/factory/advanced_exergy/overview.md`
 - `knowledge/factory/pinch/fundamentals.md`
 - `knowledge/factory/entropy_generation/overview.md`
-- `knowledge/factory/sector_{sector}.md` (sektor belirtilmisse)
+- `knowledge/factory/sector_{sector}.md` (sektor varsa)
+
+### 8.3 AI Sohbet
+
+`/api/chat` endpoint'i:
+- Ekipman tipine gore knowledge routing
+- Analiz verisi baglami (opsiyonel)
+- Sohbet gecmisi destegi
+- Turkce yanit + bilgi kaynaklari + takip onerileri
+
+### 8.4 Fallback Mekanizmasi
+
+AI kullanilamadiginda guvenli varsayilan yanit:
+```json
+{
+  "ai_available": false,
+  "summary": "...",
+  "detailed_analysis": "...",
+  "key_insights": [],
+  "recommendations": [],
+  "not_recommended": [],
+  "action_plan": {"immediate": [], "short_term": [], "medium_term": []},
+  "warnings": []
+}
+```
+
+### 8.5 JSON Cikarma
+
+3 katmanli parser:
+1. Dogrudan JSON parse
+2. Markdown fence cikarma (```json...```)
+3. Regex tabanli ham JSON tespiti
 
 ---
 
-## 9. Test Kapsami
+## 9. Test Kapsamsi
 
-### 9.1 Ozet Istatistikler
+14 test dosyasi, **327 test fonksiyonu**, toplam **3,712 satir**:
+
+### Test Dosyalari
+
+| Dosya | Test Sayisi | Satir | Kapsam |
+|-------|------------|-------|--------|
+| test_api.py | 48 | 599 | API endpointleri, fabrika CRUD |
+| test_engine.py | 60 | 552 | 4 temel ekipman motoru |
+| test_skills.py | 71 | 453 | AI beceri dosyalari, knowledge dogrulama |
+| test_avoidable_unavoidable.py | 29 | 376 | AV/UN ayrisimi, invariantler |
+| test_exergoeconomic.py | 22 | 325 | SPECO, f-faktor, r-faktor |
+| test_compare.py | 12 | 232 | What-if delta hesaplama |
+| test_heat_exchanger.py | 23 | 200 | Bejan sayisi, LMTD, fouling |
+| test_radar.py | 20 | 200 | 6 eksenli benchmark puanlama |
+| test_dryer.py | 23 | 196 | SMER, isi kaynaklari, termal verim |
+| test_steam_turbine.py | 20 | 178 | CHP modu, izentropik verim |
+| test_equipment_registry.py | 18 | 170 | 7 tip, 46 alt tip dogrulama |
+| test_knowledge_router.py | 24 | 159 | Bilgi yonlendirme, sohbet |
+| conftest.py | - | 72 | DB fixture, TestClient |
+
+### Test Kategorileri
+
+| Kategori | Test Sayisi | Aciklama |
+|----------|------------|----------|
+| Temel Exergy Hesaplama | ~130 | Enerji dengesi, verimlilik, benchmark |
+| API Entegrasyonu | ~48 | Endpoint yanit dogrulama |
+| Ileri Analiz | ~61 | Exergoekonomik, what-if, radar |
+| AI Sistemi | ~71 | Beceri dosyalari, knowledge, JSON cikarma |
+| AV/UN Invariantlari | ~29 | Avoidable <= Total, sum = Total |
+
+### Test Altyapisi
+
+- **Veritabani:** Her test icin bellekte SQLite (izole)
+- **API:** FastAPI TestClient + dependency override
+- **Parametrik:** Pytest parametrize (10 motor x 5 invariant = 50 varyant)
+- **Konfigurasyon:** `conftest.py` -- otomatik tablo olusturma/silme
+
+---
+
+## 10. Bagimliliklar
+
+### Python (requirements.txt -- 17 paket)
+
+| Kategori | Paketler |
+|----------|----------|
+| Web API | fastapi >= 0.109.0, uvicorn >= 0.27.0, python-multipart >= 0.0.6 |
+| Veri Modelleri | pydantic >= 2.0.0 |
+| Termodinamik | CoolProp >= 6.4.0 |
+| Veri Isleme | numpy >= 1.21.0, pandas >= 1.3.0 |
+| Gorsellestirme | plotly >= 5.0.0, matplotlib >= 3.4.0 |
+| Raporlama | reportlab >= 3.6.0, python-docx >= 0.8.11 |
+| Veritabani | sqlalchemy >= 2.0.0, aiosqlite >= 0.19.0 |
+| Auth | python-jose[cryptography] >= 3.3.0, passlib[bcrypt] >= 1.7.4 |
+| Yapilandirma | python-dotenv >= 0.19.0 |
+| Test | pytest >= 7.0.0, httpx >= 0.26.0 |
+
+### Frontend (package.json)
+
+**Calisma Zamani (7 paket):**
+
+| Paket | Versiyon | Amac |
+|-------|---------|------|
+| react | 19.2.0 | UI framework |
+| react-dom | 19.2.0 | DOM rendering |
+| react-router-dom | 7.13.0 | Client-side routing |
+| axios | 1.13.4 | HTTP istemcisi |
+| lucide-react | 0.563.0 | Ikon kutuphanesi |
+| plotly.js | 3.3.1 | Grafik kutuphanesi (Sankey, Radar) |
+| react-plotly.js | 2.6.0 | Plotly React sarmalayicisi |
+
+**Gelistirme (5 paket):**
+
+| Paket | Versiyon | Amac |
+|-------|---------|------|
+| vite | 7.2.4 | Build araci |
+| @vitejs/plugin-react | 5.1.1 | Vite React eklentisi |
+| tailwindcss | 3.4.19 | Utility CSS framework |
+| postcss | 8.5.6 | CSS donusumu |
+| autoprefixer | 10.4.24 | CSS vendor onekleri |
+
+---
+
+## 11. Guvenlik
+
+### Mevcut Onlemler
+
+| Alan | Durum | Detay |
+|------|-------|-------|
+| Girdi Dogrulama | Aktif | Pydantic v2 ile tum endpoint'lerde |
+| Kimlik Dogrulama | Aktif | JWT (HS256), 24 saat gecerlilik |
+| Parola Hashleme | Aktif | bcrypt (passlib) |
+| CORS | Aktif | localhost:5173, localhost:3000 |
+| Sahiplik Kontrolu | Aktif | Fabrika projelerinde owner_id dogrulama |
+| SQL Injection | Korunmus | SQLAlchemy ORM (parametrik sorgular) |
+| XSS | Korunmus | React DOM escaping |
+| Hata Gizleme | Aktif | AI hatalari kullaniciya gosterilmez (fallback) |
+
+### Dikkat Gerektiren Alanlar
+
+| Alan | Risk | Oneri |
+|------|------|-------|
+| SECRET_KEY | Ortam degiskeni ile yonetilmeli | `.env` dosyasindan yukleniyor |
+| CORS | Uretimde kisitlanmali | Sadece localhost'a izin var |
+| Rate Limiting | Yok | AI endpointlerine eklenebilir |
+| HTTPS | Uygulanmamis | Uretimde zorunlu |
+| Girdi Boyutu | Sinirli | Buyuk JSON'lar icin limit eklenebilir |
+
+---
+
+## 12. Bilinen Sorunlar
+
+### Cozulmus Sorunlar
+
+| Sorun | Commit | Cozum |
+|-------|--------|-------|
+| "Argument list too long" fabrika AI yorumlamasinda | ececa31 | Prompt gecmisi ve knowledge icerigi kirpma |
+| 422 hatalari eksik Pydantic varsayilanlari | 823fa48 | Tum zorunlu alanlara varsayilan deger ekleme |
+| Sohbet takip basarisizligi | 329bda6 | Prompt gecmisi ve knowledge icerigi kirpma |
+| AI prompt sablonlari HX/ST/Dryer icin eksik | 481608c | Sablon ekleme |
+
+### Bilinen Kisitlamalar
+
+| Kisitlama | Detay |
+|-----------|-------|
+| CoolProp bagimliligi | Buhar/su ozellikleri icin gerekli; fallback yaklasimsiz hesaplama mevcut |
+| AI yanit suresi | Claude API suresi uzun olabilir (~10-30sn); frontend'de non-blocking |
+| Tekil veritabani | SQLite tek yazici -- eşzamanlı yazma islemi desteklemez |
+| Radar benchmark | Sadece kompresor icin sektorel detay; diger ekipmanlarda genel |
+| Cost korelasyonlari | 4/7 ekipman icin mevcut; diger 3 icin varsayilan kullanilir |
+
+---
+
+## 13. Gelistirme Onerileri
+
+### Kisa Vadeli (1-2 ay)
+
+| Oneri | Oncelik | Etki |
+|-------|---------|------|
+| Tum ekipmanlara sektorel radar detayi | Yuksek | Benchmark kalitesi |
+| Heat exchanger + steam turbine + dryer maliyet korelasyonlari | Yuksek | Exergoekonomik dogruluk |
+| Rate limiting (AI endpointleri) | Orta | Guvenlik |
+| Analiz sonuclarini PDF/DOCX export | Orta | Kullanilabilirlik |
+
+### Orta Vadeli (3-6 ay)
+
+| Oneri | Oncelik | Etki |
+|-------|---------|------|
+| Pinch analizi motor modulu | Yuksek | Fabrika optimizasyonu |
+| Ileri exergy motor modulu (AV/UN + EN/EX) | Yuksek | Analiz derinligi |
+| PostgreSQL gecisi | Orta | Olceklenebilirlik |
+| Frontend state yonetimi (Redux/Zustand) | Orta | Karmasiklik yonetimi |
+| WebSocket ile gercek zamanli AI streaming | Orta | Kullanici deneyimi |
+
+### Uzun Vadeli (6-12 ay)
+
+| Oneri | Oncelik | Etki |
+|-------|---------|------|
+| Coklu kullanici + takim yonetimi | Orta | Kurumsal kullanim |
+| Tarihsel veri analizi + trend izleme | Orta | Veri odakli karar |
+| Mobil uyumlu responsive tasarim | Dusuk | Erisim genisligi |
+| Uluslararasilastirma (i18n) | Dusuk | Pazar genisligi |
+
+---
+
+## 14. Commit Gecmisi
+
+Son 25 commit (en yeniden en eskiye):
+
+| Commit | Aciklama |
+|--------|----------|
+| ececa31 | "Argument list too long" hatasini fabrika AI yorumlamasinda duzelt |
+| 72a905f | 4 ekipman motoruna exergoekonomik analiz ekle (f-faktor, r-faktor, maliyet oranlari) |
+| 6a6d5a8 | Fabrika projeleri icin opsiyonel JWT kimlik dogrulama + sahiplik ekle |
+| cc5bd2c | Bellek ici fabrika depolamasini SQLite kalicilik katmaniyla degistir |
+| 3dfbbfc | Fabrika dashboard'unu uc modlu layout + 5 yeni bilesenle yeniden tasarla |
+| 3cecff3 | Ekipman analizi UI'ini iki modlu dashboard layout ile yeniden tasarla |
+| 329bda6 | Prompt gecmisi ve knowledge icerigi kirparak sohbet takip hatasini duzelt |
+| cffa443 | 305 dosyali knowledge tabani yonlendirmesiyle AI sohbet paneli ekle |
+| 1eb234f | 7 ekipman tipi icin What-If senaryo karsilastirma modu ekle |
+| f2253a6 | Tum ekipman analiz sonuclarina 6 eksenli benchmark radar grafigi ekle |
+| 823fa48 | Tum Pydantic sema alanlarina varsayilan deger ekleyerek 422 hatalarini duzelt |
+| f6616fc | 7 motorda kacinilabilir/kacinilmaz exergy yikim ayrisimi ekle |
+| 481608c | Isi esanjoru, buhar turbini, kurutma firini AI prompt sablonlarini duzelt |
+| 162e11f | Isi esanjoru, buhar turbini, kurutma firinini frontend UI'ina entegre et |
+| d092c48 | Isi esanjoru, buhar turbini, kurutma firini exergy motorlarini API ile ekle |
+| fd0a740 | Kapsamli proje analiz raporu ekle (844 satirlik Turkce kod taramasi) |
+| e77027e | 7 ekipman tipi ve 6 ileri analiz yontemini AI servis katmanina bagla |
+| 43848a6 | Isi esanjoru, buhar turbini, kurutma firini knowledge tabanlari + fabrika genislet |
+| b562547 | Moduler AI beceri sistemi, knowledge metadata, optimize prompt yukleme ekle |
+| 06b176b | Capraz ekipman isi geri kazanim hesaplamasi duzelt + UI cilala |
+| 24261eb | Tam yigin uygulamayla fabrika seviyesi exergy analiz sistemi ekle |
+| be7b85d | Fabrika seviyesi enerji/exergy analiz knowledge tabani ekle (33 dosya) |
+| 793b8cb | Tum ekipman tipleri icin AI yorumlamayi etkinlestir (kazan, chiller, pompa) |
+| b7aafcb | Kazan, chiller, pompa exergy analiz motor modulleri ekle |
+| 057bc79 | Coklu ekipman platformu icin sidebar navigasyon ve React Router ekle |
+
+---
+
+## 15. Metrik Ozeti
 
 | Metrik | Deger |
 |--------|-------|
-| Toplam test | 243 |
-| Basarili | 243 (%100) |
-| Basarisiz | 0 |
-| Calisma suresi | 1.73s |
-| Test dosyasi | 4 (+ conftest + __init__) |
-| Test satiri | 1,776 |
-
-### 9.2 Test Dosyalari Detayi
-
-#### test_api.py (596 satir)
-
-| Test Sinifi | Test Sayisi | Kapsam |
-|-------------|-------------|--------|
-| TestHealth | 2 | Root endpoint, health check |
-| TestAnalyze | 7 | 4 kompresor alt tipi, invalid tip, missing fields, sankey |
-| TestCompressorTypes | 2 | /types endpoint, alan yapisi |
-| TestBenchmarks | 5 | 4 tip benchmark + invalid |
-| TestSolutions | 4 | Solutions endpoint, parametre destegi, yapi |
-| TestBoilerAnalyze | 3 | Firetube, hotwater, invalid |
-| TestChillerAnalyze | 3 | Centrifugal, absorption, invalid |
-| TestPumpAnalyze | 3 | Centrifugal, throttle, invalid |
-| TestFactoryAPI | 12 | CRUD, analyze, hotspot, sankey, integration |
-| TestEquipmentConfig | 5 | 4 tip config + invalid |
-
-#### test_engine.py (550 satir)
-
-| Test Sinifi | Test Sayisi | Kapsam |
-|-------------|-------------|--------|
-| TestScrewCompressor | 5 | Analiz, enerji dengesi, benchmark, spesifik guc, yillik maliyet |
-| TestPistonCompressor | 3 | Analiz, enerji dengesi, benchmark |
-| TestScrollCompressor | 2 | Analiz, enerji dengesi |
-| TestCentrifugalCompressor | 3 | Analiz, enerji dengesi, benchmark |
-| TestSankey | 3 | Yapi, enerji dengesi, node isimleri |
-| TestApiDict | 2 | Cikti formati, deger eslesmesi |
-| TestRecommendations | 2 | Liste yapisi, oneri yapisi |
-| TestBoiler | 5 | Analiz, enerji dengesi, kayip breakdown, benchmark, hotwater |
-| TestChiller | 5 | Centrifugal, absorption, enerji dengesi, COP |
-| TestPump | 5 | Analiz, enerji dengesi, VSD, throttle, benchmark |
-| TestFactory | 8 | Aggregation, hotspot, integration, sankey, edge cases |
-
-#### test_skills.py (453 satir)
-
-| Test Sinifi | Test Sayisi | Kapsam |
-|-------------|-------------|--------|
-| TestSkillFileStructure | 17 | 14 moduler skill dosyasi + 3 dizin |
-| TestSkillContentValidation | 45 | Min satir, version, heading, 7 ekipman icerik, karar agaci, JSON sema |
-| TestSkillLoading | 10 | Tek skill, 7 ekipman, factory, bilinmeyen, cache |
-| TestKnowledgeLoading | 7 | Tek ekipman, factory, sektor, HX, ST, dryer, missing |
-| TestKnowledgeFrontmatter | 22 | 7×benchmarks, 7×formulas, 7×INDEX, factory INDEX, cross_equipment |
-| TestPromptBuilding | 3 | Skills dahil, data dahil, SafeDict |
-| TestFallbackResponses | 2 | Ekipman fallback, factory fallback |
-| TestJsonExtraction | 5 | Direct, markdown fence, embedded, invalid, empty |
-
-#### test_equipment_registry.py (170 satir)
-
-| Test Sinifi | Test Sayisi | Kapsam |
-|-------------|-------------|--------|
-| TestEquipmentTypes | 12 | 7 tip mevcut, alt tipler, engine_ready bayraklari |
-| TestRegistryFunctions | 9 | get_types, get_subtypes, is_valid, is_ready, knowledge_path |
-
-### 9.3 Test Bosluklari
-
-| Alan | Durum | Aciklama |
-|------|-------|----------|
-| heat_exchanger engine | ❌ Yok | Engine mevcut degil, test yok |
-| steam_turbine engine | ❌ Yok | Engine mevcut degil, test yok |
-| dryer engine | ❌ Yok | Engine mevcut degil, test yok |
-| AI interpret (e2e) | ❌ Yok | Claude CLI mock testi yok |
-| Frontend | ❌ Yok | React test dosyasi yok |
-| Hata durumlari (engine) | ⚠️ Kismi | Negatif deger, sinir kosullari sinirli |
-| Performance/load | ❌ Yok | Yuk testi yok |
-| Factory multi-type | ⚠️ Kismi | Yalniz comp+boiler+chiller+pump test ediliyor |
+| **Toplam Kod Satiri** | **19,017** |
+| Python satiri | 13,818 |
+| JS/JSX satiri | 5,199 |
+| Engine modulleri | 15 dosya (5,870 satir) |
+| API modulleri | 26 dosya (4,236 satir) |
+| Knowledge dosyalari | 305 |
+| Skill dosyalari | 17 |
+| Test dosyalari | 14 |
+| Test fonksiyonlari | 327 |
+| Test satiri | 3,712 |
+| API endpointleri | 21 |
+| Veritabani tablolari | 6 (+ 1 SQLAlchemy Base) |
+| React sayfalar | 6 |
+| React componentler | 50 JSX + 5 JS |
+| Ekipman tipleri | 7 |
+| Ekipman alt tipleri | 46 |
+| Python bagimliliklari | 17 |
+| Frontend bagimliliklari | 12 (7 runtime + 5 dev) |
+| Git commit sayisi (gosterilen) | 25 |
 
 ---
 
-## 10. CLAUDE.md Analizi
-
-**Dosya:** `/CLAUDE.md` — Proje talimatlari ve navigasyon rehberi.
-
-**Icerik Yeterliligi:**
-
-| Bolum | Mevcut | Dogruluk |
-|-------|--------|----------|
-| Proje Ozeti | ✅ | Dogru — 7 ekipman, 6 yontem, 305+ KB dosyasi |
-| Teknoloji Stack | ✅ | Dogru |
-| Dizin Yapisi | ✅ | Buyuk olcude dogru, bazi detaylar eksik |
-| Ekipman Tipleri tablosu | ✅ | Dogru — engine_ready durumu dogru |
-| Calistirma talimatlari | ✅ | Dogru |
-| AI Yorumlama Sistemi | ✅ | Skill yukleme sirasi dogru |
-| Knowledge kullanimi | ✅ | Dogru |
-| Kod konvansiyonlari | ✅ | Dogru |
-| Test talimatlari | ✅ | Dogru (4 test dosyasi listelenmis) |
-| Ileri Analiz Yontemleri | ✅ | 6 yontem dogru tanimlanmis |
-
-**Dogruluk Notu:** CLAUDE.md'deki bilgiler mevcut kod tabanini dogru yansitmaktadir. `heat_exchanger`, `steam_turbine`, `dryer` icin engine durumu "Planned" olarak isaretlenmis ki bu dogrudur — bu dosyalar engine/ dizininde mevcut degildir. Istatistikler (305+ KB dosyasi, 17 skill) dogrudur.
-
----
-
-## 11. Kod Kalitesi Degerlendirmesi
-
-### 11.1 Type Hints
-
-| Dosya | Fonksiyon | Return Type | Parametre Type |
-|-------|-----------|-------------|----------------|
-| compressor.py | 17 | 8 (%47) | 33 annotation |
-| boiler.py | 13 | 12 (%92) | 28 annotation |
-| chiller.py | 10 | 9 (%90) | 24 annotation |
-| pump.py | 10 | 9 (%90) | 25 annotation |
-| factory.py | 14 | 13 (%93) | List[dict] tipli |
-| core.py | 11 | 10 (%91) | float/DeadState tipli |
-
-**Genel:** Return type hint kullanimi boiler/chiller/pump/factory/core icin yuksek (%90+), compressor icin nispeten dusuk (%47 — erken yazilan modul).
-
-### 11.2 Docstrings
-
-| Dosya | Triple Quote Ciftleri | Yeterlilik |
-|-------|----------------------|------------|
-| compressor.py | 26 | Iyi — Google style |
-| boiler.py | 19 | Iyi |
-| chiller.py | 14 | Yeterli |
-| pump.py | 14 | Yeterli |
-| factory.py | 21 | Iyi — detayli aciklamalar |
-| core.py | 15 | Iyi — formul aciklamalari |
-
-### 11.3 Hata Yonetimi
-
-| Katman | Yaklasim |
-|--------|----------|
-| Engine | `raise ValueError` ile input validasyon |
-| API | FastAPI `HTTPException` ile 400/404 yanit |
-| AI Service | try/except ile fallback response (ai_available: false) |
-| Factory | Ekipman bazli try/except, basarisiz ekipman error field ile donuyor |
-| Frontend | Axios interceptor, loading/error state yonetimi |
-
-### 11.4 TODO/FIXME Durumu
-
-**Sifir (0)** TODO, FIXME, HACK veya XXX yorumu bulundu. Kod tabani temiz, acik is birakılmamis.
-
-### 11.5 Guvenlik Degerlendirmesi
-
-| Alan | Durum | Not |
-|------|-------|-----|
-| Input validasyon | ✅ | Pydantic Field ile min/max/gt/lt |
-| SQL Injection | N/A | Veritabani yok (in-memory) |
-| XSS | ⚠️ | Frontend'de dogrudan HTML render yok, ancak AI yaniti render edilirken dikkat |
-| Subprocess | ⚠️ | `claude -p prompt` — prompt kullanici verisinden olusuyor (dolaylı) |
-| Rate Limiting | ❌ | API'de rate limit yok |
-| Authentication | ❌ | Auth sistemi yok |
-| CORS | ⚠️ | Kontrol edilmedi, muhtemelen tum originlere acik (gelistirme modu) |
-
----
-
-## 12. Mevcut Durum Ozet Tablosu
-
-### 12.1 Ekipman Engine Durumu
-
-| Ekipman | Engine | Knowledge | Skill | API Route | Test | Sankey | Alt Tip Sayisi |
-|---------|--------|-----------|-------|-----------|------|--------|----------------|
-| Kompresor | ✅ 529 sat. | ✅ 19 dosya | ✅ 162 sat. | ✅ | ✅ 43 test | ✅ | 6 |
-| Kazan | ✅ 627 sat. | ✅ 23 dosya | ✅ 166 sat. | ✅ | ✅ 8 test | ✅ | 7 |
-| Chiller | ✅ 466 sat. | ✅ 25 dosya | ✅ 152 sat. | ✅ | ✅ 8 test | ✅ | 7 |
-| Pompa | ✅ 439 sat. | ✅ 23 dosya | ✅ 169 sat. | ✅ | ✅ 8 test | ✅ | 6 |
-| Isi Esanjoru | ❌ | ✅ 21 dosya | ✅ 265 sat. | ⚠️ Yalniz AI | ✅ KB testi | ❌ | 7 |
-| Buhar Turbini | ❌ | ✅ 23 dosya | ✅ 187 sat. | ⚠️ Yalniz AI | ✅ KB testi | ❌ | 5 |
-| Kurutma Firini | ❌ | ✅ 26 dosya | ✅ 146 sat. | ⚠️ Yalniz AI | ✅ KB testi | ❌ | 8 |
-
-**Yalniz AI:** Bu ekipmanlar icin engine hesaplama yoktur, ancak AI yorumlama icin skill ve knowledge dosyalari mevcuttur. `equipment_registry.py`'de `engine_ready: False` olarak isaretlidir.
-
-### 12.2 Ileri Analiz Yontemleri Durumu
-
-| Yontem | Knowledge | Skill Referansi | Engine | UI |
-|--------|-----------|-----------------|--------|----|
-| Pinch Analizi | ✅ 18 dosya | ✅ factory_analyst + integration_expert | ❌ | ❌ |
-| Ileri Exergy (AV/UN, EN/EX) | ✅ 18 dosya | ✅ factory_analyst | ❌ | ❌ |
-| Exergoekonomik | ✅ 18 dosya | ✅ economic_advisor | ❌ | ❌ |
-| Termoekonomik Opt. | ✅ 16 dosya | ✅ decision_trees referansi | ❌ | ❌ |
-| EGM | ✅ 19 dosya | ✅ exergy_fundamentals referansi | ❌ | ❌ |
-| Enerji Yonetimi | ✅ 21 dosya | ⚠️ Dolayli | ❌ | ❌ |
-
-**Not:** 6 ileri analiz yonteminin hicbirinde engine hesaplama veya UI komponenti bulunmamaktadir. Yalnizca knowledge (bilgi tabani) ve skill referanslari mevcuttur. AI yorumlama sirasinda bu yontemler uygun oldugunda onerilir.
-
-### 12.3 Fabrika Analizi Durumu
-
-| Ozellik | Durum | Aciklama |
-|---------|-------|----------|
-| Proje CRUD | ✅ | Olusturma, listeleme, detay, silme |
-| Ekipman ekleme/cikarma | ✅ | Proje bazli ekipman yonetimi |
-| Toplu analiz | ✅ | Tum ekipmanlarin tek seferde analizi |
-| Aggregation | ✅ | Toplam exergy in/out/destroyed |
-| Hotspot tespiti | ✅ | 3 seviyeli onceliklendirme |
-| Cross-equipment | ✅ | 5 entegrasyon deseni |
-| Fabrika Sankey | ✅ | Ekipman bazli akis diyagrami |
-| AI yorumlama | ✅ | Sektor destekli fabrika yorumu |
-| Ileri analiz onerileri | ⚠️ | AI prompt'unda kosullu oneri (engine yok) |
-
----
-
-## 13. Bagimliliklar
-
-### 13.1 Python Backend (requirements.txt)
-
-| Paket | Minimum Versiyon | Kullanim | Aktif Kullanim |
-|-------|-----------------|----------|----------------|
-| CoolProp | >=6.4.0 | Buhar/su ozellikleri | ✅ boiler.py |
-| numpy | >=1.21.0 | Sayisal hesaplama | ⚠️ Dogrudan import gorulmedi |
-| pandas | >=1.3.0 | Veri isleme | ⚠️ Dogrudan import gorulmedi |
-| plotly | >=5.0.0 | Grafik | ⚠️ Backend'de kullanilmiyor |
-| matplotlib | >=3.4.0 | Grafik | ⚠️ Backend'de kullanilmiyor |
-| fastapi | >=0.109.0 | Web framework | ✅ |
-| uvicorn | >=0.27.0 | ASGI server | ✅ |
-| python-multipart | >=0.0.6 | Form data | ✅ FastAPI icin |
-| reportlab | >=3.6.0 | PDF rapor | ⚠️ Kod'da import gorulmedi |
-| python-docx | >=0.8.11 | Word rapor | ⚠️ Kod'da import gorulmedi |
-| python-dotenv | >=0.19.0 | Ortam degiskenleri | ⚠️ Dogrudan kullanim gorulmedi |
-| pydantic | >=2.0.0 | Veri validasyon | ✅ |
-| pytest | >=7.0.0 | Test | ✅ |
-| httpx | >=0.26.0 | Async HTTP / test client | ✅ |
-
-**Not:** numpy, pandas, plotly, matplotlib, reportlab, python-docx bagimliliklari requirements.txt'de tanimli ancak mevcut kod tabaninda aktif import'lari tespit edilemedi. Bu paketler gelecek ozellikler (rapor uretimi, ileri analiz) icin hazirlanmis olabilir.
-
-### 13.2 Frontend (package.json dependencies)
-
-| Paket | Versiyon | Kullanim |
-|-------|----------|----------|
-| react | ^19.2.0 | UI framework |
-| react-dom | ^19.2.0 | DOM renderer |
-| react-router-dom | ^7.13.0 | Client-side routing |
-| axios | ^1.13.4 | HTTP client |
-| plotly.js | ^3.3.1 | Grafik kutuphanesi |
-| react-plotly.js | ^2.6.0 | Plotly React wrapper |
-| lucide-react | ^0.563.0 | Ikon kutuphanesi |
-
----
-
-## 14. Acik Sorular ve Notlar
-
-### 14.1 Engine Boslukları
-
-1. **heat_exchanger.py, steam_turbine.py, dryer.py mevcut degil.** `equipment_registry.py`'de `engine_ready: False` olarak isaretli. Knowledge ve skill dosyalari hazir, engine implement edildiginde AI sistemi otomatik calisacak.
-
-2. **Engine pattern tutarliligi onemli.** Mevcut 4 engine ayni kalibi takip ediyor: `{Type}Input` → `{Type}Result` → `analyze_{type}()` → `to_api_dict()` → `generate_{type}_sankey_data()` → `get_{type}_recommendations()`. Yeni engine'ler bu kalibi takip etmeli.
-
-3. **factory.py sadece 4 engine'i destekliyor.** `_ANALYZERS` dict'i yalnizca compressor, boiler, chiller, pump icerir. Yeni engine eklendiginde burasi da guncellenmeli.
-
-### 14.2 AI Servis Notlari
-
-4. **Claude CLI subprocess yaklaşımı.** AI yorumlama `asyncio.create_subprocess_exec("claude", "-p", prompt)` ile calisiyor. Bu, Claude Code CLI'nin PATH'te bulunmasini gerektirir. Production ortaminda API tabanli entegrasyon daha uygun olabilir.
-
-5. **120s timeout.** AI yorumlama icin 120 saniyelik timeout tanimli. Buyuk fabrika analizlerinde bu yeterli olmayabilir.
-
-6. **LRU cache maxsize=100.** Skill ve knowledge dosyalari icin 100 dosyalik cache. 305+ knowledge dosyasi dusunuldugunde, yogun kullanimda cache miss orani artabilir.
-
-### 14.3 Test Boslukları
-
-7. **AI entegrasyon testi yok.** Claude CLI mock'u ile end-to-end AI yorum testi mevcut degil. `_extract_json()` ve `_fallback_response()` test edilmis, ancak tam prompt → CLI → parse akisi test edilmemis.
-
-8. **Frontend testi yok.** React componentleri icin birim veya entegrasyon testi bulunmuyor.
-
-9. **Compressor modulu eski.** `compressor.py` ilk yazilan modul olarak return type hint orani (%47) diger modullerin (%90+) gerisinde.
-
-### 14.4 Kullanilmayan Bagimliliklar
-
-10. **6 paket aktif kullanilmiyor olabilir.** numpy, pandas, plotly, matplotlib, reportlab, python-docx aktif import'lari tespit edilemedi. Bu paketler ya kalinti ya da gelecek icin hazirlik.
-
-### 14.5 Guvenlik
-
-11. **Auth ve rate limiting yok.** API herhangi bir kimlik dogrulama veya hiz sinirlamasi icermiyor. Production ortami icin eklenmelidir.
-
-12. **In-memory veri deposu.** Fabrika projeleri muhtemelen memory'de tutuluyor (veritabani baglantisi yok). Sunucu yeniden basladiginda veri kaybolur.
-
-### 14.6 Mimari Guclu Yonleri
-
-13. **Moduler skill/knowledge sistemi.** AI bilgi tabani ve skill dosyalari tamamen ayri markdown dosyalari olarak yonetiliyor. Kod degisikligi gerektirmeden yeni bilgi eklenebilir.
-
-14. **Equipment registry pattern.** Yeni ekipman tipi eklemek icin `equipment_registry.py`'ye bir entry, `engine/` altina modul ve `knowledge/` altina dosyalar eklemek yeterli. Iyi olceklenen bir tasarim.
-
-15. **3-tier JSON parser.** AI yanitlari icin 3 katmanli parser (direct → markdown fence → regex) saglamlik sagliyor.
-
-16. **Test kapsami.** Mevcut 4 engine ve API icin %100 test basarisi. Skill ve knowledge dosyalari da test ediliyor (frontmatter, icerik, yukleme).
-
----
-
-## Ek: Git Commit Gecmisi
-
-| # | Hash | Mesaj |
-|---|------|-------|
-| 21 | e77027e | Wire 7 equipment types and 6 advanced analysis methods into AI service layer |
-| 20 | 43848a6 | Add heat exchanger, steam turbine, dryer knowledge bases and expand factory-level analysis |
-| 19 | b562547 | Add modular AI skill system, knowledge metadata, and optimized prompt loading |
-| 18 | 06b176b | Fix cross-equipment heat recovery calculation and UI polish |
-| 17 | 24261eb | Add factory-level exergy analysis system with full-stack implementation |
-| 16 | be7b85d | Add factory-level energy/exergy analysis knowledge base (33 files) |
-| 15 | 793b8cb | Enable AI interpretation for all equipment types (boiler, chiller, pump) |
-| 14 | b7aafcb | Add boiler, chiller, and pump exergy analysis engine modules |
-| 13 | 057bc79 | Add sidebar navigation and React Router for multi-equipment platform |
-| 12 | 7f623ed | Add multi-equipment backend support with equipment registry and factory routes |
-| 11 | 98670a1 | Reorganize knowledge base from category-based to equipment-type hierarchy |
-| 10 | 4efbbef | Add equipment knowledge base for boilers, chillers, and pumps |
-| 9 | 5f4973f | Fix Claude Code CLI by removing --output-format json and inlining SKILL file |
-| 8 | e203573 | Add AI-powered interpretation of exergy analysis results |
-| 7 | 5e65c56 | Fix Sankey labels, savings display, and number formatting |
-| 6 | b9ead50 | Fix results not displaying by correcting double .data unwrap and field name mismatches |
-| 5 | abdd6cc | Fix compressor types not displaying by mapping API response fields |
-| 4 | 331bbf9 | Add null/undefined safety guards across frontend components and hooks |
-| 3 | 72f400a | Add full-stack: React frontend + FastAPI backend + tests |
-| 2 | aac5da1 | Expand compressor knowledge base with 14 new files and 4 updates |
-| 1 | 212af12 | Initial project setup: ExergyLab compressor exergy analysis engine |
-
-**Gozlem:** Proje kompressor-only olarak baslamis, adimlı olarak 4 engine → fabrika analizi → AI entegrasyonu → moduler skill/knowledge → 7 ekipman destegi + 6 ileri analiz yontemi seklinde buyumus. Net bir iteratif gelistirme izlenmektedir.
-
----
-
-*Bu rapor ExergyLab kod tabaninin 2026-02-02 tarihli statik analizine dayanmaktadir. Calisma zamani davranislari (performans, AI yanit kalitesi) bu analizin kapsaminda degildir.*
+*Bu dokuman, ExergyLab kod tabaninin 2026-02-05 tarihli kapsamli analizidir.*
+*Otomatik olarak olusturulmustur -- guncellik icin kaynak kodu kontrol edin.*
