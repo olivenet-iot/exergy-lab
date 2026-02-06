@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import Plot from 'react-plotly.js';
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 const NODE_COLORS = [
   '#3b82f6', '#6366f1', '#10b981', '#f59e0b', '#ef4444',
@@ -12,6 +14,8 @@ const LINK_COLORS = [
 ];
 
 const SankeyDiagram = ({ data }) => {
+  const [zoomLevel, setZoomLevel] = useState(1);
+
   if (!data || !data.nodes || !data.links) {
     return (
       <div className="h-64 flex items-center justify-center text-gray-400">
@@ -19,9 +23,6 @@ const SankeyDiagram = ({ data }) => {
       </div>
     );
   }
-
-  const nodeCount = data.nodes.length;
-  const linkCount = data.links.length;
 
   const plotData = [{
     type: 'sankey',
@@ -46,21 +47,56 @@ const SankeyDiagram = ({ data }) => {
     margin: { l: 20, r: 20, t: 20, b: 20 },
     paper_bgcolor: 'transparent',
     plot_bgcolor: 'transparent',
+    width: 600 * zoomLevel,
+    height: 380 * zoomLevel,
+    dragmode: false,
   };
 
   const config = {
     displayModeBar: false,
     responsive: true,
+    scrollZoom: false,
   };
 
+  const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 0.2, 2));
+  const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 0.2, 0.6));
+  const handleReset = () => setZoomLevel(1);
+
   return (
-    <div className="h-64 md:h-80">
-      <Plot
-        data={plotData}
-        layout={layout}
-        config={config}
-        style={{ width: '100%', height: '100%' }}
-      />
+    <div className="relative" style={{ height: '400px', overflow: 'hidden' }}>
+      {/* Zoom controls */}
+      <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+        <button
+          onClick={handleZoomIn}
+          className="p-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          title="Yakinlastir"
+        >
+          <ZoomIn className="w-4 h-4 text-gray-600" />
+        </button>
+        <button
+          onClick={handleZoomOut}
+          className="p-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          title="Uzaklastir"
+        >
+          <ZoomOut className="w-4 h-4 text-gray-600" />
+        </button>
+        <button
+          onClick={handleReset}
+          className="p-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          title="Sifirla"
+        >
+          <RotateCcw className="w-4 h-4 text-gray-600" />
+        </button>
+      </div>
+
+      <div className="w-full h-full overflow-auto">
+        <Plot
+          data={plotData}
+          layout={layout}
+          config={config}
+          style={{ width: '100%', height: '100%' }}
+        />
+      </div>
     </div>
   );
 };

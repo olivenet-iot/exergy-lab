@@ -18,11 +18,11 @@ const GRADE_BG = {
 
 const AXIS_LABELS = {
   exergy_efficiency: 'Exergy Verimi',
-  improvement_status: 'İyileştirme',
-  sector_ranking: 'Sektör Sırası',
-  heat_recovery: 'Isı Geri Kaz.',
-  destruction_ratio: 'Yıkım Oranı',
-  cost_efficiency: 'Maliyet Ver.',
+  improvement_status: 'Iyilestirme',
+  sector_ranking: 'Sektor Sirasi',
+  heat_recovery: 'Isi Geri Kaz.',
+  destruction_ratio: 'Yikim Orani',
+  cost_efficiency: 'Maliyet Verimi',
 };
 
 const RadarBenchmark = ({ radarData }) => {
@@ -65,7 +65,7 @@ const RadarBenchmark = ({ radarData }) => {
       bgcolor: 'transparent',
     },
     font: { family: 'Inter, system-ui, sans-serif' },
-    margin: { l: 60, r: 60, t: 30, b: 30 },
+    margin: { l: 70, r: 70, t: 30, b: 30 },
     paper_bgcolor: 'transparent',
     plot_bgcolor: 'transparent',
     showlegend: false,
@@ -87,7 +87,7 @@ const RadarBenchmark = ({ radarData }) => {
       </div>
 
       {/* Chart */}
-      <div className="h-72 md:h-80">
+      <div className="h-80 md:h-96">
         <Plot
           data={plotData}
           layout={layout}

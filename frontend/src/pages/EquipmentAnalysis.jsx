@@ -9,12 +9,13 @@ import Card from '../components/common/Card';
 import LoadingSpinner from '../components/common/Loading';
 import DashboardLayout from '../components/dashboard/DashboardLayout';
 import ParameterSidebar from '../components/dashboard/ParameterSidebar';
-import MetricBar from '../components/dashboard/MetricBar';
+import HeroScoreBanner from '../components/dashboard/HeroScoreBanner';
 import TabContainer from '../components/dashboard/TabContainer';
 import OverviewTab from '../components/dashboard/OverviewTab';
 import FlowTab from '../components/dashboard/FlowTab';
 import AITab from '../components/dashboard/AITab';
 import ScenarioTab from '../components/dashboard/ScenarioTab';
+import FloatingChat from '../components/chat/FloatingChat';
 
 const EQUIPMENT_META = {
   compressor: { name: 'Kompresör', icon: Wind, color: 'text-blue-600' },
@@ -125,7 +126,15 @@ const EquipmentAnalysis = () => {
 
   // Build metric bar (only shown when result exists)
   const metricBar = result ? (
-    <MetricBar metrics={result.metrics} radarData={result.radar_data} />
+    <HeroScoreBanner
+      efficiency={result.metrics?.exergy_efficiency_percent}
+      grade={result.radar_data?.grade_letter}
+      destructionKW={result.metrics?.exergy_destroyed_kW}
+      avoidableKW={result.metrics?.exergy_destroyed_avoidable_kW}
+      unavoidableKW={result.metrics?.exergy_destroyed_unavoidable_kW}
+      annualLossEUR={result.metrics?.annual_cost_eur}
+      avoidableRatio={result.metrics?.avoidable_ratio_pct}
+    />
   ) : null;
 
   return (
@@ -220,6 +229,12 @@ const EquipmentAnalysis = () => {
               />
             </div>
           </TabContainer>
+
+          <FloatingChat
+            equipmentType={equipmentType}
+            subtype={selectedSubtype}
+            analysisData={result}
+          />
         </div>
       )}
     </DashboardLayout>
