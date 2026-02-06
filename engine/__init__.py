@@ -59,6 +59,10 @@ from .thermoeconomic_optimization import (
     OptimizationRecommendation, ThermoeconomicOptimizationResult,
     analyze_thermoeconomic_optimization, check_thermoeconomic_feasibility,
 )
+from .energy_management import (
+    EnPIMetrics, MaturityDimension, ActionItem, EnergyManagementResult,
+    analyze_energy_management, check_energy_management_feasibility,
+)
 from .compare import compute_comparison
 from .sankey import generate_sankey_data
 from .radar import generate_radar_data, RADAR_AXES

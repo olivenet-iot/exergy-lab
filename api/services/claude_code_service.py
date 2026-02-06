@@ -965,6 +965,44 @@ def _format_thermoeconomic_for_prompt(project: dict) -> str:
         return ""
 
 
+def _format_energy_management_for_prompt(project: dict) -> str:
+    """Format energy management (ISO 50001) data for AI prompt.
+
+    Reads pre-computed energy_management data from equipment analysis results
+    if available. Max ~400 chars.
+    """
+    try:
+        # Look for energy_management in project or equipment results
+        em_data = None
+        for eq in project.get("equipment", []):
+            result = eq.get("analysis_result")
+            if result and isinstance(result, dict):
+                em = result.get("energy_management")
+                if em:
+                    em_data = em
+                    break
+
+        if not em_data or not em_data.get("is_valid"):
+            return ""
+
+        enpi = em_data.get("enpi", {})
+        lines = [
+            "\n## Enerji Yonetimi (ISO 50001)",
+            f"- Olgunluk: {em_data.get('maturity_level_label', 'N/A')} ({em_data.get('maturity_score', 0)}/100)",
+            f"- EnPI: eta_ex={enpi.get('exergy_efficiency_pct', 0):.0f}%, EDR={enpi.get('exergy_destruction_ratio_pct', 0):.0f}%, ALR={enpi.get('avoidable_loss_ratio_pct', 0):.0f}%",
+            f"- Bosluk: {em_data.get('num_gaps', 0)} boyut | Aksiyon: {len(em_data.get('action_plan', []))} adet",
+        ]
+
+        critical = em_data.get("critical_gaps", [])[:2]
+        if critical:
+            lines.append(f"- Kritik: {', '.join(critical)}")
+
+        result = "\n".join(lines)
+        return result[:400]
+    except Exception:
+        return ""
+
+
 def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     """Format factory data for AI prompt with size limits.
 
@@ -1097,6 +1135,11 @@ async def interpret_factory_analysis(
     thermo_summary = _format_thermoeconomic_for_prompt(project)
     if thermo_summary:
         analysis_summary += "\n\n" + thermo_summary
+
+    # Append energy management (ISO 50001) summary if available
+    em_summary = _format_energy_management_for_prompt(project)
+    if em_summary:
+        analysis_summary += "\n\n" + em_summary
 
     sector_label = sector or project.get("sector") or "genel"
 

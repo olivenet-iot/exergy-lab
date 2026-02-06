@@ -11,6 +11,7 @@ import {
   runAdvancedExergy,
   runEntropyGeneration,
   runThermoeconomicOptimization,
+  runEnergyManagement,
 } from '../services/factoryApi';
 import Card from '../components/common/Card';
 import EquipmentInventory from '../components/factory/EquipmentInventory';
@@ -25,6 +26,7 @@ import PinchTab from '../components/pinch/PinchTab';
 import AdvancedExergyTab from '../components/advanced-exergy/AdvancedExergyTab';
 import EntropyGenerationTab from '../components/entropy-generation/EntropyGenerationTab';
 import ThermoeconomicTab from '../components/thermoeconomic/ThermoeconomicTab';
+import EnergyManagementTab from '../components/energy-management/EnergyManagementTab';
 
 const FactoryDashboard = () => {
   const { projectId } = useParams();
@@ -42,6 +44,7 @@ const FactoryDashboard = () => {
   const [advExergyLoading, setAdvExergyLoading] = useState(false);
   const [egmLoading, setEgmLoading] = useState(false);
   const [thermoOptLoading, setThermoOptLoading] = useState(false);
+  const [emLoading, setEmLoading] = useState(false);
 
   const fetchProject = async () => {
     try {
@@ -178,6 +181,21 @@ const FactoryDashboard = () => {
       // Keep existing data on error
     } finally {
       setThermoOptLoading(false);
+    }
+  };
+
+  const handleEMRerun = async () => {
+    setEmLoading(true);
+    try {
+      const data = await runEnergyManagement(projectId);
+      setAnalysisResult((prev) => ({
+        ...prev,
+        energy_management: data.energy_management,
+      }));
+    } catch {
+      // Keep existing data on error
+    } finally {
+      setEmLoading(false);
     }
   };
 
@@ -350,6 +368,15 @@ const FactoryDashboard = () => {
               thermoData={analysisResult.thermoeconomic_optimization}
               onRerun={handleThermoOptRerun}
               isLoading={thermoOptLoading}
+            />
+          )}
+
+          {/* Energy Management (ISO 50001) */}
+          {analysisResult?.energy_management && (
+            <EnergyManagementTab
+              emData={analysisResult.energy_management}
+              onRerun={handleEMRerun}
+              isLoading={emLoading}
             />
           )}
 

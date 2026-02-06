@@ -63,6 +63,7 @@ class FactoryAnalysisResult:
     advanced_exergy: Optional[dict] = None
     entropy_generation: Optional[dict] = None
     thermoeconomic_optimization: Optional[dict] = None
+    energy_management: Optional[dict] = None
 
 
 # ---------------------------------------------------------------------------
@@ -374,6 +375,28 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
     except Exception:
         pass
 
+    # 10. Energy Management — ISO 50001 (optional, best-effort)
+    energy_management = None
+    try:
+        from .energy_management import analyze_energy_management, check_energy_management_feasibility
+
+        factory_dict = {
+            "equipment_results": equipment_results,
+            "aggregates": aggregates,
+            "hotspots": hotspots,
+            "pinch_analysis": pinch_analysis,
+            "advanced_exergy": advanced_exergy,
+            "entropy_generation": entropy_generation,
+            "thermoeconomic_optimization": thermoeconomic_optimization,
+        }
+        em_feasible, _ = check_energy_management_feasibility(factory_dict)
+        if em_feasible:
+            em_result = analyze_energy_management(factory_dict)
+            if em_result.is_valid:
+                energy_management = em_result.to_dict()
+    except Exception:
+        pass
+
     return FactoryAnalysisResult(
         equipment_results=equipment_results,
         aggregates=aggregates,
@@ -384,6 +407,7 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
         advanced_exergy=advanced_exergy,
         entropy_generation=entropy_generation,
         thermoeconomic_optimization=thermoeconomic_optimization,
+        energy_management=energy_management,
     )
 
 

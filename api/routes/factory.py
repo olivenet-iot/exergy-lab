@@ -224,6 +224,7 @@ async def analyze_factory_project(
         "advanced_exergy": result.advanced_exergy,
         "entropy_generation": result.entropy_generation,
         "thermoeconomic_optimization": result.thermoeconomic_optimization,
+        "energy_management": result.energy_management,
     }
     return response
 
@@ -422,6 +423,132 @@ async def run_thermoeconomic_optimization(
     except Exception as e:
         logger.exception("Thermoeconomic optimization failed")
         raise HTTPException(status_code=500, detail=f"Thermoeconomic optimization failed: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# Energy Management (ISO 50001) endpoint
+# ---------------------------------------------------------------------------
+
+@router.post("/factory/projects/{project_id}/energy-management")
+async def run_energy_management(
+    project_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
+    """Fabrika icin ISO 50001 enerji yonetimi degerlendirmesi calistir."""
+    project = await crud.get_project(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
+
+    if not project.equipment:
+        raise HTTPException(status_code=400, detail="Project has no equipment")
+
+    has_results = any(eq.analysis_result for eq in project.equipment)
+    if not has_results:
+        raise HTTPException(status_code=400, detail="Run analysis first")
+
+    # Build equipment list and results for previous motors
+    items = []
+    eq_list_dicts = []
+    results_dict = {}
+    for eq in project.equipment:
+        items.append(EquipmentItem(
+            id=eq.id,
+            name=eq.name,
+            equipment_type=eq.equipment_type,
+            subtype=eq.subtype,
+            parameters=eq.parameters,
+        ))
+        eq_list_dicts.append({
+            "id": eq.id,
+            "name": eq.name,
+            "equipment_type": eq.equipment_type,
+            "subtype": eq.subtype,
+            "parameters": eq.parameters,
+        })
+        if eq.analysis_result:
+            results_dict[eq.id] = eq.analysis_result.result_data
+
+    try:
+        from engine.energy_management import analyze_energy_management
+
+        # Build equipment_results list matching factory pipeline format
+        equipment_results = []
+        for eq in project.equipment:
+            entry = {
+                "id": eq.id,
+                "name": eq.name,
+                "equipment_type": eq.equipment_type,
+                "subtype": eq.subtype,
+                "analysis": eq.analysis_result.result_data if eq.analysis_result else None,
+            }
+            equipment_results.append(entry)
+
+        from engine.factory import _calculate_aggregates
+        valid_results = [r for r in equipment_results if r.get("analysis")]
+        aggregates = _calculate_aggregates(valid_results)
+
+        # Run previous motors to get their results
+        pinch_analysis = None
+        try:
+            from engine.pinch import analyze_pinch, extract_thermal_streams, check_pinch_feasibility
+            streams = extract_thermal_streams(items, results_dict)
+            feasible, _ = check_pinch_feasibility(streams)
+            if feasible:
+                pinch_result = analyze_pinch(items, results_dict)
+                if pinch_result.is_valid:
+                    pinch_analysis = pinch_result.to_dict()
+        except Exception:
+            pass
+
+        advanced_exergy = None
+        try:
+            from engine.advanced_exergy import analyze_advanced_exergy, check_advanced_exergy_feasibility
+            feasible, _ = check_advanced_exergy_feasibility(eq_list_dicts, results_dict)
+            if feasible:
+                adv_result = analyze_advanced_exergy(eq_list_dicts, results_dict)
+                if adv_result.is_valid:
+                    advanced_exergy = adv_result.to_dict()
+        except Exception:
+            pass
+
+        entropy_generation = None
+        try:
+            from engine.entropy_generation import analyze_entropy_generation, check_egm_feasibility
+            feasible, _ = check_egm_feasibility(eq_list_dicts, results_dict)
+            if feasible:
+                egm_result = analyze_entropy_generation(eq_list_dicts, results_dict)
+                if egm_result.is_valid:
+                    entropy_generation = egm_result.to_dict()
+        except Exception:
+            pass
+
+        thermoeconomic_optimization = None
+        try:
+            from engine.thermoeconomic_optimization import analyze_thermoeconomic_optimization, check_thermoeconomic_feasibility
+            feasible, _ = check_thermoeconomic_feasibility(eq_list_dicts, results_dict)
+            if feasible:
+                thermo_result = analyze_thermoeconomic_optimization(eq_list_dicts, results_dict)
+                if thermo_result.is_valid:
+                    thermoeconomic_optimization = thermo_result.to_dict()
+        except Exception:
+            pass
+
+        factory_dict = {
+            "equipment_results": equipment_results,
+            "aggregates": aggregates,
+            "pinch_analysis": pinch_analysis,
+            "advanced_exergy": advanced_exergy,
+            "entropy_generation": entropy_generation,
+            "thermoeconomic_optimization": thermoeconomic_optimization,
+        }
+
+        em_result = analyze_energy_management(factory_dict)
+        return {"success": True, "energy_management": em_result.to_dict()}
+    except Exception as e:
+        logger.exception("Energy management analysis failed")
+        raise HTTPException(status_code=500, detail=f"Energy management analysis failed: {str(e)}")
 
 
 # ---------------------------------------------------------------------------

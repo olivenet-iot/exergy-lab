@@ -54,3 +54,8 @@ export const runThermoeconomicOptimization = async (projectId) => {
   const response = await api.post(`/factory/projects/${projectId}/thermoeconomic-optimization`);
   return response.data;
 };
+
+export const runEnergyManagement = async (projectId) => {
+  const response = await api.post(`/factory/projects/${projectId}/energy-management`);
+  return response.data;
+};

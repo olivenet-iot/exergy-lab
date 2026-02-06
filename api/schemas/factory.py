@@ -74,3 +74,4 @@ class FactoryAnalysisResponse(BaseModel):
     advanced_exergy: Optional[dict] = None
     entropy_generation: Optional[dict] = None
     thermoeconomic_optimization: Optional[dict] = None
+    energy_management: Optional[dict] = None
