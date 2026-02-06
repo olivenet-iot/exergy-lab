@@ -112,13 +112,23 @@ const OverviewTab = ({ result, interpretation, aiLoading, onSwitchToAI }) => {
             <Sparkles className="w-5 h-5 text-purple-500 mt-0.5 shrink-0" />
             <div>
               <p className="text-gray-700 leading-relaxed">
-                {interpretation.summary.split('. ').slice(0, 3).join('. ')}.
+                {interpretation.summary}
               </p>
+              {interpretation.key_insights?.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {interpretation.key_insights.slice(0, 3).map((insight, i) => (
+                    <li key={i} className="text-sm text-gray-600 flex items-start gap-1.5">
+                      <span className="text-amber-500 mt-0.5">&#9679;</span>
+                      {insight}
+                    </li>
+                  ))}
+                </ul>
+              )}
               <button
                 onClick={() => onSwitchToAI?.()}
                 className="text-sm text-cyan-600 hover:text-cyan-700 mt-2 font-medium"
               >
-                Devamını AI sekmesinde oku &rarr;
+                Detayli AI yorumunu oku &rarr;
               </button>
             </div>
           </div>

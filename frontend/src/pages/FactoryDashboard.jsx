@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Factory, Plus, Play, PackageOpen } from 'lucide-react';
+import { Factory, Plus, Play, PackageOpen, ChevronDown, ChevronRight } from 'lucide-react';
 import {
   getFactoryProject,
   analyzeFactory,
@@ -28,6 +28,42 @@ import EntropyGenerationTab from '../components/entropy-generation/EntropyGenera
 import ThermoeconomicTab from '../components/thermoeconomic/ThermoeconomicTab';
 import EnergyManagementTab from '../components/energy-management/EnergyManagementTab';
 
+/* ---------- Section nav items ---------- */
+const SECTION_IDS = {
+  ai: 'section-ai',
+  priority: 'section-priority',
+  sankey: 'section-sankey',
+  pinch: 'section-pinch',
+  advExergy: 'section-adv-exergy',
+  egm: 'section-egm',
+  thermoOpt: 'section-thermo-opt',
+  energyMgmt: 'section-energy-mgmt',
+  inventory: 'section-inventory',
+};
+
+/* ---------- Collapsible Section Wrapper ---------- */
+const CollapsibleSection = ({ id, title, icon: Icon, iconColor, defaultOpen = false, children }) => {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div id={id} className="scroll-mt-20">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 w-full text-left mb-3 group"
+      >
+        {open ? (
+          <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+        )}
+        {Icon && <Icon className={`w-5 h-5 ${iconColor || 'text-gray-600'}`} />}
+        <span className="text-lg font-semibold text-gray-800">{title}</span>
+      </button>
+      {open && <div className="transition-all duration-200">{children}</div>}
+    </div>
+  );
+};
+
 const FactoryDashboard = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -45,13 +81,16 @@ const FactoryDashboard = () => {
   const [egmLoading, setEgmLoading] = useState(false);
   const [thermoOptLoading, setThermoOptLoading] = useState(false);
   const [emLoading, setEmLoading] = useState(false);
+  const [activeSection, setActiveSection] = useState(null);
+
+  const sectionRefs = useRef({});
 
   const fetchProject = async () => {
     try {
       const data = await getFactoryProject(projectId);
       setProject(data.project);
     } catch {
-      setError('Proje bulunamadi');
+      setError('Proje bulunamadı');
     } finally {
       setLoading(false);
     }
@@ -60,6 +99,30 @@ const FactoryDashboard = () => {
   useEffect(() => {
     fetchProject();
   }, [projectId]);
+
+  // Intersection observer for active section highlighting
+  useEffect(() => {
+    if (!analysisResult) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        }
+      },
+      { rootMargin: '-100px 0px -60% 0px', threshold: 0.1 }
+    );
+
+    // Observe all section elements
+    Object.values(SECTION_IDS).forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [analysisResult]);
 
   const handleAnalyze = async () => {
     setAnalyzing(true);
@@ -72,14 +135,17 @@ const FactoryDashboard = () => {
       setAnalysisResult(data);
       // Refresh project to get updated analysis results
       await fetchProject();
+
+      // Auto-trigger AI interpretation after analysis completes
+      triggerAIInterpretation();
     } catch (err) {
-      setError(err?.response?.data?.detail || 'Analiz basarisiz');
+      setError(err?.response?.data?.detail || 'Analiz başarısız');
     } finally {
       setAnalyzing(false);
     }
   };
 
-  const handleInterpret = async () => {
+  const triggerAIInterpretation = async () => {
     setInterpreting(true);
     try {
       const data = await interpretFactory(projectId, project?.sector);
@@ -89,6 +155,10 @@ const FactoryDashboard = () => {
     } finally {
       setInterpreting(false);
     }
+  };
+
+  const handleInterpret = async () => {
+    await triggerAIInterpretation();
   };
 
   const handleAddEquipment = async (eq) => {
@@ -102,7 +172,7 @@ const FactoryDashboard = () => {
       setShowModal(false);
       await fetchProject();
     } catch (err) {
-      setError(err?.response?.data?.detail || 'Ekipman eklenemedi');
+      setError(err?.response?.data?.detail || 'Ekipman eklenemedi!');
     }
   };
 
@@ -114,7 +184,7 @@ const FactoryDashboard = () => {
       setAnalysisResult(null);
       setInterpretation(null);
     } catch (err) {
-      setError(err?.response?.data?.detail || 'Ekipman silinemedi');
+      setError(err?.response?.data?.detail || 'Ekipman silinemedi!');
     }
   };
 
@@ -199,6 +269,11 @@ const FactoryDashboard = () => {
     }
   };
 
+  const scrollToSection = (sectionId) => {
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -210,7 +285,7 @@ const FactoryDashboard = () => {
   if (!project) {
     return (
       <div className="text-center py-24">
-        <p className="text-gray-500">Proje bulunamadi</p>
+        <p className="text-gray-500">Proje bulunamadı</p>
       </div>
     );
   }
@@ -222,6 +297,20 @@ const FactoryDashboard = () => {
     (sum, opp) => sum + (opp.estimated_savings_EUR_year || 0),
     0
   ) || null;
+
+  // Build visible section nav items
+  const navItems = [];
+  if (hasAnalysis) {
+    navItems.push({ id: SECTION_IDS.ai, label: 'AI Yorum' });
+    navItems.push({ id: SECTION_IDS.priority, label: 'Öncelikler' });
+    if (analysisResult?.sankey) navItems.push({ id: SECTION_IDS.sankey, label: 'Sankey' });
+    if (analysisResult?.pinch_analysis) navItems.push({ id: SECTION_IDS.pinch, label: 'Pinch' });
+    if (analysisResult?.advanced_exergy) navItems.push({ id: SECTION_IDS.advExergy, label: 'İleri Exergy' });
+    if (analysisResult?.entropy_generation) navItems.push({ id: SECTION_IDS.egm, label: 'EGM' });
+    if (analysisResult?.thermoeconomic_optimization) navItems.push({ id: SECTION_IDS.thermoOpt, label: 'Termoekonomik' });
+    if (analysisResult?.energy_management) navItems.push({ id: SECTION_IDS.energyMgmt, label: 'Enerji Yönetimi' });
+    navItems.push({ id: SECTION_IDS.inventory, label: 'Envanter' });
+  }
 
   return (
     <div className="space-y-6">
@@ -246,10 +335,10 @@ const FactoryDashboard = () => {
           <div className="text-center py-12">
             <PackageOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Henuz ekipman eklenmedi
+              Henüz ekipman eklenmedi
             </h3>
             <p className="text-gray-500 mb-4">
-              Fabrika analizine baslamak icin ekipman ekleyin
+              Fabrika analizine başlamak için ekipman ekleyin
             </p>
             <button
               onClick={() => setShowModal(true)}
@@ -269,7 +358,7 @@ const FactoryDashboard = () => {
             <div className="text-center py-8">
               <Factory className="w-10 h-10 text-gray-300 mx-auto mb-3" />
               <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                Analiz hazir
+                Analiz hazır
               </h3>
               <p className="text-gray-500 mb-4">
                 {project.equipment?.length} ekipman eklendi. Fabrika exergy analizini baslatabilirsiniz.
@@ -284,7 +373,7 @@ const FactoryDashboard = () => {
                 ) : (
                   <Play className="w-4 h-4" />
                 )}
-                Analiz Calistir
+                Analiz Çalıştır
               </button>
             </div>
           </Card>
@@ -307,10 +396,44 @@ const FactoryDashboard = () => {
             integrationPotential={integrationPotential}
           />
 
+          {/* Sticky Section Navigation */}
+          {navItems.length > 0 && (
+            <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 -mx-6 px-6 py-2">
+              <div className="flex items-center gap-1 overflow-x-auto">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.id)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-colors ${
+                      activeSection === item.id
+                        ? 'bg-cyan-100 text-cyan-700'
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* AI Panel — MOVED TO TOP (right after MetricBar) */}
+          <div id={SECTION_IDS.ai} className="scroll-mt-20">
+            <FactoryAIPanel
+              interpretation={interpretation}
+              loading={interpreting}
+              onRequestAI={handleInterpret}
+              hasAnalysis={hasAnalysis}
+              analysisResult={analysisResult}
+              projectId={projectId}
+              sector={project?.sector}
+            />
+          </div>
+
           {/* Priority List + Integration Panel grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div id={SECTION_IDS.priority} className="scroll-mt-20 grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <Card title="Iyilestirme Oncelik Listesi">
+              <Card title="İyileştirme Öncelik Listesi">
                 <PriorityList
                   hotspots={analysisResult?.hotspots}
                   equipmentResults={analysisResult?.equipment_results}
@@ -320,7 +443,7 @@ const FactoryDashboard = () => {
               </Card>
             </div>
             <div>
-              <Card title="Entegrasyon Firsatlari">
+              <Card title="Entegrasyon Fırsatları">
                 <IntegrationPanel
                   opportunities={analysisResult?.integration_opportunities}
                 />
@@ -330,71 +453,93 @@ const FactoryDashboard = () => {
 
           {/* Sankey Diagram */}
           {analysisResult?.sankey && (
-            <Card title="Fabrika Exergy Akis Diyagrami">
-              <FactorySankey data={analysisResult.sankey} />
-            </Card>
+            <div id={SECTION_IDS.sankey} className="scroll-mt-20">
+              <Card title="Fabrika Exergy Akış Diyagramı">
+                <FactorySankey data={analysisResult.sankey} />
+              </Card>
+            </div>
           )}
 
-          {/* Pinch Analysis */}
+          {/* Advanced Analysis Sections — Collapsible */}
           {analysisResult?.pinch_analysis && (
-            <PinchTab
-              pinchData={analysisResult.pinch_analysis}
-              onRerun={handlePinchRerun}
-              isLoading={pinchLoading}
-            />
+            <CollapsibleSection
+              id={SECTION_IDS.pinch}
+              title="Pinch Analizi"
+              defaultOpen={false}
+            >
+              <PinchTab
+                pinchData={analysisResult.pinch_analysis}
+                onRerun={handlePinchRerun}
+                isLoading={pinchLoading}
+              />
+            </CollapsibleSection>
           )}
 
-          {/* Advanced Exergy (EN/EX) */}
           {analysisResult?.advanced_exergy && (
-            <AdvancedExergyTab
-              advancedExergyData={analysisResult.advanced_exergy}
-              onRerun={handleAdvancedExergyRerun}
-              isLoading={advExergyLoading}
-            />
+            <CollapsibleSection
+              id={SECTION_IDS.advExergy}
+              title="İleri Exergy Analizi (EN/EX)"
+              defaultOpen={false}
+            >
+              <AdvancedExergyTab
+                advancedExergyData={analysisResult.advanced_exergy}
+                onRerun={handleAdvancedExergyRerun}
+                isLoading={advExergyLoading}
+              />
+            </CollapsibleSection>
           )}
 
-          {/* Entropy Generation (EGM) */}
           {analysisResult?.entropy_generation && (
-            <EntropyGenerationTab
-              entropyData={analysisResult.entropy_generation}
-              onRerun={handleEGMRerun}
-              isLoading={egmLoading}
-            />
+            <CollapsibleSection
+              id={SECTION_IDS.egm}
+              title="Entropi Üretimi Analizi (EGM)"
+              defaultOpen={false}
+            >
+              <EntropyGenerationTab
+                entropyData={analysisResult.entropy_generation}
+                onRerun={handleEGMRerun}
+                isLoading={egmLoading}
+              />
+            </CollapsibleSection>
           )}
 
-          {/* Thermoeconomic Optimization */}
           {analysisResult?.thermoeconomic_optimization && (
-            <ThermoeconomicTab
-              thermoData={analysisResult.thermoeconomic_optimization}
-              onRerun={handleThermoOptRerun}
-              isLoading={thermoOptLoading}
-            />
+            <CollapsibleSection
+              id={SECTION_IDS.thermoOpt}
+              title="Termoekonomik Optimizasyon"
+              defaultOpen={false}
+            >
+              <ThermoeconomicTab
+                thermoData={analysisResult.thermoeconomic_optimization}
+                onRerun={handleThermoOptRerun}
+                isLoading={thermoOptLoading}
+              />
+            </CollapsibleSection>
           )}
 
-          {/* Energy Management (ISO 50001) */}
           {analysisResult?.energy_management && (
-            <EnergyManagementTab
-              emData={analysisResult.energy_management}
-              onRerun={handleEMRerun}
-              isLoading={emLoading}
-            />
+            <CollapsibleSection
+              id={SECTION_IDS.energyMgmt}
+              title="Enerji Yönetimi (ISO 50001)"
+              defaultOpen={false}
+            >
+              <EnergyManagementTab
+                emData={analysisResult.energy_management}
+                onRerun={handleEMRerun}
+                isLoading={emLoading}
+              />
+            </CollapsibleSection>
           )}
-
-          {/* AI Panel */}
-          <FactoryAIPanel
-            interpretation={interpretation}
-            loading={interpreting}
-            onRequestAI={handleInterpret}
-            hasAnalysis={hasAnalysis}
-          />
 
           {/* Equipment Inventory */}
-          <Card title="Ekipman Envanteri">
-            <EquipmentInventory
-              equipment={project.equipment || []}
-              onRemove={handleRemoveEquipment}
-            />
-          </Card>
+          <div id={SECTION_IDS.inventory} className="scroll-mt-20">
+            <Card title="Ekipman Envanteri">
+              <EquipmentInventory
+                equipment={project.equipment || []}
+                onRemove={handleRemoveEquipment}
+              />
+            </Card>
+          </div>
         </>
       )}
 

@@ -13,12 +13,12 @@ const FactoryMetricBar = ({ aggregates, integrationPotential }) => {
 
   const cards = [
     {
-      label: 'TOPLAM GIRIS',
+      label: 'TOPLAM GİRİŞ',
       value: `${formatNumber(aggregates.total_exergy_input_kW, 1)} kW`,
       color: 'text-slate-700',
     },
     {
-      label: 'TOPLAM CIKIS',
+      label: 'TOPLAM ÇIKIŞ',
       value: `${formatNumber(aggregates.total_exergy_output_kW, 1)} kW`,
       color: 'text-green-600',
     },
@@ -28,7 +28,7 @@ const FactoryMetricBar = ({ aggregates, integrationPotential }) => {
       color: 'text-red-600',
     },
     {
-      label: 'FABRIKA VERIMI',
+      label: 'FABRİKA VERİMİ',
       value: efficiency != null ? `%${formatNumber(efficiency)}` : '—',
       color: efficiency != null ? effColor : 'text-slate-400',
     },
@@ -38,7 +38,7 @@ const FactoryMetricBar = ({ aggregates, integrationPotential }) => {
       color: 'text-red-600',
     },
     {
-      label: 'TASARRUF POTANSIYELI',
+      label: 'TASARRUF POTANSİYELİ',
       value: integrationPotential != null ? formatCurrency(integrationPotential) : '—',
       color: 'text-green-600',
       highlight: true,

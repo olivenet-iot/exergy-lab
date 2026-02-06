@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { chatWithAI } from '../../services/api';
 
 /**
  * Simple regex-based markdown renderer.
  * Converts bold, italic, headers, code, lists, and line breaks to HTML.
+ * Output is sanitized with DOMPurify to prevent XSS.
  */
 function renderMarkdown(text) {
   if (!text) return '';
@@ -33,7 +35,7 @@ function renderMarkdown(text) {
     return `<ul class="my-1">${cleaned}</ul>`;
   });
 
-  return html;
+  return DOMPurify.sanitize(html);
 }
 
 const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose }) => {
@@ -52,24 +54,46 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
       const grade = analysisData.radar_data?.grade || analysisData.radar_data?.grade_letter || '';
       const rating = benchmark.rating || '';
 
-      let welcomeText = `Merhaba! Bu ${equipmentType} analiz sonuclariniz hakkinda sorularinizi yanit alabilirim.`;
-      if (eff !== 'N/A') {
-        welcomeText += `\n\nMevcut exergy veriminiz **%${typeof eff === 'number' ? eff.toFixed(1) : eff}**`;
-        if (rating) welcomeText += ` (${rating})`;
-        if (grade) welcomeText += ` - Not: **${grade}**`;
-        welcomeText += '.';
+      // Factory-specific welcome message
+      const isFactory = equipmentType === 'factory';
+      let welcomeText;
+
+      if (isFactory) {
+        const aggr = analysisData.aggregates || {};
+        const factoryEff = aggr.factory_exergy_efficiency_pct;
+        welcomeText = `Merhaba! Bu fabrika analiz sonuclariniz hakkinda sorularinizi yanitlayabilirim.`;
+        if (factoryEff != null) {
+          welcomeText += `\n\nFabrika exergy veriminiz **%${typeof factoryEff === 'number' ? factoryEff.toFixed(1) : factoryEff}**.`;
+        }
+        welcomeText += '\n\nSize nasil yardimci olabilirim?';
+      } else {
+        welcomeText = `Merhaba! Bu ${equipmentType} analiz sonuclariniz hakkinda sorularinizi yanit alabilirim.`;
+        if (eff !== 'N/A') {
+          welcomeText += `\n\nMevcut exergy veriminiz **%${typeof eff === 'number' ? eff.toFixed(1) : eff}**`;
+          if (rating) welcomeText += ` (${rating})`;
+          if (grade) welcomeText += ` - Not: **${grade}**`;
+          welcomeText += '.';
+        }
+        welcomeText += '\n\nSize nasil yardimci olabilirim?';
       }
-      welcomeText += '\n\nSize nasil yardimci olabilirim?';
+
+      const suggestions = isFactory
+        ? [
+            'Fabrika exergy verimini nasil arttirabilirim?',
+            'En buyuk iyilestirme firsatlari neler?',
+            'Ekipmanlar arasi entegrasyon onerileri neler?',
+          ]
+        : [
+            'Exergy verimini nasil arttirabilirim?',
+            'Bu sonuclar sektorel benchmark ile nasil karsilastirilir?',
+            'Oncelikli iyilestirme onerileri neler?',
+          ];
 
       setMessages([{
         role: 'assistant',
         content: welcomeText,
         knowledge_sources: [],
-        follow_up_suggestions: [
-          'Exergy verimini nasil arttirabilirim?',
-          'Bu sonuclar sektorel benchmark ile nasil karsilastirilir?',
-          'Oncelikli iyilestirme onerileri neler?',
-        ],
+        follow_up_suggestions: suggestions,
       }]);
     }
   }, [isVisible, analysisData, equipmentType]);
@@ -134,9 +158,9 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
   if (!isVisible) return null;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-indigo-600 text-white">
+      <div className="flex items-center justify-between px-4 py-3 bg-cyan-600 text-white">
         <div className="flex items-center gap-2">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -146,7 +170,7 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
         <button
           onClick={onClose}
           className="text-white/80 hover:text-white transition-colors"
-          aria-label="Close chat"
+          aria-label="Sohbeti kapat"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -154,8 +178,8 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
         </button>
       </div>
 
-      {/* Messages */}
-      <div className="h-96 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      {/* Messages — flexible height with min/max */}
+      <div className="min-h-[16rem] max-h-[32rem] overflow-y-auto p-4 space-y-4 bg-gray-50">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] ${msg.role === 'user' ? 'order-last' : ''}`}>
@@ -163,7 +187,7 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
               <div
                 className={`rounded-lg px-4 py-2 text-sm ${
                   msg.role === 'user'
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-cyan-600 text-white'
                     : 'bg-white border border-gray-200 text-gray-800'
                 }`}
               >
@@ -199,7 +223,7 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
                       key={i}
                       onClick={() => handleSuggestionClick(suggestion)}
                       disabled={isLoading}
-                      className="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-full hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                      className="text-xs bg-cyan-50 text-cyan-700 border border-cyan-200 px-2.5 py-1 rounded-full hover:bg-cyan-100 transition-colors disabled:opacity-50"
                     >
                       {suggestion}
                     </button>
@@ -236,13 +260,13 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
             onKeyDown={handleKeyDown}
             placeholder="Sorunuzu yazin..."
             rows={1}
-            className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             disabled={isLoading}
           />
           <button
             onClick={() => sendMessage()}
             disabled={isLoading || !input.trim()}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

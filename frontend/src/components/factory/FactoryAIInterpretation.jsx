@@ -1,24 +1,7 @@
 import { Sparkles, AlertTriangle, TrendingUp, Lightbulb, Target, Globe } from 'lucide-react';
 import Card from '../common/Card';
 import { formatCurrency, formatNumber } from '../../utils/formatters';
-
-const PRIORITY_STYLES = {
-  high: 'border-l-red-500 bg-red-50',
-  medium: 'border-l-amber-500 bg-amber-50',
-  low: 'border-l-blue-500 bg-blue-50',
-};
-
-const PRIORITY_BADGE = {
-  high: 'bg-red-100 text-red-700',
-  medium: 'bg-amber-100 text-amber-700',
-  low: 'bg-blue-100 text-blue-700',
-};
-
-const PRIORITY_LABELS = {
-  high: 'Yuksek Oncelik',
-  medium: 'Orta Oncelik',
-  low: 'Dusuk Oncelik',
-};
+import { PRIORITY_STYLES, PRIORITY_BADGE, PRIORITY_LABELS } from '../../utils/priorityStyles';
 
 const FactoryAIInterpretation = ({ interpretation, loading }) => {
   if (loading) {
@@ -26,7 +9,7 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
       <Card>
         <div className="flex items-center gap-3 py-8 justify-center">
           <Sparkles className="w-5 h-5 text-purple-500 animate-pulse" />
-          <span className="text-gray-600">Fabrika AI yorumu hazirlaniyor...</span>
+          <span className="text-gray-600">Fabrika AI yorumu hazırlanıyor...</span>
         </div>
       </Card>
     );
@@ -78,7 +61,7 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
                   </div>
                   <p className="text-sm text-gray-600 mt-0.5">{h.finding}</p>
                   {h.exergy_destroyed_kW && (
-                    <span className="text-xs text-gray-500">Exergy yikimi: {formatNumber(h.exergy_destroyed_kW, 1)} kW</span>
+                    <span className="text-xs text-gray-500">Exergy yıkımı: {formatNumber(h.exergy_destroyed_kW, 1)} kW</span>
                   )}
                 </div>
               </div>
@@ -89,7 +72,7 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
 
       {/* Integration Opportunities */}
       {integration_opportunities.length > 0 && (
-        <Card title="Entegrasyon Firsatlari">
+        <Card title="Entegrasyon Fırsatları">
           <div className="space-y-3">
             {integration_opportunities.map((opp, i) => (
               <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
@@ -114,7 +97,7 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
         <div className="space-y-4">
           <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
             <TrendingUp className="w-4 h-4" />
-            Oncelikli Aksiyonlar
+            Öncelikli Aksiyonlar
           </h4>
           {prioritized_actions.map((action, i) => (
             <div
@@ -131,19 +114,19 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
 
               <div className="mt-2 grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-500">Yillik Tasarruf</span>
+                  <span className="text-gray-500">Yıllık Tasarruf</span>
                   <p className="font-semibold text-green-600">
                     {formatCurrency(action.estimated_savings_eur_year)}
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Yatirim</span>
+                  <span className="text-gray-500">Yatırım</span>
                   <p className="font-semibold">
                     {formatCurrency(action.estimated_investment_eur)}
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Geri Odeme</span>
+                  <span className="text-gray-500">Geri Ödeme</span>
                   <p className="font-semibold">
                     {formatNumber(action.payback_years, 1)} yil
                   </p>
@@ -156,11 +139,11 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
 
       {/* Sector-Specific Insights */}
       {sector_specific_insights.length > 0 && (
-        <Card title="Sektore Ozel Bulgular">
+        <Card title="Sektöre Özel Bulgular">
           <ul className="space-y-2">
             {sector_specific_insights.map((insight, i) => (
               <li key={i} className="flex items-start gap-2">
-                <Globe className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
+                <Globe className="w-4 h-4 text-cyan-500 mt-0.5 shrink-0" />
                 <span className="text-gray-600">{insight}</span>
               </li>
             ))}
@@ -173,7 +156,7 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 text-amber-600" />
-            <span className="text-sm font-medium text-amber-800">Uyarilar</span>
+            <span className="text-sm font-medium text-amber-800">Uyarılar</span>
           </div>
           <ul className="space-y-1">
             {warnings.map((warning, i) => (

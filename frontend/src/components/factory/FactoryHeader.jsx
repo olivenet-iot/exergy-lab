@@ -2,10 +2,10 @@ import { ArrowLeft, Factory, Plus, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SECTOR_LABELS = {
-  food: 'Gida',
-  cement: 'Cimento',
+  food: 'Gıda',
+  cement: 'Çimento',
   textile: 'Tekstil',
-  paper: 'Kagit',
+  paper: 'Kağıt',
   metal: 'Metal',
   automotive: 'Otomotiv',
   chemical: 'Kimya',
@@ -57,7 +57,7 @@ const FactoryHeader = ({ project, onRefreshAnalysis, onAddEquipment, isAnalyzing
           ) : (
             <RefreshCw className="w-4 h-4" />
           )}
-          Analizi Guncelle
+          Analizi Güncelle
         </button>
       </div>
     </div>
