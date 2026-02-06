@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Factory, Plus, Play, PackageOpen, ChevronDown, ChevronRight } from 'lucide-react';
+import { Factory, Plus, Play, PackageOpen, ChevronRight } from 'lucide-react';
 import {
   getFactoryProject,
   analyzeFactory,
@@ -44,6 +44,21 @@ const SECTION_IDS = {
 /* ---------- Collapsible Section Wrapper ---------- */
 const CollapsibleSection = ({ id, title, icon: Icon, iconColor, defaultOpen = false, children }) => {
   const [open, setOpen] = useState(defaultOpen);
+  const contentRef = useRef(null);
+  const [contentHeight, setContentHeight] = useState(0);
+
+  useEffect(() => {
+    if (contentRef.current) setContentHeight(contentRef.current.scrollHeight);
+  }, [open, children]);
+
+  useEffect(() => {
+    if (open) {
+      const timer = setTimeout(() => {
+        if (contentRef.current) contentRef.current.style.maxHeight = 'none';
+      }, 350);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   return (
     <div id={id} className="scroll-mt-20">
@@ -51,15 +66,17 @@ const CollapsibleSection = ({ id, title, icon: Icon, iconColor, defaultOpen = fa
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 w-full text-left mb-3 group"
       >
-        {open ? (
-          <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-        )}
+        <ChevronRight className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${open ? 'rotate-90' : ''}`} />
         {Icon && <Icon className={`w-5 h-5 ${iconColor || 'text-gray-600'}`} />}
         <span className="text-lg font-semibold text-gray-800">{title}</span>
       </button>
-      {open && <div className="transition-all duration-200">{children}</div>}
+      <div
+        ref={contentRef}
+        className="overflow-hidden transition-all duration-300 ease-in-out"
+        style={{ maxHeight: open ? `${contentHeight}px` : '0px', opacity: open ? 1 : 0 }}
+      >
+        {children}
+      </div>
     </div>
   );
 };

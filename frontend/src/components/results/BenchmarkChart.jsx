@@ -1,9 +1,9 @@
 const BenchmarkChart = ({ efficiency, rating, percentile }) => {
   const ranges = [
-    { label: 'Dusuk', max: 30, color: '#ef4444' },
+    { label: 'Düşük', max: 30, color: '#ef4444' },
     { label: 'Ortalama', max: 45, color: '#f59e0b' },
-    { label: 'Iyi', max: 55, color: '#3b82f6' },
-    { label: 'Mukemmel', max: 70, color: '#10b981' },
+    { label: 'İyi', max: 55, color: '#3b82f6' },
+    { label: 'Mükemmel', max: 70, color: '#10b981' },
   ];
 
   return (
@@ -41,8 +41,8 @@ const BenchmarkChart = ({ efficiency, rating, percentile }) => {
       {/* Percentile */}
       {percentile != null && (
         <div className="text-center text-sm">
-          <span className="text-gray-600">Sektor siralamasi: </span>
-          <span className="font-semibold">Ilk %{Math.round(100 - percentile)}</span>
+          <span className="text-gray-600">Sektör sıralaması: </span>
+          <span className="font-semibold">İlk %{Math.round(100 - percentile)}</span>
         </div>
       )}
     </div>

@@ -5,7 +5,7 @@ const HENMatches = ({ matches }) => {
   if (!matches || matches.length === 0) {
     return (
       <div className="text-center py-4 text-gray-400 text-sm">
-        HEN eslestirmesi bulunamadi
+        HEN eşleştirmesi bulunamadı
       </div>
     );
   }

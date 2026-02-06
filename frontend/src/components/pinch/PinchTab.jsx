@@ -11,7 +11,7 @@ const PinchTab = ({ pinchData, onRerun, isLoading }) => {
   const [deltaTMin, setDeltaTMin] = useState(pinchData?.delta_T_min_C || 10);
 
   if (!pinchData?.is_valid) {
-    const msg = pinchData?.error_message || 'Pinch analizi icin yeterli termal akis yok';
+    const msg = pinchData?.error_message || 'Pinch analizi için yeterli termal akış yok';
     return (
       <Card title="Pinch Analizi">
         <div className="text-center py-8">
@@ -19,7 +19,7 @@ const PinchTab = ({ pinchData, onRerun, isLoading }) => {
           <p className="text-gray-500 text-sm">{msg}</p>
           {pinchData?.streams?.length > 0 && (
             <p className="text-gray-400 text-xs mt-1">
-              Mevcut akislar: {pinchData.hot_stream_count} sicak, {pinchData.cold_stream_count} soguk
+              Mevcut akışlar: {pinchData.hot_stream_count} sıcak, {pinchData.cold_stream_count} soğuk
             </p>
           )}
         </div>
@@ -64,7 +64,7 @@ const PinchTab = ({ pinchData, onRerun, isLoading }) => {
               ) : (
                 <RefreshCw className="w-3 h-3" />
               )}
-              Yeniden Calistir
+              Yeniden Çalıştır
             </button>
           </div>
         )}
@@ -90,7 +90,7 @@ const PinchTab = ({ pinchData, onRerun, isLoading }) => {
 
       {/* HEN Matches */}
       {pinchData.hen_matches?.length > 0 && (
-        <Card title="HEN Eslestirme Onerileri">
+        <Card title="HEN Eşleştirme Önerileri">
           <HENMatches matches={pinchData.hen_matches} />
         </Card>
       )}

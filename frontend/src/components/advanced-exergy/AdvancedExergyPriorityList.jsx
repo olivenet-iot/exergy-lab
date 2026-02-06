@@ -8,9 +8,9 @@ const PRIORITY_STYLES = {
 };
 
 const PRIORITY_LABELS = {
-  high: 'Yuksek',
+  high: 'Yüksek',
   medium: 'Orta',
-  low: 'Dusuk',
+  low: 'Düşük',
 };
 
 const EQUIPMENT_ICONS = {
@@ -27,7 +27,7 @@ const AdvancedExergyPriorityList = ({ ranking }) => {
   if (!ranking || ranking.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500 text-sm">
-        Oncelik verisi yok
+        Öncelik verisi yok
       </div>
     );
   }

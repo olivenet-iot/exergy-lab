@@ -5,7 +5,7 @@ const InteractionNetwork = ({ edges }) => {
   if (!edges || edges.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500 text-sm">
-        Ekipmanlar arasi etkilesim tespit edilmedi
+        Ekipmanlar arası etkileşim tespit edilmedi
       </div>
     );
   }

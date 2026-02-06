@@ -17,7 +17,7 @@ const IntegrationPanel = ({ opportunities }) => {
   if (!opportunities || opportunities.length === 0) {
     return (
       <div className="text-center py-6 text-gray-400">
-        Entegrasyon firsati tespit edilmedi
+        Entegrasyon fırsatı tespit edilmedi
       </div>
     );
   }
@@ -53,7 +53,7 @@ const IntegrationPanel = ({ opportunities }) => {
               {formatNumber(opp.potential_recovery_kW, 1)} kW
             </span>
             <span className="font-semibold text-green-600">
-              {formatCurrency(opp.estimated_savings_EUR_year)}/yil
+              {formatCurrency(opp.estimated_savings_EUR_year)}/yıl
             </span>
             <span className={`px-1.5 py-0.5 rounded font-medium ${COMPLEXITY_STYLES[opp.complexity] || 'bg-gray-100 text-gray-600'}`}>
               {COMPLEXITY_LABELS[opp.complexity] || opp.complexity}
@@ -66,14 +66,14 @@ const IntegrationPanel = ({ opportunities }) => {
       <div className="bg-green-50 rounded-lg p-3 flex items-center justify-between">
         <div>
           <span className="text-xs uppercase tracking-wider text-green-700 font-medium">
-            TOPLAM POTANSIYEL
+            TOPLAM POTANSİYEL
           </span>
           <span className="text-xs text-green-600 ml-2">
-            ({opportunities.length} firsat)
+            ({opportunities.length} fırsat)
           </span>
         </div>
         <span className="font-mono font-semibold text-green-700">
-          {formatCurrency(totalSavings)}/yil
+          {formatCurrency(totalSavings)}/yıl
         </span>
       </div>
     </div>

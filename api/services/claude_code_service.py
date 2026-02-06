@@ -429,6 +429,29 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
             return "Analiz verisi mevcut değil."
 
         lines: list[str] = []
+
+        # Factory-level data
+        aggregates = analysis_data.get("aggregates", {})
+        if aggregates:
+            lines.append(f"- Fabrika Exergy Verimi: {aggregates.get('factory_exergy_efficiency_pct', 'N/A')}%")
+            lines.append(f"- Toplam Exergy Yıkımı: {aggregates.get('total_exergy_destroyed_kW', 'N/A')} kW")
+            lines.append(f"- Toplam Exergy Girişi: {aggregates.get('total_exergy_input_kW', 'N/A')} kW")
+            lines.append(f"- Ekipman Sayısı: {aggregates.get('equipment_count', 'N/A')}")
+
+            hotspots = analysis_data.get("hotspots", [])
+            if hotspots:
+                lines.append("\nHotspot Ekipmanlar:")
+                for h in hotspots[:5]:
+                    lines.append(f"  - {h.get('name', '?')}: {h.get('exergy_destroyed_kW', '?')} kW yıkım")
+
+            integrations = analysis_data.get("integration_opportunities", [])
+            if integrations:
+                lines.append("\nEntegrasyon Fırsatları:")
+                for opp in integrations[:3]:
+                    lines.append(f"  - {opp.get('title', '?')}: {opp.get('potential_savings_eur_year', '?')} €/yıl")
+
+            return "\n".join(line for line in lines if line)
+
         metrics = analysis_data.get("metrics", {})
         benchmark = analysis_data.get("benchmark", {})
         heat_recovery = analysis_data.get("heat_recovery", {})
@@ -513,7 +536,8 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
             knowledge_block = "\n\n---\n\n".join(knowledge_parts) if knowledge_parts else ""
 
             # 3. Load skills
-            skills_content = self._load_skills("single_equipment", equipment_type)
+            analysis_type = "factory" if equipment_type == "factory" else "single_equipment"
+            skills_content = self._load_skills(analysis_type, equipment_type)
 
             # 4. Format analysis data
             analysis_block = self._format_analysis_for_chat(analysis_data) if analysis_data else ""
@@ -532,7 +556,11 @@ Yukarıdaki verileri analiz et ve SKILL dosyasındaki JSON şemasına uygun yan�
                 history_block = "\n".join(history_lines)
 
             # 6. Build prompt
-            prompt = f"""Sen ExergyLab AI danışmanısın. Kullanıcı, ekipman exergy analiz sonuçları hakkında soru soruyor.
+            if equipment_type == "factory":
+                prompt_intro = "Sen ExergyLab AI danışmanısın. Kullanıcı, fabrika geneli exergy analiz sonuçları hakkında soru soruyor."
+            else:
+                prompt_intro = "Sen ExergyLab AI danışmanısın. Kullanıcı, ekipman exergy analiz sonuçları hakkında soru soruyor."
+            prompt = f"""{prompt_intro}
 Türkçe yanıt ver. Teknik terimlerin İngilizce karşılığını parantez içinde belirt.
 
 ## Beceri ve Kurallar

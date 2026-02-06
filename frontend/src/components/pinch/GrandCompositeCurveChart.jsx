@@ -39,8 +39,8 @@ const GrandCompositeCurveChart = ({ data }) => {
   }
 
   const layout = {
-    xaxis: { title: 'Net Isi Akisi (kW)', zeroline: true },
-    yaxis: { title: 'Kaydirmali Sicaklik (°C)', zeroline: true },
+    xaxis: { title: 'Net Isı Akışı (kW)', zeroline: true },
+    yaxis: { title: 'Kaydırmalı Sıcaklık (°C)', zeroline: true },
     annotations,
     margin: { l: 60, r: 20, t: 10, b: 60 },
     showlegend: false,

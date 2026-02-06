@@ -15,7 +15,7 @@ const equipmentCards = [
   {
     type: 'boiler',
     name: 'Kazan',
-    description: 'Buhar ve sicak su kazanlarinin ekserji analizi',
+    description: 'Buhar ve sıcak su kazanlarının ekserji analizi',
     subtypes: 3,
     icon: Flame,
     color: 'text-orange-600',
@@ -25,7 +25,7 @@ const equipmentCards = [
   {
     type: 'chiller',
     name: 'Chiller',
-    description: 'Sogutma sistemlerinin ekserji analizi',
+    description: 'Soğutma sistemlerinin ekserji analizi',
     subtypes: 3,
     icon: Snowflake,
     color: 'text-cyan-600',
@@ -120,7 +120,7 @@ const Dashboard = () => {
               to="/factory"
               className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-600 hover:text-primary-700"
             >
-              Yeni proje olustur
+              Yeni proje oluştur
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

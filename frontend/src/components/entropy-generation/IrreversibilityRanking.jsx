@@ -12,7 +12,7 @@ const GRADE_STYLES = {
 const MECHANISM_LABELS = {
   heat_transfer: 'DeltaT',
   pressure_drop: 'DeltaP',
-  mixing: 'Karisma',
+  mixing: 'Karışma',
 };
 
 const EQUIPMENT_ICONS = {

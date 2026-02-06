@@ -2,10 +2,10 @@ import RadarComparison from './RadarComparison';
 
 const METRIC_LABELS = {
   exergy_efficiency_pct: 'Exergy Verimi (%)',
-  exergy_input_kW: 'Exergy Girisi (kW)',
-  exergy_destroyed_kW: 'Exergy Yikimi (kW)',
-  exergy_destroyed_avoidable_kW: 'Onlenebilir Yikim (kW)',
-  annual_loss_EUR: 'Yillik Kayip (EUR)',
+  exergy_input_kW: 'Exergy Girişi (kW)',
+  exergy_destroyed_kW: 'Exergy Yıkımı (kW)',
+  exergy_destroyed_avoidable_kW: 'Önlenebilir Yıkım (kW)',
+  annual_loss_EUR: 'Yıllık Kayıp (EUR)',
 };
 
 const DISPLAY_METRICS = Object.keys(METRIC_LABELS);
@@ -33,7 +33,7 @@ const ComparisonPanel = ({ compareResult }) => {
       {/* Summary card */}
       <div className={`rounded-xl border p-6 ${isImproved ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
         <h3 className={`text-lg font-semibold mb-4 ${isImproved ? 'text-green-800' : 'text-red-800'}`}>
-          Senaryo Karsilastirmasi
+          Senaryo Karşılaştırması
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
@@ -44,13 +44,13 @@ const ComparisonPanel = ({ compareResult }) => {
           </div>
           <div className="text-center">
             <div className={`text-2xl font-bold ${isImproved ? 'text-green-700' : 'text-red-700'}`}>
-              {fmt(savings.annual_savings_kWh)} kWh/yil
+              {fmt(savings.annual_savings_kWh)} kWh/yıl
             </div>
-            <div className="text-sm text-gray-600 mt-1">Yillik Tasarruf</div>
+            <div className="text-sm text-gray-600 mt-1">Yıllık Tasarruf</div>
           </div>
           <div className="text-center">
             <div className={`text-2xl font-bold ${isImproved ? 'text-green-700' : 'text-red-700'}`}>
-              {fmt(savings.annual_savings_EUR)} EUR/yil
+              {fmt(savings.annual_savings_EUR)} EUR/yıl
             </div>
             <div className="text-sm text-gray-600 mt-1">Maliyet Tasarrufu</div>
           </div>
@@ -62,7 +62,7 @@ const ComparisonPanel = ({ compareResult }) => {
 
       {/* Delta metrics table */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Metrik Karsilastirmasi</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Metrik Karşılaştırması</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -102,7 +102,7 @@ const ComparisonPanel = ({ compareResult }) => {
       {/* Radar overlay */}
       {baseline.radar_data && scenario.radar_data && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Radar Karsilastirmasi</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Radar Karşılaştırması</h3>
           <RadarComparison
             baselineRadar={baseline.radar_data}
             scenarioRadar={scenario.radar_data}

@@ -39,12 +39,12 @@ const PinchMetricBar = ({ pinch }) => {
         color={pinch.savings_pct > 10 ? 'text-green-600' : 'text-gray-700'}
       />
       <MetricCard
-        label="Yillik Tasarruf"
+        label="Yıllık Tasarruf"
         value={formatCurrency(pinch.annual_savings_EUR)}
         color="text-green-700"
       />
       <MetricCard
-        label="Akis Sayisi"
+        label="Akış Sayısı"
         value={`${pinch.hot_stream_count}S + ${pinch.cold_stream_count}C`}
       />
     </div>

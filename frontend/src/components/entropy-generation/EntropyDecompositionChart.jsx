@@ -13,7 +13,7 @@ const EntropyDecompositionChart = ({ chartData }) => {
     {
       type: 'bar',
       orientation: 'h',
-      name: 'Isi Transferi (DeltaT)',
+      name: 'Isı Transferi (DeltaT)',
       y: chartData.labels,
       x: chartData.heat_transfer,
       marker: { color: '#f97316' },
@@ -22,7 +22,7 @@ const EntropyDecompositionChart = ({ chartData }) => {
     {
       type: 'bar',
       orientation: 'h',
-      name: 'Basinc Dususu (DeltaP)',
+      name: 'Basınç Düşüşü (DeltaP)',
       y: chartData.labels,
       x: chartData.pressure_drop,
       marker: { color: '#3b82f6' },
@@ -31,7 +31,7 @@ const EntropyDecompositionChart = ({ chartData }) => {
     {
       type: 'bar',
       orientation: 'h',
-      name: 'Karisma (Mix)',
+      name: 'Karışma (Mix)',
       y: chartData.labels,
       x: chartData.mixing,
       marker: { color: '#8b5cf6' },
@@ -42,7 +42,7 @@ const EntropyDecompositionChart = ({ chartData }) => {
   const layout = {
     barmode: 'stack',
     xaxis: {
-      title: 'Entropi Uretimi (kW/K)',
+      title: 'Entropi Üretimi (kW/K)',
     },
     yaxis: {
       automargin: true,

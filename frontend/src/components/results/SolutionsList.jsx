@@ -8,9 +8,9 @@ const PriorityBadge = ({ priority }) => {
   };
 
   const labels = {
-    high: 'Yuksek Oncelik',
-    medium: 'Orta Oncelik',
-    low: 'Dusuk Oncelik',
+    high: 'Yüksek Öncelik',
+    medium: 'Orta Öncelik',
+    low: 'Düşük Öncelik',
   };
 
   return (
@@ -25,7 +25,7 @@ const SolutionsList = ({ solutions }) => {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Iyilestirme Onerileri</h3>
+      <h3 className="text-lg font-semibold text-gray-900">İyileştirme Önerileri</h3>
 
       {solutions.map((solution) => (
         <div
@@ -44,16 +44,16 @@ const SolutionsList = ({ solutions }) => {
 
           <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">Yillik Tasarruf</span>
+              <span className="text-gray-500">Yıllık Tasarruf</span>
               <p className="font-semibold text-green-600">{formatCurrency(solution?.savings_eur_year)}</p>
             </div>
             <div>
-              <span className="text-gray-500">Tahmini Yatirim</span>
+              <span className="text-gray-500">Tahmini Yatırım</span>
               <p className="font-semibold">{formatCurrency(solution?.estimated_investment_eur)}</p>
             </div>
             <div>
-              <span className="text-gray-500">Geri Odeme</span>
-              <p className="font-semibold">{formatNumber(solution?.estimated_roi_years, 1)} yil</p>
+              <span className="text-gray-500">Geri Ödeme</span>
+              <p className="font-semibold">{formatNumber(solution?.estimated_roi_years, 1)} yıl</p>
             </div>
           </div>
         </div>

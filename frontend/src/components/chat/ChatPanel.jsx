@@ -61,32 +61,32 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
       if (isFactory) {
         const aggr = analysisData.aggregates || {};
         const factoryEff = aggr.factory_exergy_efficiency_pct;
-        welcomeText = `Merhaba! Bu fabrika analiz sonuclariniz hakkinda sorularinizi yanitlayabilirim.`;
+        welcomeText = `Merhaba! Bu fabrika analiz sonuçlarınız hakkında sorularınızı yanıtlayabilirim.`;
         if (factoryEff != null) {
           welcomeText += `\n\nFabrika exergy veriminiz **%${typeof factoryEff === 'number' ? factoryEff.toFixed(1) : factoryEff}**.`;
         }
-        welcomeText += '\n\nSize nasil yardimci olabilirim?';
+        welcomeText += '\n\nSize nasıl yardımcı olabilirim?';
       } else {
-        welcomeText = `Merhaba! Bu ${equipmentType} analiz sonuclariniz hakkinda sorularinizi yanit alabilirim.`;
+        welcomeText = `Merhaba! Bu ${equipmentType} analiz sonuçlarınız hakkında sorularınızı yanıtlayabilirim.`;
         if (eff !== 'N/A') {
           welcomeText += `\n\nMevcut exergy veriminiz **%${typeof eff === 'number' ? eff.toFixed(1) : eff}**`;
           if (rating) welcomeText += ` (${rating})`;
           if (grade) welcomeText += ` - Not: **${grade}**`;
           welcomeText += '.';
         }
-        welcomeText += '\n\nSize nasil yardimci olabilirim?';
+        welcomeText += '\n\nSize nasıl yardımcı olabilirim?';
       }
 
       const suggestions = isFactory
         ? [
-            'Fabrika exergy verimini nasil arttirabilirim?',
-            'En buyuk iyilestirme firsatlari neler?',
-            'Ekipmanlar arasi entegrasyon onerileri neler?',
+            'Fabrika exergy verimini nasıl artırabilirim?',
+            'En büyük iyileştirme fırsatları neler?',
+            'Ekipmanlar arası entegrasyon önerileri neler?',
           ]
         : [
-            'Exergy verimini nasil arttirabilirim?',
-            'Bu sonuclar sektorel benchmark ile nasil karsilastirilir?',
-            'Oncelikli iyilestirme onerileri neler?',
+            'Exergy verimini nasıl artırabilirim?',
+            'Bu sonuçlar sektörel benchmark ile nasıl karşılaştırılır?',
+            'Öncelikli iyileştirme önerileri neler?',
           ];
 
       setMessages([{
@@ -135,7 +135,7 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
     } catch {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Uzgunum, bir hata olustu. Lutfen tekrar deneyin.',
+        content: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.',
         knowledge_sources: [],
         follow_up_suggestions: [],
       }]);
@@ -165,7 +165,7 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
-          <span className="font-semibold text-sm">AI Danismani</span>
+          <span className="font-semibold text-sm">AI Danışmanı</span>
         </div>
         <button
           onClick={onClose}
@@ -258,7 +258,7 @@ const ChatPanel = ({ equipmentType, subtype, analysisData, isVisible, onClose })
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Sorunuzu yazin..."
+            placeholder="Sorunuzu yazın..."
             rows={1}
             className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             disabled={isLoading}

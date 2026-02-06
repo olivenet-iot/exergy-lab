@@ -32,7 +32,7 @@ const CompositeCurveChart = ({ data }) => {
 
   const layout = {
     xaxis: { title: 'Entalpi (kW)', zeroline: true },
-    yaxis: { title: 'Sicaklik (°C)', zeroline: true },
+    yaxis: { title: 'Sıcaklık (°C)', zeroline: true },
     legend: { orientation: 'h', y: -0.2 },
     margin: { l: 60, r: 20, t: 10, b: 60 },
     hovermode: 'closest',

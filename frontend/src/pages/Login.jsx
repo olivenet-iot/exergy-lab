@@ -30,7 +30,7 @@ const Login = () => {
       }
     } catch (err) {
       const detail = err.response?.data?.detail;
-      setError(detail || 'Bir hata olustu. Tekrar deneyin.');
+      setError(detail || 'Bir hata oluştu. Tekrar deneyin.');
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ const Login = () => {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            {isRegister ? 'Kayit Ol' : 'Giris Yap'}
+            {isRegister ? 'Kayıt Ol' : 'Giriş Yap'}
           </h2>
 
           {error && (
@@ -108,7 +108,7 @@ const Login = () => {
               disabled={loading}
               className="w-full bg-primary-600 text-white py-2.5 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Yukleniyor...' : isRegister ? 'Kayit Ol' : 'Giris Yap'}
+              {loading ? 'Yükleniyor...' : isRegister ? 'Kayıt Ol' : 'Giriş Yap'}
             </button>
           </form>
 
@@ -121,8 +121,8 @@ const Login = () => {
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
               {isRegister
-                ? 'Zaten hesabiniz var mi? Giris yapin'
-                : 'Hesabiniz yok mu? Kayit olun'}
+                ? 'Zaten hesabınız var mı? Giriş yapın'
+                : 'Hesabınız yok mu? Kayıt olun'}
             </button>
           </div>
         </div>

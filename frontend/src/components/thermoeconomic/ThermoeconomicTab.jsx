@@ -20,9 +20,9 @@ const PRIORITY_COLORS = {
 /* ---------- Metric Cards ---------- */
 const MetricCards = ({ data }) => {
   const cards = [
-    { label: 'Toplam Tasarruf', value: `${(data.total_savings_annual_eur || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR/yil`, color: 'text-green-700' },
-    { label: 'Tahmini Yatirim', value: `${(data.total_estimated_investment_eur || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR`, color: 'text-blue-700' },
-    { label: 'Geri Odeme', value: `${(data.factory_payback_years || 0).toFixed(1)} yil`, color: 'text-amber-700' },
+    { label: 'Toplam Tasarruf', value: `${(data.total_savings_annual_eur || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR/yıl`, color: 'text-green-700' },
+    { label: 'Tahmini Yatırım', value: `${(data.total_estimated_investment_eur || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR`, color: 'text-blue-700' },
+    { label: 'Geri Ödeme', value: `${(data.factory_payback_years || 0).toFixed(1)} yıl`, color: 'text-amber-700' },
     { label: 'Fabrika f-faktor', value: (data.factory_f_factor || 0).toFixed(2), color: 'text-teal-700' },
   ];
 
@@ -114,7 +114,7 @@ const SavingsWaterfallChart = ({ waterfallData }) => {
       y: waterfallData.savings_eur,
       type: 'bar',
       marker: { color: waterfallData.colors },
-      hovertemplate: '%{x}: %{y:,.0f} EUR/yil<extra></extra>',
+      hovertemplate: '%{x}: %{y:,.0f} EUR/yıl<extra></extra>',
       name: 'Tasarruf',
     },
     {
@@ -124,7 +124,7 @@ const SavingsWaterfallChart = ({ waterfallData }) => {
       mode: 'lines+markers',
       line: { color: '#1f2937', width: 2, dash: 'dot' },
       marker: { size: 5, color: '#1f2937' },
-      hovertemplate: 'Kumulatif: %{y:,.0f} EUR/yil<extra></extra>',
+      hovertemplate: 'Kumulatif: %{y:,.0f} EUR/yıl<extra></extra>',
       name: 'Kumulatif',
       yaxis: 'y',
     },
@@ -134,7 +134,7 @@ const SavingsWaterfallChart = ({ waterfallData }) => {
     <Plot
       data={traces}
       layout={{
-        yaxis: { title: 'EUR/yil' },
+        yaxis: { title: 'EUR/yıl' },
         margin: { t: 20, b: 80, l: 60, r: 20 },
         height: 280,
         showlegend: false,
@@ -172,7 +172,7 @@ const RankingItem = ({ item, rank }) => {
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs text-gray-600">
-          <span>{(item.C_savings_annual_eur || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR/yil</span>
+          <span>{(item.C_savings_annual_eur || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR/yıl</span>
           <span>{item.simple_payback_years}y</span>
           {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
         </div>
@@ -206,7 +206,7 @@ const OptimizationRanking = ({ ranking, recommendations }) => {
 /* ---------- Main Tab ---------- */
 const ThermoeconomicTab = ({ thermoData, onRerun, isLoading }) => {
   if (!thermoData?.is_valid) {
-    const msg = thermoData?.error_message || 'Termoekonomik optimizasyon icin yeterli veri yok';
+    const msg = thermoData?.error_message || 'Termoekonomik optimizasyon için yeterli veri yok';
     return (
       <Card title="Termoekonomik Optimizasyon">
         <div className="text-center py-8">
@@ -236,7 +236,7 @@ const ThermoeconomicTab = ({ thermoData, onRerun, isLoading }) => {
             ) : (
               <RefreshCw className="w-3 h-3" />
             )}
-            Yeniden Calistir
+            Yeniden Çalıştır
           </button>
         )}
       </div>
@@ -247,16 +247,16 @@ const ThermoeconomicTab = ({ thermoData, onRerun, isLoading }) => {
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="f-Faktor vs r-Faktor (Strateji Haritasi)">
+        <Card title="f-Faktör vs r-Faktör (Strateji Haritası)">
           <FRScatterChart scatterData={thermoData.f_r_scatter_data} />
         </Card>
-        <Card title="Tasarruf Sirasi (Waterfall)">
+        <Card title="Tasarruf Sırası (Waterfall)">
           <SavingsWaterfallChart waterfallData={thermoData.savings_waterfall_data} />
         </Card>
       </div>
 
       {/* Optimization Ranking */}
-      <Card title="Optimizasyon Siralamasi (ROI)">
+      <Card title="Optimizasyon Sıralaması (ROI)">
         <OptimizationRanking
           ranking={thermoData.cost_benefit_ranking}
           recommendations={thermoData.recommendations}
@@ -268,7 +268,7 @@ const ThermoeconomicTab = ({ thermoData, onRerun, isLoading }) => {
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-1">
             <AlertTriangle className="w-4 h-4 text-amber-600" />
-            <span className="text-sm font-medium text-amber-800">Uyarilar</span>
+            <span className="text-sm font-medium text-amber-800">Uyarılar</span>
           </div>
           <ul className="text-xs text-amber-700 space-y-1">
             {thermoData.warnings.map((w, i) => (

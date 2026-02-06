@@ -46,20 +46,20 @@ const IntegrationOpportunities = ({ opportunities }) => {
             {/* Metrics */}
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-gray-500">Geri Kazanim</span>
+                <span className="text-gray-500">Geri Kazanım</span>
                 <p className="font-semibold text-gray-900">{formatNumber(opp.potential_recovery_kW, 1)} kW</p>
               </div>
               <div>
-                <span className="text-gray-500">Yillik Tasarruf</span>
+                <span className="text-gray-500">Yıllık Tasarruf</span>
                 <p className="font-semibold text-green-600">{formatCurrency(opp.estimated_savings_EUR_year)}</p>
               </div>
               <div>
-                <span className="text-gray-500">Yatirim</span>
+                <span className="text-gray-500">Yatırım</span>
                 <p className="font-semibold text-gray-900">{formatCurrency(opp.estimated_investment_EUR)}</p>
               </div>
               <div>
                 <span className="text-gray-500">ROI</span>
-                <p className="font-semibold text-gray-900">{formatNumber(opp.roi_years, 1)} yil</p>
+                <p className="font-semibold text-gray-900">{formatNumber(opp.roi_years, 1)} yıl</p>
               </div>
             </div>
 

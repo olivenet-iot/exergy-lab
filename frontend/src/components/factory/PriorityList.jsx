@@ -8,9 +8,9 @@ const PRIORITY_STYLES = {
 };
 
 const PRIORITY_LABELS = {
-  high: 'Yuksek',
+  high: 'Yüksek',
   medium: 'Orta',
-  low: 'Dusuk',
+  low: 'Düşük',
 };
 
 const EQUIPMENT_ICONS = {
@@ -35,7 +35,7 @@ const PriorityList = ({ hotspots, equipmentResults, totalDestroyed, onEquipmentC
   if (!hotspots || hotspots.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500">
-        Henuz ekipman analizi yapilmadi
+        Henüz ekipman analizi yapılmadı
       </div>
     );
   }
@@ -125,7 +125,7 @@ const PriorityList = ({ hotspots, equipmentResults, totalDestroyed, onEquipmentC
                 <span className="text-xs text-gray-500 ml-1">({share}%)</span>
               </div>
               <div className="text-xs text-gray-500">
-                {formatCurrency(hotspot.annual_loss_EUR)}/yil
+                {formatCurrency(hotspot.annual_loss_EUR)}/yıl
               </div>
             </div>
           </div>

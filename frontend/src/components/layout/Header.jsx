@@ -50,7 +50,7 @@ const Header = () => {
                 onClick={handleLogout}
                 className="text-sm text-gray-500 hover:text-gray-700 font-medium"
               >
-                Cikis Yap
+                Çıkış Yap
               </button>
             </>
           ) : (
@@ -58,7 +58,7 @@ const Header = () => {
               to="/login"
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
-              Giris Yap
+              Giriş Yap
             </Link>
           )}
         </div>

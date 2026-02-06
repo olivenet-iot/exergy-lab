@@ -8,9 +8,9 @@ const PRIORITY_STYLES = {
 };
 
 const PRIORITY_LABELS = {
-  high: 'Yuksek',
+  high: 'Yüksek',
   medium: 'Orta',
-  low: 'Dusuk',
+  low: 'Düşük',
 };
 
 const EQUIPMENT_ICONS = {
@@ -63,7 +63,7 @@ const HotspotList = ({ hotspots }) => {
                 {formatNumber(hotspot.exergy_destroyed_kW, 1)} kW
               </div>
               <div className="text-xs text-gray-500">
-                {formatCurrency(hotspot.annual_loss_EUR)}/yil
+                {formatCurrency(hotspot.annual_loss_EUR)}/yıl
               </div>
             </div>
           </div>

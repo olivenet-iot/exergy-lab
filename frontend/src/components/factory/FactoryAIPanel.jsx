@@ -19,7 +19,7 @@ const ProgressBar = ({ loading }) => {
       <div className="w-full max-w-md mx-auto">
         <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-purple-500 rounded-full animate-progress-bar"
+            className="h-full bg-purple-500 rounded-full"
             style={{
               animation: `progressBar ${AI_TIMEOUT_SECONDS}s linear forwards`,
             }}

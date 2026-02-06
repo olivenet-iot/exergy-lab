@@ -4,7 +4,7 @@ const StreamTable = ({ streams }) => {
   if (!streams || streams.length === 0) {
     return (
       <div className="text-center py-4 text-gray-400 text-sm">
-        Termal akis bulunamadi
+        Termal akış bulunamadı
       </div>
     );
   }
@@ -19,8 +19,8 @@ const StreamTable = ({ streams }) => {
             <th className="py-2 px-2">#</th>
             <th className="py-2 px-2">Ekipman</th>
             <th className="py-2 px-2">Tip</th>
-            <th className="py-2 px-2 text-right">T_giris (°C)</th>
-            <th className="py-2 px-2 text-right">T_cikis (°C)</th>
+            <th className="py-2 px-2 text-right">T_giriş (°C)</th>
+            <th className="py-2 px-2 text-right">T_çıkış (°C)</th>
             <th className="py-2 px-2 text-right">Q (kW)</th>
             <th className="py-2 px-2 text-right">CP (kW/K)</th>
           </tr>

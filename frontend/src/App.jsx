@@ -10,7 +10,7 @@ import Login from './pages/Login';
 const ReportsPlaceholder = () => (
   <div className="flex flex-col items-center justify-center py-24 text-center">
     <h2 className="text-2xl font-bold text-gray-900">Raporlar</h2>
-    <p className="text-gray-500 mt-2">Bu ozellik yakinda kullanima sunulacaktir.</p>
+    <p className="text-gray-500 mt-2">Bu özellik yakında kullanıma sunulacaktır.</p>
   </div>
 );
 

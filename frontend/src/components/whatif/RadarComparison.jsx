@@ -2,10 +2,10 @@ import Plot from 'react-plotly.js';
 
 const AXIS_LABELS = {
   exergy_efficiency: 'Exergy Verimi',
-  improvement_status: 'Iyilestirme',
-  sector_ranking: 'Sektor Sirasi',
-  heat_recovery: 'Isi Geri Kaz.',
-  destruction_ratio: 'Yikim Orani',
+  improvement_status: 'İyileştirme',
+  sector_ranking: 'Sektör Sırası',
+  heat_recovery: 'Isı Geri Kaz.',
+  destruction_ratio: 'Yıkım Oranı',
   cost_efficiency: 'Maliyet Ver.',
 };
 

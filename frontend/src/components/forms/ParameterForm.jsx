@@ -30,7 +30,7 @@ const ParameterForm = ({ fields, values, onChange, onSubmit, loading }) => {
         {loading ? (
           <span className="flex items-center justify-center gap-2">
             <LoadingSpinner size="small" />
-            Hesaplaniyor...
+            Hesaplanıyor...
           </span>
         ) : (
           'Exergy Analizi Yap'

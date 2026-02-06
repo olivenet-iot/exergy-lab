@@ -44,7 +44,7 @@ const QuadrantChart = ({ chartData }) => {
 
   const layout = {
     barmode: 'stack',
-    xaxis: { title: 'Exergy Yikimi (kW)', fixedrange: true },
+    xaxis: { title: 'Exergy Yıkımı (kW)', fixedrange: true },
     yaxis: { autorange: 'reversed', fixedrange: true },
     margin: { l: 120, r: 20, t: 10, b: 40 },
     height: Math.max(200, chartData.labels.length * 45 + 60),

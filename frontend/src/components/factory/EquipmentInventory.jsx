@@ -24,7 +24,7 @@ const EquipmentInventory = ({ equipment, onRemove }) => {
   if (!equipment || equipment.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500">
-        Henuz ekipman eklenmedi.
+        Henüz ekipman eklenmedi.
       </div>
     );
   }

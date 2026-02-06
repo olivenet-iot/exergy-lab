@@ -114,7 +114,7 @@ const AIInterpretation = ({ interpretation, loading }) => {
                   <div>
                     <span className="text-gray-500">Geri Ödeme</span>
                     <p className="font-semibold">
-                      {formatNumber(rec.payback_years, 1)} yil
+                      {formatNumber(rec.payback_years, 1)} yıl
                     </p>
                   </div>
                 </div>

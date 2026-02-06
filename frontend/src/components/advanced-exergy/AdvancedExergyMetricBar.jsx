@@ -46,7 +46,7 @@ const AdvancedExergyMetricBar = ({ data }) => {
         color="text-amber-600"
       />
       <MetricCard
-        label="Etkilesim"
+        label="Etkileşim"
         value={formatNumber(data.interaction_density * 100, 0)}
         unit="%"
         color={data.interaction_density > 0.5 ? 'text-red-600' : 'text-gray-700'}

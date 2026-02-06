@@ -86,7 +86,7 @@ const ScenarioEditor = ({ fields, baselineParams, scenarioParams, onParamChange,
           disabled={isLoading}
           className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 font-medium"
         >
-          {isLoading ? 'Hesaplaniyor...' : 'Karsilastir'}
+          {isLoading ? 'Hesaplanıyor...' : 'Karşılaştır'}
         </button>
         <button
           onClick={handleReset}

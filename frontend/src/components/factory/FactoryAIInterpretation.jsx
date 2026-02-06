@@ -82,7 +82,7 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
                   <p className="text-sm text-gray-600 mt-0.5">{opp.description}</p>
                   {opp.potential_savings_eur_year && (
                     <span className="text-xs text-green-600 font-medium">
-                      Tasarruf: {formatCurrency(opp.potential_savings_eur_year)}/yil
+                      Tasarruf: {formatCurrency(opp.potential_savings_eur_year)}/yıl
                     </span>
                   )}
                 </div>
@@ -128,7 +128,7 @@ const FactoryAIInterpretation = ({ interpretation, loading }) => {
                 <div>
                   <span className="text-gray-500">Geri Ödeme</span>
                   <p className="font-semibold">
-                    {formatNumber(action.payback_years, 1)} yil
+                    {formatNumber(action.payback_years, 1)} yıl
                   </p>
                 </div>
               </div>

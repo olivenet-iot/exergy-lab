@@ -46,10 +46,10 @@ const EnPICards = ({ enpi }) => {
   const cards = [
     { label: 'Exergy Verimi', value: `${(enpi.exergy_efficiency_pct || 0).toFixed(1)}%`, color: 'text-green-700' },
     { label: 'SEC', value: (enpi.specific_exergy_consumption || 0).toFixed(2), color: 'text-blue-700' },
-    { label: 'Yikim Orani', value: `${(enpi.exergy_destruction_ratio_pct || 0).toFixed(1)}%`, color: 'text-red-700' },
-    { label: 'Kacinilabilir', value: `${(enpi.avoidable_loss_ratio_pct || 0).toFixed(1)}%`, color: 'text-amber-700' },
+    { label: 'Yıkım Oranı', value: `${(enpi.exergy_destruction_ratio_pct || 0).toFixed(1)}%`, color: 'text-red-700' },
+    { label: 'Kaçınılabilir', value: `${(enpi.avoidable_loss_ratio_pct || 0).toFixed(1)}%`, color: 'text-amber-700' },
     { label: 'Maliyet Yog.', value: (enpi.energy_cost_intensity_eur_kWh || 0).toFixed(4), color: 'text-teal-700' },
-    { label: 'Isi Geri Kaz.', value: `${(enpi.heat_recovery_potential_pct || 0).toFixed(1)}%`, color: 'text-cyan-700' },
+    { label: 'Isı Geri Kaz.', value: `${(enpi.heat_recovery_potential_pct || 0).toFixed(1)}%`, color: 'text-cyan-700' },
     { label: 'Entropi Yog.', value: (enpi.entropy_generation_intensity || 0).toFixed(3), color: 'text-purple-700' },
   ];
 
@@ -159,10 +159,10 @@ const ActionPlan = ({ actions, summary }) => {
 
   const categoryOrder = ['quick_win', 'medium_term', 'strategic', 'monitoring'];
   const categoryLabels = {
-    quick_win: 'Hizli Kazanim (0-3 ay)',
+    quick_win: 'Hızlı Kazanım (0-3 ay)',
     medium_term: 'Orta Vadeli (3-12 ay)',
-    strategic: 'Stratejik (1-3 yil)',
-    monitoring: 'Izleme (Surekli)',
+    strategic: 'Stratejik (1-3 yıl)',
+    monitoring: 'İzleme (Sürekli)',
   };
 
   return (
@@ -212,16 +212,16 @@ const ActionPlan = ({ actions, summary }) => {
                   <div className="text-right whitespace-nowrap">
                     {a.estimated_savings_eur > 0 && (
                       <div className="text-green-600 font-medium">
-                        {a.estimated_savings_eur.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR/yil
+                        {a.estimated_savings_eur.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR/yıl
                       </div>
                     )}
                     {a.estimated_investment_eur > 0 && (
                       <div className="text-xs text-gray-500">
-                        Yatirim: {a.estimated_investment_eur.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR
+                        Yatırım: {a.estimated_investment_eur.toLocaleString('tr-TR', { maximumFractionDigits: 0 })} EUR
                       </div>
                     )}
                     {a.payback_years < 99 && (
-                      <div className="text-xs text-gray-500">GOS: {a.payback_years.toFixed(1)} yil</div>
+                      <div className="text-xs text-gray-500">GOS: {a.payback_years.toFixed(1)} yıl</div>
                     )}
                   </div>
                 </div>

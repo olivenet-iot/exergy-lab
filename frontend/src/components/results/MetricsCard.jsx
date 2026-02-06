@@ -15,10 +15,10 @@ const RATING_COLORS = {
 };
 
 const RATING_LABELS = {
-  excellent: 'Mukemmel',
-  good: 'Iyi',
+  excellent: 'Mükemmel',
+  good: 'İyi',
   average: 'Ortalama',
-  poor: 'Dusuk',
+  poor: 'Düşük',
 };
 
 const MetricsCard = ({ title, value, unit, rating, icon }) => {

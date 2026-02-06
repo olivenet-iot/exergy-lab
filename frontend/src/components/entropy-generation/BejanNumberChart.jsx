@@ -26,7 +26,7 @@ const BejanNumberChart = ({ chartData }) => {
 
   const layout = {
     xaxis: {
-      title: 'Bejan Sayisi (N_s)',
+      title: 'Bejan Sayısı (N_s)',
       range: [0, 1.1],
       dtick: 0.2,
     },

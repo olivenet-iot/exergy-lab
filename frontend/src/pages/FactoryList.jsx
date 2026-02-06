@@ -65,8 +65,8 @@ const FactoryList = () => {
         <Card>
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Factory className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900">Henuz proje yok</h3>
-            <p className="text-gray-500 mt-2">Yeni bir fabrika projesi olusturarak baslayabilirsiniz.</p>
+            <h3 className="text-lg font-medium text-gray-900">Henüz proje yok</h3>
+            <p className="text-gray-500 mt-2">Yeni bir fabrika projesi oluşturarak başlayabilirsiniz.</p>
             <button
               onClick={() => navigate('/factory/new')}
               className="mt-4 flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"

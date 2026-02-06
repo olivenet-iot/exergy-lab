@@ -10,9 +10,9 @@ const MetricCard = ({ label, value, unit, color = 'text-gray-900' }) => (
 );
 
 const MECHANISM_LABELS = {
-  heat_transfer: 'Isi Transferi',
-  pressure_drop: 'Basinc Dususu',
-  mixing: 'Karisma',
+  heat_transfer: 'Isı Transferi',
+  pressure_drop: 'Basınç Düşüşü',
+  mixing: 'Karışma',
 };
 
 const EGMMetricBar = ({ data }) => {
@@ -49,7 +49,7 @@ const EGMMetricBar = ({ data }) => {
         color="text-blue-600"
       />
       <MetricCard
-        label="Karisma"
+        label="Karışma"
         value={formatNumber(data.mixing_pct, 0)}
         unit="%"
         color="text-violet-600"
