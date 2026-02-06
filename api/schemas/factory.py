@@ -72,3 +72,4 @@ class FactoryAnalysisResponse(BaseModel):
     sankey: dict
     pinch_analysis: Optional[dict] = None
     advanced_exergy: Optional[dict] = None
+    entropy_generation: Optional[dict] = None

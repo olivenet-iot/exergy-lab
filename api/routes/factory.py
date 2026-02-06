@@ -222,6 +222,7 @@ async def analyze_factory_project(
         "sankey": result.sankey,
         "pinch_analysis": result.pinch_analysis,
         "advanced_exergy": result.advanced_exergy,
+        "entropy_generation": result.entropy_generation,
     }
     return response
 
@@ -328,6 +329,52 @@ async def run_advanced_exergy(
     except Exception as e:
         logger.exception("Advanced exergy analysis failed")
         raise HTTPException(status_code=500, detail=f"Advanced exergy analysis failed: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# Entropy Generation (EGM) endpoint
+# ---------------------------------------------------------------------------
+
+@router.post("/factory/projects/{project_id}/entropy-generation")
+async def run_entropy_generation(
+    project_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
+    """Fabrika icin entropi uretimi minimizasyonu (EGM) analizi calistir."""
+    project = await crud.get_project(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
+
+    if not project.equipment:
+        raise HTTPException(status_code=400, detail="Project has no equipment")
+
+    has_results = any(eq.analysis_result for eq in project.equipment)
+    if not has_results:
+        raise HTTPException(status_code=400, detail="Run analysis first")
+
+    eq_list_dicts = []
+    results_dict = {}
+    for eq in project.equipment:
+        eq_list_dicts.append({
+            "id": eq.id,
+            "name": eq.name,
+            "equipment_type": eq.equipment_type,
+            "subtype": eq.subtype,
+            "parameters": eq.parameters,
+        })
+        if eq.analysis_result:
+            results_dict[eq.id] = eq.analysis_result.result_data
+
+    try:
+        from engine.entropy_generation import analyze_entropy_generation
+
+        egm_result = analyze_entropy_generation(eq_list_dicts, results_dict)
+        return {"success": True, "entropy_generation": egm_result.to_dict()}
+    except Exception as e:
+        logger.exception("Entropy generation analysis failed")
+        raise HTTPException(status_code=500, detail=f"EGM analysis failed: {str(e)}")
 
 
 # ---------------------------------------------------------------------------

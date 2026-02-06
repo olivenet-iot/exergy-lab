@@ -847,6 +847,62 @@ def _format_advanced_exergy_for_prompt(project: dict) -> str:
         return ""
 
 
+def _format_egm_for_prompt(project: dict) -> str:
+    """Format EGM (entropy generation) data for AI prompt.
+
+    Follows _format_advanced_exergy_for_prompt() pattern.
+    Max ~400 characters.
+    """
+    try:
+        from engine.entropy_generation import analyze_entropy_generation, check_egm_feasibility
+
+        equipment_list = project.get("equipment", [])
+        items = []
+        results_dict = {}
+        for eq in equipment_list:
+            result = eq.get("analysis_result")
+            if not result:
+                continue
+            eq_id = eq.get("id", "")
+            items.append({
+                "id": eq_id,
+                "name": eq.get("name", "N/A"),
+                "equipment_type": eq.get("type", ""),
+                "subtype": eq.get("subtype", ""),
+                "parameters": eq.get("parameters", {}),
+            })
+            results_dict[eq_id] = result
+
+        if len(items) < 1:
+            return ""
+
+        feasible, _ = check_egm_feasibility(items, results_dict)
+        if not feasible:
+            return ""
+
+        egm = analyze_entropy_generation(items, results_dict)
+        if not egm.is_valid:
+            return ""
+
+        lines = [
+            "## Entropi Uretimi Analizi (EGM)",
+            f"- S_gen toplam: {egm.S_gen_total_kW_K:.4f} kW/K, N_s fabrika: {egm.N_s_factory:.3f}",
+            f"- Dagilim: DeltaT={egm.heat_transfer_pct:.0f}%, DeltaP={egm.pressure_drop_pct:.0f}%, Karisma={egm.mixing_pct:.0f}%",
+            f"- Baskin mekanizma: {egm.dominant_mechanism_factory}",
+        ]
+        top3 = egm.irreversibility_ranking[:3]
+        if top3:
+            names = ", ".join(f"{r['equipment_name']}(N_s={r['N_s']:.2f})" for r in top3)
+            lines.append(f"- En tersinmez: {names}")
+
+        result = "\n".join(lines)
+        if len(result) > 400:
+            result = result[:380] + "\n[...truncated...]"
+        return result
+    except Exception:
+        return ""
+
+
 def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     """Format factory data for AI prompt with size limits.
 
@@ -969,6 +1025,11 @@ async def interpret_factory_analysis(
     adv_summary = _format_advanced_exergy_for_prompt(project)
     if adv_summary:
         analysis_summary += "\n\n" + adv_summary
+
+    # Append EGM summary if available
+    egm_summary = _format_egm_for_prompt(project)
+    if egm_summary:
+        analysis_summary += "\n\n" + egm_summary
 
     sector_label = sector or project.get("sector") or "genel"
 

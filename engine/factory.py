@@ -61,6 +61,7 @@ class FactoryAnalysisResult:
     sankey: dict
     pinch_analysis: Optional[dict] = None
     advanced_exergy: Optional[dict] = None
+    entropy_generation: Optional[dict] = None
 
 
 # ---------------------------------------------------------------------------
@@ -334,6 +335,25 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
     except Exception:
         pass
 
+    # 8. EGM - Entropy Generation Minimization (optional, best-effort)
+    entropy_generation = None
+    try:
+        from .entropy_generation import analyze_entropy_generation, check_egm_feasibility
+
+        egm_results_dict = {r["id"]: r["analysis"] for r in valid_results if r.get("analysis")}
+        egm_eq_list = [
+            {"id": item.id, "name": item.name, "equipment_type": item.equipment_type,
+             "subtype": item.subtype, "parameters": item.parameters}
+            for item in equipment_list
+        ]
+        egm_feasible, _ = check_egm_feasibility(egm_eq_list, egm_results_dict)
+        if egm_feasible:
+            egm_result = analyze_entropy_generation(egm_eq_list, egm_results_dict)
+            if egm_result.is_valid:
+                entropy_generation = egm_result.to_dict()
+    except Exception:
+        pass
+
     return FactoryAnalysisResult(
         equipment_results=equipment_results,
         aggregates=aggregates,
@@ -342,6 +362,7 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
         sankey=sankey,
         pinch_analysis=pinch_analysis,
         advanced_exergy=advanced_exergy,
+        entropy_generation=entropy_generation,
     )
 
 

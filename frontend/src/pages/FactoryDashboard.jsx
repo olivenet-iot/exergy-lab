@@ -9,6 +9,7 @@ import {
   removeEquipmentFromProject,
   runPinchAnalysis,
   runAdvancedExergy,
+  runEntropyGeneration,
 } from '../services/factoryApi';
 import Card from '../components/common/Card';
 import EquipmentInventory from '../components/factory/EquipmentInventory';
@@ -21,6 +22,7 @@ import FactorySankey from '../components/factory/FactorySankey';
 import FactoryAIPanel from '../components/factory/FactoryAIPanel';
 import PinchTab from '../components/pinch/PinchTab';
 import AdvancedExergyTab from '../components/advanced-exergy/AdvancedExergyTab';
+import EntropyGenerationTab from '../components/entropy-generation/EntropyGenerationTab';
 
 const FactoryDashboard = () => {
   const { projectId } = useParams();
@@ -36,6 +38,7 @@ const FactoryDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [pinchLoading, setPinchLoading] = useState(false);
   const [advExergyLoading, setAdvExergyLoading] = useState(false);
+  const [egmLoading, setEgmLoading] = useState(false);
 
   const fetchProject = async () => {
     try {
@@ -142,6 +145,21 @@ const FactoryDashboard = () => {
       // Keep existing data on error
     } finally {
       setAdvExergyLoading(false);
+    }
+  };
+
+  const handleEGMRerun = async () => {
+    setEgmLoading(true);
+    try {
+      const data = await runEntropyGeneration(projectId);
+      setAnalysisResult((prev) => ({
+        ...prev,
+        entropy_generation: data.entropy_generation,
+      }));
+    } catch {
+      // Keep existing data on error
+    } finally {
+      setEgmLoading(false);
     }
   };
 
@@ -296,6 +314,15 @@ const FactoryDashboard = () => {
               advancedExergyData={analysisResult.advanced_exergy}
               onRerun={handleAdvancedExergyRerun}
               isLoading={advExergyLoading}
+            />
+          )}
+
+          {/* Entropy Generation (EGM) */}
+          {analysisResult?.entropy_generation && (
+            <EntropyGenerationTab
+              entropyData={analysisResult.entropy_generation}
+              onRerun={handleEGMRerun}
+              isLoading={egmLoading}
             />
           )}
 

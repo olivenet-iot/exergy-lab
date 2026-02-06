@@ -44,3 +44,8 @@ export const runAdvancedExergy = async (projectId) => {
   const response = await api.post(`/factory/projects/${projectId}/advanced-exergy`);
   return response.data;
 };
+
+export const runEntropyGeneration = async (projectId) => {
+  const response = await api.post(`/factory/projects/${projectId}/entropy-generation`);
+  return response.data;
+};
