@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Factory, Plus, Play, PackageOpen, ChevronRight } from 'lucide-react';
+import { Factory, Plus, Play, PackageOpen, Sparkles, Target, GitBranch, Thermometer, Layers, Activity, TrendingUp, Gauge, Package } from 'lucide-react';
 import {
   getFactoryProject,
   analyzeFactory,
@@ -28,58 +28,42 @@ import EntropyGenerationTab from '../components/entropy-generation/EntropyGenera
 import ThermoeconomicTab from '../components/thermoeconomic/ThermoeconomicTab';
 import EnergyManagementTab from '../components/energy-management/EnergyManagementTab';
 
-/* ---------- Section nav items ---------- */
-const SECTION_IDS = {
-  ai: 'section-ai',
-  priority: 'section-priority',
-  sankey: 'section-sankey',
-  pinch: 'section-pinch',
-  advExergy: 'section-adv-exergy',
-  egm: 'section-egm',
-  thermoOpt: 'section-thermo-opt',
-  energyMgmt: 'section-energy-mgmt',
-  inventory: 'section-inventory',
-};
+/* ---------- Tab definitions ---------- */
+const TABS = [
+  { id: 'ai', label: 'AI Yorum', icon: Sparkles },
+  { id: 'priorities', label: 'Öncelikler', icon: Target },
+  { id: 'sankey', label: 'Sankey', icon: GitBranch },
+  { id: 'pinch', label: 'Pinch', icon: Thermometer },
+  { id: 'advanced', label: 'İleri Exergy', icon: Layers },
+  { id: 'egm', label: 'EGM', icon: Activity },
+  { id: 'thermo', label: 'Termoekonomik', icon: TrendingUp },
+  { id: 'energy', label: 'Enerji Yönetimi', icon: Gauge },
+  { id: 'inventory', label: 'Envanter', icon: Package },
+];
 
-/* ---------- Collapsible Section Wrapper ---------- */
-const CollapsibleSection = ({ id, title, icon: Icon, iconColor, defaultOpen = false, children }) => {
-  const [open, setOpen] = useState(defaultOpen);
-  const contentRef = useRef(null);
-  const [contentHeight, setContentHeight] = useState(0);
-
-  useEffect(() => {
-    if (contentRef.current) setContentHeight(contentRef.current.scrollHeight);
-  }, [open, children]);
-
-  useEffect(() => {
-    if (open) {
-      const timer = setTimeout(() => {
-        if (contentRef.current) contentRef.current.style.maxHeight = 'none';
-      }, 350);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
-
-  return (
-    <div id={id} className="scroll-mt-20">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 w-full text-left mb-3 group"
-      >
-        <ChevronRight className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${open ? 'rotate-90' : ''}`} />
-        {Icon && <Icon className={`w-5 h-5 ${iconColor || 'text-gray-600'}`} />}
-        <span className="text-lg font-semibold text-gray-800">{title}</span>
-      </button>
-      <div
-        ref={contentRef}
-        className="overflow-hidden transition-all duration-300 ease-in-out"
-        style={{ maxHeight: open ? `${contentHeight}px` : '0px', opacity: open ? 1 : 0 }}
-      >
-        {children}
-      </div>
+/* ---------- Empty state placeholder ---------- */
+const EmptyTabState = ({ label, onRun, isLoading }) => (
+  <div className="flex flex-col items-center justify-center py-16 text-center">
+    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+      <Play className="w-5 h-5 text-slate-400" />
     </div>
-  );
-};
+    <p className="text-slate-500 mb-4">Bu analiz henüz çalıştırılmadı.</p>
+    {onRun && (
+      <button
+        onClick={onRun}
+        disabled={isLoading}
+        className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50"
+      >
+        {isLoading ? (
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+        ) : (
+          <Play className="w-4 h-4" />
+        )}
+        Çalıştır
+      </button>
+    )}
+  </div>
+);
 
 const FactoryDashboard = () => {
   const { projectId } = useParams();
@@ -98,9 +82,7 @@ const FactoryDashboard = () => {
   const [egmLoading, setEgmLoading] = useState(false);
   const [thermoOptLoading, setThermoOptLoading] = useState(false);
   const [emLoading, setEmLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState(null);
-
-  const sectionRefs = useRef({});
+  const [activeTab, setActiveTab] = useState('ai');
 
   const fetchProject = async () => {
     try {
@@ -117,30 +99,6 @@ const FactoryDashboard = () => {
     fetchProject();
   }, [projectId]);
 
-  // Intersection observer for active section highlighting
-  useEffect(() => {
-    if (!analysisResult) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        }
-      },
-      { rootMargin: '-100px 0px -60% 0px', threshold: 0.1 }
-    );
-
-    // Observe all section elements
-    Object.values(SECTION_IDS).forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [analysisResult]);
-
   const handleAnalyze = async () => {
     setAnalyzing(true);
     setError(null);
@@ -150,10 +108,7 @@ const FactoryDashboard = () => {
     try {
       const data = await analyzeFactory(projectId);
       setAnalysisResult(data);
-      // Refresh project to get updated analysis results
       await fetchProject();
-
-      // Auto-trigger AI interpretation after analysis completes
       triggerAIInterpretation();
     } catch (err) {
       setError(err?.response?.data?.detail || 'Analiz başarısız');
@@ -197,7 +152,6 @@ const FactoryDashboard = () => {
     try {
       await removeEquipmentFromProject(projectId, equipmentId);
       await fetchProject();
-      // Clear analysis results since equipment changed
       setAnalysisResult(null);
       setInterpretation(null);
     } catch (err) {
@@ -286,11 +240,6 @@ const FactoryDashboard = () => {
     }
   };
 
-  const scrollToSection = (sectionId) => {
-    const el = document.getElementById(sectionId);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -315,19 +264,136 @@ const FactoryDashboard = () => {
     0
   ) || null;
 
-  // Build visible section nav items
-  const navItems = [];
-  if (hasAnalysis) {
-    navItems.push({ id: SECTION_IDS.ai, label: 'AI Yorum' });
-    navItems.push({ id: SECTION_IDS.priority, label: 'Öncelikler' });
-    if (analysisResult?.sankey) navItems.push({ id: SECTION_IDS.sankey, label: 'Sankey' });
-    if (analysisResult?.pinch_analysis) navItems.push({ id: SECTION_IDS.pinch, label: 'Pinch' });
-    if (analysisResult?.advanced_exergy) navItems.push({ id: SECTION_IDS.advExergy, label: 'İleri Exergy' });
-    if (analysisResult?.entropy_generation) navItems.push({ id: SECTION_IDS.egm, label: 'EGM' });
-    if (analysisResult?.thermoeconomic_optimization) navItems.push({ id: SECTION_IDS.thermoOpt, label: 'Termoekonomik' });
-    if (analysisResult?.energy_management) navItems.push({ id: SECTION_IDS.energyMgmt, label: 'Enerji Yönetimi' });
-    navItems.push({ id: SECTION_IDS.inventory, label: 'Envanter' });
-  }
+  // Tab status: green dot if data exists
+  const tabHasData = {
+    ai: !!interpretation || interpreting,
+    priorities: !!analysisResult?.hotspots,
+    sankey: !!analysisResult?.sankey,
+    pinch: !!analysisResult?.pinch_analysis,
+    advanced: !!analysisResult?.advanced_exergy,
+    egm: !!analysisResult?.entropy_generation,
+    thermo: !!analysisResult?.thermoeconomic_optimization,
+    energy: !!analysisResult?.energy_management,
+    inventory: true,
+  };
+
+  // Render tab content
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'ai':
+        return (
+          <FactoryAIPanel
+            interpretation={interpretation}
+            loading={interpreting}
+            onRequestAI={handleInterpret}
+            hasAnalysis={hasAnalysis}
+            analysisResult={analysisResult}
+            projectId={projectId}
+            sector={project?.sector}
+          />
+        );
+
+      case 'priorities':
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <Card title="İyileştirme Öncelik Listesi">
+                <PriorityList
+                  hotspots={analysisResult?.hotspots}
+                  equipmentResults={analysisResult?.equipment_results}
+                  totalDestroyed={aggregates?.total_exergy_destroyed_kW}
+                  onEquipmentClick={handleEquipmentClick}
+                />
+              </Card>
+            </div>
+            <div>
+              <Card title="Entegrasyon Fırsatları">
+                <IntegrationPanel
+                  opportunities={analysisResult?.integration_opportunities}
+                />
+              </Card>
+            </div>
+          </div>
+        );
+
+      case 'sankey':
+        return analysisResult?.sankey ? (
+          <Card title="Fabrika Exergy Akış Diyagramı">
+            <FactorySankey data={analysisResult.sankey} />
+          </Card>
+        ) : (
+          <Card><EmptyTabState label="Sankey" /></Card>
+        );
+
+      case 'pinch':
+        return analysisResult?.pinch_analysis ? (
+          <PinchTab
+            pinchData={analysisResult.pinch_analysis}
+            onRerun={handlePinchRerun}
+            isLoading={pinchLoading}
+          />
+        ) : (
+          <Card><EmptyTabState label="Pinch" onRun={() => handlePinchRerun({ delta_T_min_C: 10 })} isLoading={pinchLoading} /></Card>
+        );
+
+      case 'advanced':
+        return analysisResult?.advanced_exergy ? (
+          <AdvancedExergyTab
+            advancedExergyData={analysisResult.advanced_exergy}
+            onRerun={handleAdvancedExergyRerun}
+            isLoading={advExergyLoading}
+          />
+        ) : (
+          <Card><EmptyTabState label="İleri Exergy" onRun={handleAdvancedExergyRerun} isLoading={advExergyLoading} /></Card>
+        );
+
+      case 'egm':
+        return analysisResult?.entropy_generation ? (
+          <EntropyGenerationTab
+            entropyData={analysisResult.entropy_generation}
+            onRerun={handleEGMRerun}
+            isLoading={egmLoading}
+          />
+        ) : (
+          <Card><EmptyTabState label="EGM" onRun={handleEGMRerun} isLoading={egmLoading} /></Card>
+        );
+
+      case 'thermo':
+        return analysisResult?.thermoeconomic_optimization ? (
+          <ThermoeconomicTab
+            thermoData={analysisResult.thermoeconomic_optimization}
+            onRerun={handleThermoOptRerun}
+            isLoading={thermoOptLoading}
+          />
+        ) : (
+          <Card><EmptyTabState label="Termoekonomik" onRun={handleThermoOptRerun} isLoading={thermoOptLoading} /></Card>
+        );
+
+      case 'energy':
+        return analysisResult?.energy_management ? (
+          <EnergyManagementTab
+            emData={analysisResult.energy_management}
+            onRerun={handleEMRerun}
+            isLoading={emLoading}
+          />
+        ) : (
+          <Card><EmptyTabState label="Enerji Yönetimi" onRun={handleEMRerun} isLoading={emLoading} /></Card>
+        );
+
+      case 'inventory':
+        return (
+          <Card title="Ekipman Envanteri">
+            <EquipmentInventory
+              equipment={project.equipment || []}
+              onRemove={handleRemoveEquipment}
+            />
+          </Card>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -378,7 +444,7 @@ const FactoryDashboard = () => {
                 Analiz hazır
               </h3>
               <p className="text-gray-500 mb-4">
-                {project.equipment?.length} ekipman eklendi. Fabrika exergy analizini baslatabilirsiniz.
+                {project.equipment?.length} ekipman eklendi. Fabrika exergy analizini başlatabilirsiniz.
               </p>
               <button
                 onClick={handleAnalyze}
@@ -404,7 +470,7 @@ const FactoryDashboard = () => {
         </>
       )}
 
-      {/* Mode 3: Full dashboard */}
+      {/* Mode 3: Full dashboard with tabs */}
       {hasEquipment && hasAnalysis && (
         <>
           {/* Metric Bar */}
@@ -413,149 +479,48 @@ const FactoryDashboard = () => {
             integrationPotential={integrationPotential}
           />
 
-          {/* Sticky Section Navigation */}
-          {navItems.length > 0 && (
-            <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200 -mx-6 px-6 py-2">
-              <div className="flex items-center gap-1 overflow-x-auto">
-                {navItems.map((item) => (
+          {/* Tab Bar */}
+          <div className="sticky top-0 z-10 bg-white border-b border-slate-200 -mx-6 px-6">
+            <div className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none">
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                const hasData = tabHasData[tab.id];
+                const isAILoading = tab.id === 'ai' && interpreting;
+
+                return (
                   <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-colors ${
-                      activeSection === item.id
-                        ? 'bg-cyan-100 text-cyan-700'
-                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                      isActive
+                        ? 'bg-cyan-50 text-cyan-700'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
                     }`}
                   >
-                    {item.label}
+                    <Icon className="w-4 h-4" />
+                    {tab.label}
+                    {/* Status dot */}
+                    {tab.id === 'ai' ? (
+                      (interpretation || interpreting) && (
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                          isAILoading ? 'bg-violet-400 animate-pulse' : 'bg-violet-500'
+                        }`} />
+                      )
+                    ) : (
+                      hasData && tab.id !== 'inventory' && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                      )
+                    )}
                   </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* AI Panel — MOVED TO TOP (right after MetricBar) */}
-          <div id={SECTION_IDS.ai} className="scroll-mt-20">
-            <FactoryAIPanel
-              interpretation={interpretation}
-              loading={interpreting}
-              onRequestAI={handleInterpret}
-              hasAnalysis={hasAnalysis}
-              analysisResult={analysisResult}
-              projectId={projectId}
-              sector={project?.sector}
-            />
-          </div>
-
-          {/* Priority List + Integration Panel grid */}
-          <div id={SECTION_IDS.priority} className="scroll-mt-20 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <Card title="İyileştirme Öncelik Listesi">
-                <PriorityList
-                  hotspots={analysisResult?.hotspots}
-                  equipmentResults={analysisResult?.equipment_results}
-                  totalDestroyed={aggregates?.total_exergy_destroyed_kW}
-                  onEquipmentClick={handleEquipmentClick}
-                />
-              </Card>
-            </div>
-            <div>
-              <Card title="Entegrasyon Fırsatları">
-                <IntegrationPanel
-                  opportunities={analysisResult?.integration_opportunities}
-                />
-              </Card>
+                );
+              })}
             </div>
           </div>
 
-          {/* Sankey Diagram */}
-          {analysisResult?.sankey && (
-            <div id={SECTION_IDS.sankey} className="scroll-mt-20">
-              <Card title="Fabrika Exergy Akış Diyagramı">
-                <FactorySankey data={analysisResult.sankey} />
-              </Card>
-            </div>
-          )}
-
-          {/* Advanced Analysis Sections — Collapsible */}
-          {analysisResult?.pinch_analysis && (
-            <CollapsibleSection
-              id={SECTION_IDS.pinch}
-              title="Pinch Analizi"
-              defaultOpen={false}
-            >
-              <PinchTab
-                pinchData={analysisResult.pinch_analysis}
-                onRerun={handlePinchRerun}
-                isLoading={pinchLoading}
-              />
-            </CollapsibleSection>
-          )}
-
-          {analysisResult?.advanced_exergy && (
-            <CollapsibleSection
-              id={SECTION_IDS.advExergy}
-              title="İleri Exergy Analizi (EN/EX)"
-              defaultOpen={false}
-            >
-              <AdvancedExergyTab
-                advancedExergyData={analysisResult.advanced_exergy}
-                onRerun={handleAdvancedExergyRerun}
-                isLoading={advExergyLoading}
-              />
-            </CollapsibleSection>
-          )}
-
-          {analysisResult?.entropy_generation && (
-            <CollapsibleSection
-              id={SECTION_IDS.egm}
-              title="Entropi Üretimi Analizi (EGM)"
-              defaultOpen={false}
-            >
-              <EntropyGenerationTab
-                entropyData={analysisResult.entropy_generation}
-                onRerun={handleEGMRerun}
-                isLoading={egmLoading}
-              />
-            </CollapsibleSection>
-          )}
-
-          {analysisResult?.thermoeconomic_optimization && (
-            <CollapsibleSection
-              id={SECTION_IDS.thermoOpt}
-              title="Termoekonomik Optimizasyon"
-              defaultOpen={false}
-            >
-              <ThermoeconomicTab
-                thermoData={analysisResult.thermoeconomic_optimization}
-                onRerun={handleThermoOptRerun}
-                isLoading={thermoOptLoading}
-              />
-            </CollapsibleSection>
-          )}
-
-          {analysisResult?.energy_management && (
-            <CollapsibleSection
-              id={SECTION_IDS.energyMgmt}
-              title="Enerji Yönetimi (ISO 50001)"
-              defaultOpen={false}
-            >
-              <EnergyManagementTab
-                emData={analysisResult.energy_management}
-                onRerun={handleEMRerun}
-                isLoading={emLoading}
-              />
-            </CollapsibleSection>
-          )}
-
-          {/* Equipment Inventory */}
-          <div id={SECTION_IDS.inventory} className="scroll-mt-20">
-            <Card title="Ekipman Envanteri">
-              <EquipmentInventory
-                equipment={project.equipment || []}
-                onRemove={handleRemoveEquipment}
-              />
-            </Card>
+          {/* Tab Content */}
+          <div key={activeTab} className="animate-fade-in">
+            {renderTabContent()}
           </div>
         </>
       )}

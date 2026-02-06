@@ -75,16 +75,16 @@ const PinchTab = ({ pinchData, onRerun, isLoading }) => {
 
       {/* Charts: 2-column grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="Kompozit Egriler">
+        <Card title="Kompozit Eğriler">
           <CompositeCurveChart data={pinchData.composite_curves} />
         </Card>
-        <Card title="Grand Kompozit Egri (GCC)">
+        <Card title="Grand Kompozit Eğri (GCC)">
           <GrandCompositeCurveChart data={pinchData.grand_composite_curve} />
         </Card>
       </div>
 
       {/* Stream Table */}
-      <Card title="Termal Akislar">
+      <Card title="Termal Akışlar">
         <StreamTable streams={pinchData.streams} />
       </Card>
 

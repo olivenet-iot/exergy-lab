@@ -45,7 +45,7 @@ const StreamTable = ({ streams }) => {
                       : 'bg-blue-100 text-blue-700'
                   }`}
                 >
-                  {s.stream_type === 'hot' ? 'Sicak' : 'Soguk'}
+                  {s.stream_type === 'hot' ? 'Sıcak' : 'Soğuk'}
                 </span>
               </td>
               <td className="py-1.5 px-2 text-right font-mono">

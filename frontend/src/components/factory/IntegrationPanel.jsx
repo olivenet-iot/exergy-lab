@@ -10,7 +10,7 @@ const COMPLEXITY_STYLES = {
 const COMPLEXITY_LABELS = {
   low: 'Kolay',
   medium: 'Orta',
-  high: 'Karmasik',
+  high: 'Karmaşık',
 };
 
 const IntegrationPanel = ({ opportunities }) => {

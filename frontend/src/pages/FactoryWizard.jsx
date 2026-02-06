@@ -8,16 +8,16 @@ import AddEquipmentModal from '../components/factory/AddEquipmentModal';
 
 const SECTORS = [
   { value: 'textile', label: 'Tekstil' },
-  { value: 'food', label: 'Gida' },
+  { value: 'food', label: 'Gıda' },
   { value: 'chemical', label: 'Kimya' },
   { value: 'metal', label: 'Metal' },
-  { value: 'cement', label: 'Cimento' },
-  { value: 'paper', label: 'Kagit' },
+  { value: 'cement', label: 'Çimento' },
+  { value: 'paper', label: 'Kağıt' },
   { value: 'automotive', label: 'Otomotiv' },
 ];
 
 const EQUIPMENT_TYPE_LABELS = {
-  compressor: 'Kompresor',
+  compressor: 'Kompresör',
   boiler: 'Kazan',
   chiller: 'Chiller',
   pump: 'Pompa',
@@ -54,7 +54,7 @@ const FactoryWizard = () => {
 
   const handleCreate = async () => {
     if (!name.trim()) {
-      setError('Proje adi gereklidir');
+      setError('Proje adı gereklidir');
       return;
     }
     if (equipment.length === 0) {
@@ -101,7 +101,7 @@ const FactoryWizard = () => {
         <Factory className="w-8 h-8 text-indigo-600" />
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Yeni Fabrika Projesi</h2>
-          <p className="text-gray-600 mt-1">Adim {step} / 2</p>
+          <p className="text-gray-600 mt-1">Adım {step} / 2</p>
         </div>
       </div>
 
@@ -123,12 +123,12 @@ const FactoryWizard = () => {
         <Card title="Proje Bilgileri">
           <div className="space-y-4 max-w-lg">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Proje Adi *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Proje Adı *</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ornek: ABC Tekstil Fabrikasi"
+                placeholder="Örnek: ABC Tekstil Fabrikası"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
@@ -162,7 +162,7 @@ const FactoryWizard = () => {
               <button
                 onClick={() => {
                   if (!name.trim()) {
-                    setError('Proje adi gereklidir');
+                    setError('Proje adı gereklidir');
                     return;
                   }
                   setError(null);
@@ -247,7 +247,7 @@ const FactoryWizard = () => {
               ) : (
                 <Check className="w-4 h-4" />
               )}
-              Proje Olustur
+              Proje Oluştur
             </button>
           </div>
         </>

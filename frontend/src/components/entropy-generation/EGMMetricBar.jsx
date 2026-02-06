@@ -32,7 +32,7 @@ const EGMMetricBar = ({ data }) => {
         color={data.N_s_factory > 0.5 ? 'text-red-600' : 'text-emerald-700'}
       />
       <MetricCard
-        label="Baskin"
+        label="Baskın"
         value={MECHANISM_LABELS[data.dominant_mechanism_factory] || data.dominant_mechanism_factory}
         color="text-slate-700"
       />

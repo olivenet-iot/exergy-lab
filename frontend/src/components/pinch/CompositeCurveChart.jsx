@@ -4,7 +4,7 @@ const CompositeCurveChart = ({ data }) => {
   if (!data?.hot_curve || !data?.cold_curve) {
     return (
       <div className="h-64 flex items-center justify-center text-gray-400">
-        Kompozit egri verisi yok
+        Kompozit eğri verisi yok
       </div>
     );
   }
@@ -13,7 +13,7 @@ const CompositeCurveChart = ({ data }) => {
     {
       x: data.hot_curve.H_kW,
       y: data.hot_curve.T_C,
-      name: 'Sicak Kompozit',
+      name: 'Sıcak Kompozit',
       type: 'scatter',
       mode: 'lines+markers',
       line: { color: '#ef4444', width: 2.5 },
@@ -22,7 +22,7 @@ const CompositeCurveChart = ({ data }) => {
     {
       x: data.cold_curve.H_kW,
       y: data.cold_curve.T_C,
-      name: 'Soguk Kompozit',
+      name: 'Soğuk Kompozit',
       type: 'scatter',
       mode: 'lines+markers',
       line: { color: '#3b82f6', width: 2.5 },

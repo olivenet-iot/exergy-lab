@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Shield, RefreshCw, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import Card from '../common/Card';
 import Plot from 'react-plotly.js';
+import { PRIORITY_LABELS } from '../../utils/turkishLabels';
 
 const CATEGORY_COLORS = {
   quick_win: '#22c55e',
@@ -121,7 +122,7 @@ const GapAnalysis = ({ dimensions }) => {
 
   return (
     <div className="mb-6">
-      <h3 className="text-base font-semibold text-gray-800 mb-3">Bosluk Analizi</h3>
+      <h3 className="text-base font-semibold text-gray-800 mb-3">Boşluk Analizi</h3>
       <div className="space-y-3">
         {gaps.map((d) => (
           <div key={d.dimension} className="bg-amber-50 border border-amber-200 rounded-lg p-3">
@@ -172,7 +173,7 @@ const ActionPlan = ({ actions, summary }) => {
         onClick={() => setExpanded(!expanded)}
       >
         <h3 className="text-base font-semibold text-gray-800">
-          Eylem Plani ({actions.length} aksiyon)
+          Eylem Planı ({actions.length} aksiyon)
         </h3>
         {expanded ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
       </div>
@@ -204,7 +205,7 @@ const ActionPlan = ({ actions, summary }) => {
                         className="text-xs px-1.5 py-0.5 rounded text-white"
                         style={{ backgroundColor: PRIORITY_COLORS[a.priority] || '#9ca3af' }}
                       >
-                        {a.priority}
+                        {PRIORITY_LABELS[a.priority] || a.priority}
                       </span>
                     </div>
                     <p className="text-gray-700 mt-1">{a.action}</p>
@@ -243,7 +244,7 @@ const EnergyManagementTab = ({ emData, onRerun, isLoading }) => {
       title={
         <div className="flex items-center gap-2">
           <Shield className="w-5 h-5 text-blue-600" />
-          <span>Enerji Yonetimi (ISO 50001)</span>
+          <span>Enerji Yönetimi (ISO 50001)</span>
           {onRerun && (
             <button
               onClick={onRerun}

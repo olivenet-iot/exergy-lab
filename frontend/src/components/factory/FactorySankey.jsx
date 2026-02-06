@@ -13,7 +13,7 @@ const FactorySankey = ({ data }) => {
   return (
     <div>
       {/* Larger height for factory-level view */}
-      <div className="h-80 md:h-96">
+      <div className="h-[420px]">
         <SankeyDiagram data={data} />
       </div>
 

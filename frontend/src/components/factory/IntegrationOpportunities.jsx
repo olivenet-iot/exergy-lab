@@ -11,7 +11,7 @@ const COMPLEXITY_STYLES = {
 const COMPLEXITY_LABELS = {
   low: 'Kolay',
   medium: 'Orta',
-  high: 'Karmasik',
+  high: 'Karmaşık',
 };
 
 const IntegrationOpportunities = ({ opportunities }) => {
@@ -21,7 +21,7 @@ const IntegrationOpportunities = ({ opportunities }) => {
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
         <Zap className="w-5 h-5 text-amber-500" />
-        Entegrasyon Firsatlari
+        Entegrasyon Fırsatları
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -66,7 +66,7 @@ const IntegrationOpportunities = ({ opportunities }) => {
             {/* Complexity badge */}
             <div className="mt-3">
               <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${COMPLEXITY_STYLES[opp.complexity] || 'bg-gray-100 text-gray-600'}`}>
-                Karmasiklik: {COMPLEXITY_LABELS[opp.complexity] || opp.complexity}
+                Karmaşıklık: {COMPLEXITY_LABELS[opp.complexity] || opp.complexity}
               </span>
             </div>
           </div>

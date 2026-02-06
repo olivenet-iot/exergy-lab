@@ -47,7 +47,7 @@ const HENMatches = ({ matches }) => {
 
           {/* Region badge */}
           <span className="text-xs px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">
-            {m.region === 'above_pinch' ? 'Pinch ustu' : m.region === 'below_pinch' ? 'Pinch alti' : 'Tum'}
+            {m.region === 'above_pinch' ? 'Pinch üstü' : m.region === 'below_pinch' ? 'Pinch altı' : 'Tüm'}
           </span>
         </div>
       ))}

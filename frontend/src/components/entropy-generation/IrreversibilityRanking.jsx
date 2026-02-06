@@ -29,7 +29,7 @@ const IrreversibilityRanking = ({ ranking }) => {
   if (!ranking || ranking.length === 0) {
     return (
       <div className="text-center py-6 text-gray-500 text-sm">
-        Siralama verisi yok
+        Sıralama verisi yok
       </div>
     );
   }

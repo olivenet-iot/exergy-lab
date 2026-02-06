@@ -1,4 +1,5 @@
 import { Trash2, Wind, Flame, Snowflake, Droplets, ArrowLeftRight, Zap, Sun } from 'lucide-react';
+import { EQUIPMENT_TYPE_LABELS, EQUIPMENT_SUBTYPE_LABELS } from '../../utils/turkishLabels';
 
 const EQUIPMENT_ICONS = {
   compressor: Wind,
@@ -10,15 +11,6 @@ const EQUIPMENT_ICONS = {
   dryer: Sun,
 };
 
-const EQUIPMENT_LABELS = {
-  compressor: 'Kompresor',
-  boiler: 'Kazan',
-  chiller: 'Chiller',
-  pump: 'Pompa',
-  heat_exchanger: 'Isı Eşanjörü',
-  steam_turbine: 'Buhar Türbini',
-  dryer: 'Kurutma Fırını',
-};
 
 const EquipmentInventory = ({ equipment, onRemove }) => {
   if (!equipment || equipment.length === 0) {
@@ -54,8 +46,8 @@ const EquipmentInventory = ({ equipment, onRemove }) => {
                     <span className="font-medium text-gray-900">{eq.name}</span>
                   </div>
                 </td>
-                <td className="py-2 px-3 text-gray-600">{EQUIPMENT_LABELS[eq.type] || eq.type}</td>
-                <td className="py-2 px-3 text-gray-600">{eq.subtype}</td>
+                <td className="py-2 px-3 text-gray-600">{EQUIPMENT_TYPE_LABELS[eq.type] || eq.type}</td>
+                <td className="py-2 px-3 text-gray-600">{EQUIPMENT_SUBTYPE_LABELS[eq.subtype] || eq.subtype}</td>
                 <td className="py-2 px-3">
                   {hasResult ? (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">

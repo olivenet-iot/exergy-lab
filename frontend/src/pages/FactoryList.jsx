@@ -6,11 +6,11 @@ import Card from '../components/common/Card';
 
 const SECTOR_LABELS = {
   textile: 'Tekstil',
-  food: 'Gida',
+  food: 'Gıda',
   chemical: 'Kimya',
   metal: 'Metal',
-  cement: 'Cimento',
-  paper: 'Kagit',
+  cement: 'Çimento',
+  paper: 'Kağıt',
   automotive: 'Otomotiv',
 };
 
@@ -72,7 +72,7 @@ const FactoryList = () => {
               className="mt-4 flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Yeni Proje Olustur
+              Yeni Proje Oluştur
             </button>
           </div>
         </Card>

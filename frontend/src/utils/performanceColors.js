@@ -14,10 +14,10 @@ export const getPerformanceHex = (efficiency) => {
 
 export const getGradeInfo = (gradeLetter) => {
   const grades = {
-    A: { label: 'Mukemmel', colorClass: 'text-green-700 bg-green-100' },
-    B: { label: 'Iyi', colorClass: 'text-blue-700 bg-blue-100' },
+    A: { label: 'Mükemmel', colorClass: 'text-green-700 bg-green-100' },
+    B: { label: 'İyi', colorClass: 'text-blue-700 bg-blue-100' },
     C: { label: 'Orta', colorClass: 'text-amber-700 bg-amber-100' },
-    D: { label: 'Zayif', colorClass: 'text-orange-700 bg-orange-100' },
+    D: { label: 'Zayıf', colorClass: 'text-orange-700 bg-orange-100' },
     F: { label: 'Kritik', colorClass: 'text-red-700 bg-red-100' },
   };
   return grades[gradeLetter] || { label: '', colorClass: 'text-gray-700 bg-gray-100' };

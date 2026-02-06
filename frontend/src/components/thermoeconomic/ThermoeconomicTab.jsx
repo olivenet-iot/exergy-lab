@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TrendingUp, RefreshCw, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import Card from '../common/Card';
 import Plot from 'react-plotly.js';
+import { STRATEGY_LABELS, PRIORITY_LABELS } from '../../utils/turkishLabels';
 
 const STRATEGY_COLORS = {
   invest: '#ef4444',
@@ -49,7 +50,7 @@ const StrategyBadges = ({ distribution }) => {
           className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium text-white"
           style={{ backgroundColor: STRATEGY_COLORS[strat] || '#9ca3af' }}
         >
-          {strat}: {count}
+          {STRATEGY_LABELS[strat] || strat}: {count}
         </span>
       ))}
     </div>
@@ -137,7 +138,7 @@ const SavingsWaterfallChart = ({ waterfallData }) => {
         yaxis: { title: 'EUR/yıl' },
         margin: { t: 20, b: 80, l: 60, r: 20 },
         height: 280,
-        showlegend: false,
+        showlegend: true,
         bargap: 0.3,
       }}
       config={{ displayModeBar: false, responsive: true }}
@@ -168,7 +169,7 @@ const RankingItem = ({ item, rank }) => {
             className="px-1.5 py-0.5 rounded text-xs font-medium"
             style={{ color: PRIORITY_COLORS[item.priority] || '#6b7280' }}
           >
-            {item.priority}
+            {PRIORITY_LABELS[item.priority] || item.priority}
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs text-gray-600">

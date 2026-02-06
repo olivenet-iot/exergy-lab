@@ -3,7 +3,7 @@ import { X, ArrowRight, ArrowLeft, Check, Wind, Flame, Snowflake, Droplets, Arro
 import { getEquipmentConfig } from '../../services/api';
 
 const EQUIPMENT_TYPES = [
-  { id: 'compressor', label: 'Kompresor', icon: Wind, color: 'text-blue-600 bg-blue-50 border-blue-200' },
+  { id: 'compressor', label: 'Kompresör', icon: Wind, color: 'text-blue-600 bg-blue-50 border-blue-200' },
   { id: 'boiler', label: 'Kazan', icon: Flame, color: 'text-orange-600 bg-orange-50 border-orange-200' },
   { id: 'chiller', label: 'Chiller', icon: Snowflake, color: 'text-cyan-600 bg-cyan-50 border-cyan-200' },
   { id: 'pump', label: 'Pompa', icon: Droplets, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
@@ -88,7 +88,7 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Ekipman Ekle (Adim {step}/3)</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Ekipman Ekle (Adım {step}/3)</h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition-colors">
             <X className="w-5 h-5 text-gray-500" />
           </button>
@@ -99,7 +99,7 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
           {/* Step 1: Select type */}
           {step === 1 && (
             <div className="space-y-3">
-              <p className="text-sm text-gray-600 mb-4">Ekipman tipini secin:</p>
+              <p className="text-sm text-gray-600 mb-4">Ekipman tipini seçin:</p>
               {EQUIPMENT_TYPES.map((type) => {
                 const Icon = type.icon;
                 return (
@@ -129,7 +129,7 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
           {/* Step 2: Select subtype */}
           {step === 2 && (
             <div className="space-y-3">
-              <p className="text-sm text-gray-600 mb-4">Alt tipi secin:</p>
+              <p className="text-sm text-gray-600 mb-4">Alt tipi seçin:</p>
               {loading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600" />
@@ -160,12 +160,12 @@ const AddEquipmentModal = ({ onAdd, onClose }) => {
           {step === 3 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ekipman Adi</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ekipman Adı</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={`Ornek: ${EQUIPMENT_TYPES.find((t) => t.id === selectedType)?.label || selectedType} #1`}
+                  placeholder={`Örnek: ${EQUIPMENT_TYPES.find((t) => t.id === selectedType)?.label || selectedType} #1`}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>

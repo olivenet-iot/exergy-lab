@@ -15,7 +15,7 @@ const PinchMetricBar = ({ pinch }) => {
   return (
     <div className="flex flex-wrap items-center justify-center gap-1 divide-x divide-gray-200 bg-white rounded-lg border border-gray-200 px-2 py-1">
       <MetricCard
-        label="Pinch Sicakligi"
+        label="Pinch Sıcaklığı"
         value={pinch.pinch_temperature_C != null ? formatNumber(pinch.pinch_temperature_C, 1) : '—'}
         unit="°C"
         color="text-purple-700"
