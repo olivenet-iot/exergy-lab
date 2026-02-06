@@ -49,3 +49,8 @@ export const runEntropyGeneration = async (projectId) => {
   const response = await api.post(`/factory/projects/${projectId}/entropy-generation`);
   return response.data;
 };
+
+export const runThermoeconomicOptimization = async (projectId) => {
+  const response = await api.post(`/factory/projects/${projectId}/thermoeconomic-optimization`);
+  return response.data;
+};

@@ -55,6 +55,10 @@ from .entropy_generation import (
     EntropyEquipmentResult, EntropyGenerationResult,
     analyze_entropy_generation, check_egm_feasibility,
 )
+from .thermoeconomic_optimization import (
+    OptimizationRecommendation, ThermoeconomicOptimizationResult,
+    analyze_thermoeconomic_optimization, check_thermoeconomic_feasibility,
+)
 from .compare import compute_comparison
 from .sankey import generate_sankey_data
 from .radar import generate_radar_data, RADAR_AXES

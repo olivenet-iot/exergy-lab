@@ -10,6 +10,7 @@ import {
   runPinchAnalysis,
   runAdvancedExergy,
   runEntropyGeneration,
+  runThermoeconomicOptimization,
 } from '../services/factoryApi';
 import Card from '../components/common/Card';
 import EquipmentInventory from '../components/factory/EquipmentInventory';
@@ -23,6 +24,7 @@ import FactoryAIPanel from '../components/factory/FactoryAIPanel';
 import PinchTab from '../components/pinch/PinchTab';
 import AdvancedExergyTab from '../components/advanced-exergy/AdvancedExergyTab';
 import EntropyGenerationTab from '../components/entropy-generation/EntropyGenerationTab';
+import ThermoeconomicTab from '../components/thermoeconomic/ThermoeconomicTab';
 
 const FactoryDashboard = () => {
   const { projectId } = useParams();
@@ -39,6 +41,7 @@ const FactoryDashboard = () => {
   const [pinchLoading, setPinchLoading] = useState(false);
   const [advExergyLoading, setAdvExergyLoading] = useState(false);
   const [egmLoading, setEgmLoading] = useState(false);
+  const [thermoOptLoading, setThermoOptLoading] = useState(false);
 
   const fetchProject = async () => {
     try {
@@ -160,6 +163,21 @@ const FactoryDashboard = () => {
       // Keep existing data on error
     } finally {
       setEgmLoading(false);
+    }
+  };
+
+  const handleThermoOptRerun = async () => {
+    setThermoOptLoading(true);
+    try {
+      const data = await runThermoeconomicOptimization(projectId);
+      setAnalysisResult((prev) => ({
+        ...prev,
+        thermoeconomic_optimization: data.thermoeconomic_optimization,
+      }));
+    } catch {
+      // Keep existing data on error
+    } finally {
+      setThermoOptLoading(false);
     }
   };
 
@@ -323,6 +341,15 @@ const FactoryDashboard = () => {
               entropyData={analysisResult.entropy_generation}
               onRerun={handleEGMRerun}
               isLoading={egmLoading}
+            />
+          )}
+
+          {/* Thermoeconomic Optimization */}
+          {analysisResult?.thermoeconomic_optimization && (
+            <ThermoeconomicTab
+              thermoData={analysisResult.thermoeconomic_optimization}
+              onRerun={handleThermoOptRerun}
+              isLoading={thermoOptLoading}
             />
           )}
 

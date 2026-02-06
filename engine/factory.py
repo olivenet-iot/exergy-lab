@@ -62,6 +62,7 @@ class FactoryAnalysisResult:
     pinch_analysis: Optional[dict] = None
     advanced_exergy: Optional[dict] = None
     entropy_generation: Optional[dict] = None
+    thermoeconomic_optimization: Optional[dict] = None
 
 
 # ---------------------------------------------------------------------------
@@ -354,6 +355,25 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
     except Exception:
         pass
 
+    # 9. Thermoeconomic Optimization (optional, best-effort)
+    thermoeconomic_optimization = None
+    try:
+        from .thermoeconomic_optimization import analyze_thermoeconomic_optimization, check_thermoeconomic_feasibility
+
+        thermo_results_dict = {r["id"]: r["analysis"] for r in valid_results if r.get("analysis")}
+        thermo_eq_list = [
+            {"id": item.id, "name": item.name, "equipment_type": item.equipment_type,
+             "subtype": item.subtype, "parameters": item.parameters}
+            for item in equipment_list
+        ]
+        thermo_feasible, _ = check_thermoeconomic_feasibility(thermo_eq_list, thermo_results_dict)
+        if thermo_feasible:
+            thermo_result = analyze_thermoeconomic_optimization(thermo_eq_list, thermo_results_dict)
+            if thermo_result.is_valid:
+                thermoeconomic_optimization = thermo_result.to_dict()
+    except Exception:
+        pass
+
     return FactoryAnalysisResult(
         equipment_results=equipment_results,
         aggregates=aggregates,
@@ -363,6 +383,7 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
         pinch_analysis=pinch_analysis,
         advanced_exergy=advanced_exergy,
         entropy_generation=entropy_generation,
+        thermoeconomic_optimization=thermoeconomic_optimization,
     )
 
 

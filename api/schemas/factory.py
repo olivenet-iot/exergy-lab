@@ -73,3 +73,4 @@ class FactoryAnalysisResponse(BaseModel):
     pinch_analysis: Optional[dict] = None
     advanced_exergy: Optional[dict] = None
     entropy_generation: Optional[dict] = None
+    thermoeconomic_optimization: Optional[dict] = None

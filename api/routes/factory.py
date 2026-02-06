@@ -223,6 +223,7 @@ async def analyze_factory_project(
         "pinch_analysis": result.pinch_analysis,
         "advanced_exergy": result.advanced_exergy,
         "entropy_generation": result.entropy_generation,
+        "thermoeconomic_optimization": result.thermoeconomic_optimization,
     }
     return response
 
@@ -375,6 +376,52 @@ async def run_entropy_generation(
     except Exception as e:
         logger.exception("Entropy generation analysis failed")
         raise HTTPException(status_code=500, detail=f"EGM analysis failed: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# Thermoeconomic Optimization endpoint
+# ---------------------------------------------------------------------------
+
+@router.post("/factory/projects/{project_id}/thermoeconomic-optimization")
+async def run_thermoeconomic_optimization(
+    project_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
+    """Fabrika icin termoekonomik optimizasyon analizi calistir."""
+    project = await crud.get_project(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
+
+    if not project.equipment:
+        raise HTTPException(status_code=400, detail="Project has no equipment")
+
+    has_results = any(eq.analysis_result for eq in project.equipment)
+    if not has_results:
+        raise HTTPException(status_code=400, detail="Run analysis first")
+
+    eq_list_dicts = []
+    results_dict = {}
+    for eq in project.equipment:
+        eq_list_dicts.append({
+            "id": eq.id,
+            "name": eq.name,
+            "equipment_type": eq.equipment_type,
+            "subtype": eq.subtype,
+            "parameters": eq.parameters,
+        })
+        if eq.analysis_result:
+            results_dict[eq.id] = eq.analysis_result.result_data
+
+    try:
+        from engine.thermoeconomic_optimization import analyze_thermoeconomic_optimization
+
+        thermo_result = analyze_thermoeconomic_optimization(eq_list_dicts, results_dict)
+        return {"success": True, "thermoeconomic_optimization": thermo_result.to_dict()}
+    except Exception as e:
+        logger.exception("Thermoeconomic optimization failed")
+        raise HTTPException(status_code=500, detail=f"Thermoeconomic optimization failed: {str(e)}")
 
 
 # ---------------------------------------------------------------------------

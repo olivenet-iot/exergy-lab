@@ -903,6 +903,68 @@ def _format_egm_for_prompt(project: dict) -> str:
         return ""
 
 
+def _format_thermoeconomic_for_prompt(project: dict) -> str:
+    """Format thermoeconomic optimization data for AI prompt.
+
+    Follows _format_egm_for_prompt() pattern.
+    Max ~400 characters.
+    """
+    try:
+        from engine.thermoeconomic_optimization import (
+            analyze_thermoeconomic_optimization,
+            check_thermoeconomic_feasibility,
+        )
+
+        equipment_list = project.get("equipment", [])
+        items = []
+        results_dict = {}
+        for eq in equipment_list:
+            result = eq.get("analysis_result")
+            if not result:
+                continue
+            eq_id = eq.get("id", "")
+            items.append({
+                "id": eq_id,
+                "name": eq.get("name", "N/A"),
+                "equipment_type": eq.get("type", ""),
+                "subtype": eq.get("subtype", ""),
+                "parameters": eq.get("parameters", {}),
+            })
+            results_dict[eq_id] = result
+
+        if len(items) < 1:
+            return ""
+
+        feasible, _ = check_thermoeconomic_feasibility(items, results_dict)
+        if not feasible:
+            return ""
+
+        thermo = analyze_thermoeconomic_optimization(items, results_dict)
+        if not thermo.is_valid:
+            return ""
+
+        lines = [
+            "## Termoekonomik Optimizasyon",
+            f"- Fabrika f-faktor: {thermo.factory_f_factor:.2f}",
+            f"- Toplam tasarruf potansiyeli: {thermo.total_savings_annual_eur:,.0f} EUR/yil",
+            f"- Tahmini yatirim: {thermo.total_estimated_investment_eur:,.0f} EUR | Geri odeme: {thermo.factory_payback_years:.1f} yil",
+        ]
+        top3 = thermo.cost_benefit_ranking[:3]
+        if top3:
+            names = ", ".join(
+                f"{r['equipment_name']}({r['strategy_label'][:10]},{r['simple_payback_years']}y)"
+                for r in top3
+            )
+            lines.append(f"- Oncelik: {names}")
+
+        result = "\n".join(lines)
+        if len(result) > 400:
+            result = result[:380] + "\n[...truncated...]"
+        return result
+    except Exception:
+        return ""
+
+
 def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     """Format factory data for AI prompt with size limits.
 
@@ -1030,6 +1092,11 @@ async def interpret_factory_analysis(
     egm_summary = _format_egm_for_prompt(project)
     if egm_summary:
         analysis_summary += "\n\n" + egm_summary
+
+    # Append thermoeconomic optimization summary if available
+    thermo_summary = _format_thermoeconomic_for_prompt(project)
+    if thermo_summary:
+        analysis_summary += "\n\n" + thermo_summary
 
     sector_label = sector or project.get("sector") or "genel"
 
