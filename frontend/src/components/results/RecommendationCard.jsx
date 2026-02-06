@@ -37,17 +37,17 @@ const RecommendationCard = ({ rec, index, defaultOpen = false }) => {
         {/* Mini KPI badges */}
         <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
           {savings > 0 && (
-            <span className="text-xs font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+            <span className="text-xs font-mono tabular-nums text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
               +{formatCurrency(savings)}/y
             </span>
           )}
           {investment > 0 && (
-            <span className="text-xs font-mono text-gray-600 bg-white/70 px-2 py-0.5 rounded">
+            <span className="text-xs font-mono tabular-nums text-gray-600 bg-white/70 px-2 py-0.5 rounded">
               {formatCurrency(investment)}
             </span>
           )}
           {payback > 0 && (
-            <span className="text-xs font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+            <span className="text-xs font-mono tabular-nums text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
               {formatNumber(payback, 1)}y
             </span>
           )}
@@ -74,12 +74,12 @@ const RecommendationCard = ({ rec, index, defaultOpen = false }) => {
               <p className="font-semibold text-green-600">{formatCurrency(savings)}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">Yatirim</span>
+              <span className="text-gray-500 text-xs">Yatırım</span>
               <p className="font-semibold">{formatCurrency(investment)}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">Geri Odeme</span>
-              <p className="font-semibold">{formatNumber(payback, 1)} yil</p>
+              <span className="text-gray-500 text-xs">Geri Ödeme</span>
+              <p className="font-semibold">{formatNumber(payback, 1)} yıl</p>
             </div>
           </div>
         </div>

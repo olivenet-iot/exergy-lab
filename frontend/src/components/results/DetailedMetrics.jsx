@@ -3,29 +3,29 @@ import { formatNumber } from '../../utils/formatters';
 
 const EXTRA_METRICS = {
   lmtd_K:          { label: 'LMTD', unit: 'K' },
-  effectiveness:   { label: 'Isil Etkinlik', unit: '%', scale: 100 },
-  bejan_number:    { label: 'Bejan Sayisi', unit: '' },
-  heat_duty_kW:    { label: 'Isi Yuku', unit: 'kW' },
-  shaft_power_kW:  { label: 'Saft Gucu', unit: 'kW' },
-  electrical_power_kW: { label: 'Elektrik Gucu', unit: 'kW' },
-  chp_exergy_efficiency_pct: { label: 'CHP Exergy Verimi', unit: '%' },
-  water_removed_kg_h: { label: 'Su Uzaklastirma', unit: 'kg/h' },
+  effectiveness:   { label: 'Isıl Etkinlik', unit: '%', scale: 100 },
+  bejan_number:    { label: 'Bejan Sayısı', unit: '' },
+  heat_duty_kW:    { label: 'Isı Yükü', unit: 'kW' },
+  shaft_power_kW:  { label: 'Şaft Gücü', unit: 'kW' },
+  electrical_power_kW: { label: 'Elektrik Gücü', unit: 'kW' },
+  chp_exergy_efficiency_pct: { label: 'CHP Ekserji Verimi', unit: '%' },
+  water_removed_kg_h: { label: 'Su Uzaklaştırma', unit: 'kg/h' },
   specific_energy_kJ_kg_water: { label: 'Spesifik Enerji', unit: 'kJ/kg-su' },
   thermal_efficiency_pct: { label: 'Termal Verim', unit: '%' },
-  combustion_loss_kW: { label: 'Yanma Kaybi', unit: 'kW' },
-  flue_gas_loss_kW: { label: 'Baca Gazi Kaybi', unit: 'kW' },
+  combustion_loss_kW: { label: 'Yanma Kaybı', unit: 'kW' },
+  flue_gas_loss_kW: { label: 'Baca Gazı Kaybı', unit: 'kW' },
   cop: { label: 'COP', unit: '' },
   cop_carnot: { label: 'Carnot COP', unit: '' },
   kw_per_ton: { label: 'kW/ton', unit: 'kW/ton' },
-  hydraulic_power_kW: { label: 'Hidrolik Guc', unit: 'kW' },
+  hydraulic_power_kW: { label: 'Hidrolik Güç', unit: 'kW' },
   wire_to_water_efficiency_pct: { label: 'Wire-to-Water Verim', unit: '%' },
-  throttle_loss_kW: { label: 'Kisma Kaybi', unit: 'kW' },
+  throttle_loss_kW: { label: 'Kısma Kaybı', unit: 'kW' },
 };
 
 const MetricRow = ({ label, value, unit }) => (
   <div className="flex items-center justify-between py-1.5">
     <span className="text-sm text-gray-600">{label}</span>
-    <span className="font-mono font-semibold text-sm text-gray-900">
+    <span className="font-mono font-semibold tabular-nums text-sm text-gray-900">
       {formatNumber(value)} {unit}
     </span>
   </div>
@@ -60,14 +60,14 @@ const DetailedMetrics = ({ metrics, heatRecovery }) => {
     <div className="space-y-4">
       {/* Exergy Balance */}
       <MetricGroup icon={Activity} title="Ekserji Dengesi" iconColor="text-blue-500">
-        <MetricRow label="Exergy Girisi" value={metrics.exergy_input_kW} unit="kW" />
-        <MetricRow label="Faydali Exergy" value={metrics.exergy_output_kW} unit="kW" />
-        <MetricRow label="Exergy Yikimi" value={metrics.exergy_destroyed_kW} unit="kW" />
+        <MetricRow label="Ekserji Girişi" value={metrics.exergy_input_kW} unit="kW" />
+        <MetricRow label="Faydalı Ekserji" value={metrics.exergy_output_kW} unit="kW" />
+        <MetricRow label="Ekserji Yıkımı" value={metrics.exergy_destroyed_kW} unit="kW" />
         {metrics.exergy_destroyed_avoidable_kW != null && (
           <>
-            <MetricRow label="Onlenebilir Yikim" value={metrics.exergy_destroyed_avoidable_kW} unit="kW" />
-            <MetricRow label="Onlenemez Yikim" value={metrics.exergy_destroyed_unavoidable_kW} unit="kW" />
-            <MetricRow label="Onlenebilir Oran" value={metrics.avoidable_ratio_pct} unit="%" />
+            <MetricRow label="Önlenebilir Yıkım" value={metrics.exergy_destroyed_avoidable_kW} unit="kW" />
+            <MetricRow label="Önlenemez Yıkım" value={metrics.exergy_destroyed_unavoidable_kW} unit="kW" />
+            <MetricRow label="Önlenebilir Oran" value={metrics.avoidable_ratio_pct} unit="%" />
           </>
         )}
         {extraRows.map((row) => (
@@ -77,9 +77,9 @@ const DetailedMetrics = ({ metrics, heatRecovery }) => {
 
       {/* Economic Indicators */}
       {hasExergoeconomic && (
-        <MetricGroup icon={DollarSign} title="Ekonomik Gostergeler" iconColor="text-amber-500">
-          <MetricRow label="f Faktoru" value={metrics.exergoeconomic_f_factor} unit="" />
-          <MetricRow label="r Faktoru" value={metrics.exergoeconomic_r_factor} unit="" />
+        <MetricGroup icon={DollarSign} title="Ekonomik Göstergeler" iconColor="text-amber-500">
+          <MetricRow label="f Faktörü" value={metrics.exergoeconomic_f_factor} unit="" />
+          <MetricRow label="r Faktörü" value={metrics.exergoeconomic_r_factor} unit="" />
           <MetricRow label="Z (EUR/h)" value={metrics.exergoeconomic_Z_dot_eur_h} unit="EUR/h" />
           <MetricRow label="C_D (EUR/h)" value={metrics.exergoeconomic_C_dot_destruction_eur_h} unit="EUR/h" />
           {metrics.exergoeconomic_c_product_eur_kWh != null && (
@@ -92,18 +92,18 @@ const DetailedMetrics = ({ metrics, heatRecovery }) => {
       )}
 
       {/* Annual Impact */}
-      <MetricGroup icon={BarChart3} title="Yillik Etki" iconColor="text-emerald-500">
+      <MetricGroup icon={BarChart3} title="Yıllık Etki" iconColor="text-emerald-500">
         {metrics.annual_loss_kWh != null && (
-          <MetricRow label="Yillik Kayip" value={metrics.annual_loss_kWh} unit="kWh" />
+          <MetricRow label="Yıllık Kayıp" value={metrics.annual_loss_kWh} unit="kWh" />
         )}
         {metrics.annual_cost_eur != null && (
-          <MetricRow label="Yillik Maliyet" value={metrics.annual_cost_eur} unit="EUR" />
+          <MetricRow label="Yıllık Maliyet" value={metrics.annual_cost_eur} unit="EUR" />
         )}
         {heatRecovery?.potential_kW != null && (
-          <MetricRow label="Isi Geri Kazanim" value={heatRecovery.potential_kW} unit="kW" />
+          <MetricRow label="Isı Geri Kazanım" value={heatRecovery.potential_kW} unit="kW" />
         )}
         {heatRecovery?.annual_savings_eur != null && (
-          <MetricRow label="Potansiyel Tasarruf" value={heatRecovery.annual_savings_eur} unit="EUR/yil" />
+          <MetricRow label="Potansiyel Tasarruf" value={heatRecovery.annual_savings_eur} unit="EUR/yıl" />
         )}
       </MetricGroup>
     </div>

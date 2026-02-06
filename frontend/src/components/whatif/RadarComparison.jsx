@@ -1,7 +1,7 @@
 import Plot from 'react-plotly.js';
 
 const AXIS_LABELS = {
-  exergy_efficiency: 'Exergy Verimi',
+  exergy_efficiency: 'Ekserji Verimi',
   improvement_status: 'İyileştirme',
   sector_ranking: 'Sektör Sırası',
   heat_recovery: 'Isı Geri Kaz.',
@@ -60,7 +60,7 @@ const RadarComparison = ({ baselineRadar, scenarioRadar }) => {
       bgcolor: 'transparent',
     },
     font: { family: 'Inter, system-ui, sans-serif' },
-    margin: { l: 60, r: 60, t: 30, b: 30 },
+    margin: { l: 80, r: 80, t: 40, b: 40 },
     paper_bgcolor: 'transparent',
     plot_bgcolor: 'transparent',
     showlegend: true,
@@ -70,7 +70,7 @@ const RadarComparison = ({ baselineRadar, scenarioRadar }) => {
   const config = { displayModeBar: false, responsive: true };
 
   return (
-    <div className="h-72 md:h-80">
+    <div className="h-80 md:h-96">
       <Plot
         data={plotData}
         layout={layout}

@@ -27,7 +27,7 @@ const TabContainer = ({ tabs, activeTab, onTabChange, children }) => {
             if (!child) return null;
             const tabId = child.props?.['data-tab'] || child.key;
             return (
-              <div key={tabId} className={tabId !== activeTab ? 'hidden' : ''}>
+              <div key={tabId} className={tabId !== activeTab ? 'hidden' : 'animate-fade-in'}>
                 {child}
               </div>
             );

@@ -138,106 +138,109 @@ const EquipmentAnalysis = () => {
   ) : null;
 
   return (
-    <DashboardLayout hasResult={!!result} sidebar={sidebar} metricBar={metricBar}>
-      {!result ? (
-        /* Pre-analysis: centered form */
-        <div className="space-y-8">
-          {/* Title */}
-          <div className="flex items-center gap-3">
-            <Icon className={`w-8 h-8 ${meta.color}`} />
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{meta.name} Ekserji Analizi</h2>
-              <p className="text-gray-600 mt-1">
-                {meta.name} tipini seçin ve parametreleri girin
-              </p>
-            </div>
-          </div>
-
-          {/* Subtype Selection */}
-          <Card title={`1. ${meta.name} Tipi`}>
-            {subtypesLoading ? (
-              <div className="h-32 flex items-center justify-center">
-                <LoadingSpinner />
+    <>
+      <DashboardLayout hasResult={!!result} sidebar={sidebar} metricBar={metricBar}>
+        {!result ? (
+          /* Pre-analysis: centered form */
+          <div className="space-y-8">
+            {/* Title */}
+            <div className="flex items-center gap-3">
+              <Icon className={`w-8 h-8 ${meta.color}`} />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{meta.name} Ekserji Analizi</h2>
+                <p className="text-gray-600 mt-1">
+                  {meta.name} tipini seçin ve parametreleri girin
+                </p>
               </div>
-            ) : (
-              <SubtypeSelector
-                subtypes={subtypes}
-                selected={selectedSubtype}
-                onSelect={handleSubtypeSelect}
-              />
-            )}
-          </Card>
+            </div>
 
-          {/* Parameter Form */}
-          {selectedSubtypeData && (
-            <>
-              <Card title="2. Parametreler">
-                <ParameterForm
-                  fields={selectedSubtypeData.fields}
-                  values={formValues}
-                  onChange={handleFormChange}
-                  onSubmit={handleSubmit}
-                  loading={loading}
-                />
-              </Card>
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-                  {typeof error === 'string' ? error : JSON.stringify(error)}
+            {/* Subtype Selection */}
+            <Card title={`1. ${meta.name} Tipi`}>
+              {subtypesLoading ? (
+                <div className="h-32 flex items-center justify-center">
+                  <LoadingSpinner />
                 </div>
+              ) : (
+                <SubtypeSelector
+                  subtypes={subtypes}
+                  selected={selectedSubtype}
+                  onSelect={handleSubtypeSelect}
+                />
               )}
-            </>
-          )}
-        </div>
-      ) : (
-        /* Post-analysis: tabbed dashboard */
-        <div>
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-4">
-              {typeof error === 'string' ? error : JSON.stringify(error)}
-            </div>
-          )}
+            </Card>
 
-          <TabContainer tabs={TAB_CONFIG} activeTab={activeTab} onTabChange={setActiveTab}>
-            <div key="overview" data-tab="overview">
-              <OverviewTab
-                result={result}
-                interpretation={interpretation}
-                aiLoading={aiLoading}
-                onSwitchToAI={() => setActiveTab('ai')}
-              />
-            </div>
-            <div key="flow" data-tab="flow">
-              <FlowTab result={result} />
-            </div>
-            <div key="ai" data-tab="ai">
-              <AITab
-                interpretation={interpretation}
-                aiLoading={aiLoading}
-                equipmentType={equipmentType}
-                subtype={selectedSubtype}
-                result={result}
-              />
-            </div>
-            <div key="scenario" data-tab="scenario">
-              <ScenarioTab
-                equipmentType={equipmentType}
-                subtype={selectedSubtype}
-                baselineParams={baselineParams}
-                fields={selectedSubtypeData?.fields || []}
-                result={result}
-              />
-            </div>
-          </TabContainer>
+            {/* Parameter Form */}
+            {selectedSubtypeData && (
+              <>
+                <Card title="2. Parametreler">
+                  <ParameterForm
+                    fields={selectedSubtypeData.fields}
+                    values={formValues}
+                    onChange={handleFormChange}
+                    onSubmit={handleSubmit}
+                    loading={loading}
+                  />
+                </Card>
 
-          <FloatingChat
-            equipmentType={equipmentType}
-            subtype={selectedSubtype}
-            analysisData={result}
-          />
-        </div>
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+                    {typeof error === 'string' ? error : JSON.stringify(error)}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ) : (
+          /* Post-analysis: tabbed dashboard */
+          <div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-4">
+                {typeof error === 'string' ? error : JSON.stringify(error)}
+              </div>
+            )}
+
+            <TabContainer tabs={TAB_CONFIG} activeTab={activeTab} onTabChange={setActiveTab}>
+              <div key="overview" data-tab="overview">
+                <OverviewTab
+                  result={result}
+                  interpretation={interpretation}
+                  aiLoading={aiLoading}
+                  onSwitchToAI={() => setActiveTab('ai')}
+                />
+              </div>
+              <div key="flow" data-tab="flow">
+                <FlowTab result={result} />
+              </div>
+              <div key="ai" data-tab="ai">
+                <AITab
+                  interpretation={interpretation}
+                  aiLoading={aiLoading}
+                  equipmentType={equipmentType}
+                  subtype={selectedSubtype}
+                  result={result}
+                />
+              </div>
+              <div key="scenario" data-tab="scenario">
+                <ScenarioTab
+                  equipmentType={equipmentType}
+                  subtype={selectedSubtype}
+                  baselineParams={baselineParams}
+                  fields={selectedSubtypeData?.fields || []}
+                  result={result}
+                />
+              </div>
+            </TabContainer>
+          </div>
+        )}
+      </DashboardLayout>
+      {result && (
+        <FloatingChat
+          equipmentType={equipmentType}
+          subtype={selectedSubtype}
+          analysisData={result}
+        />
       )}
-    </DashboardLayout>
+    </>
   );
 };
 

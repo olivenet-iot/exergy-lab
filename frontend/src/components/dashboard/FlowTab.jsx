@@ -10,30 +10,25 @@ const FlowTab = ({ result }) => {
 
   return (
     <div className="space-y-6">
-      {/* Sankey Diagram (full width, top) */}
-      <Card title="Exergy Akis Diyagrami">
+      {/* Sankey Diagram (full width) */}
+      <Card title="Ekserji Akış Diyagramı">
         <SankeyDiagram data={sankey} />
       </Card>
 
-      {/* Two-column: Benchmark (left) + DetailedMetrics (right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <Card title="Benchmark Karsilastirma">
-            <BenchmarkChart
-              efficiency={metrics.exergy_efficiency_percent}
-              rating={benchmark.rating}
-              percentile={benchmark.percentile}
-            />
-            {benchmark.comparison_text && (
-              <p className="mt-4 text-sm text-gray-600">{benchmark.comparison_text}</p>
-            )}
-          </Card>
-        </div>
+      {/* Benchmark (full width) */}
+      <Card title="Benchmark Karşılaştırma">
+        <BenchmarkChart
+          efficiency={metrics.exergy_efficiency_percent}
+          rating={benchmark.rating}
+          percentile={benchmark.percentile}
+        />
+        {benchmark.comparison_text && (
+          <p className="mt-4 text-sm text-gray-600">{benchmark.comparison_text}</p>
+        )}
+      </Card>
 
-        <div>
-          <DetailedMetrics metrics={metrics} heatRecovery={heat_recovery} />
-        </div>
-      </div>
+      {/* Detailed Metrics (full width) */}
+      <DetailedMetrics metrics={metrics} heatRecovery={heat_recovery} />
     </div>
   );
 };

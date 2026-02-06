@@ -11,8 +11,8 @@ const FloatingChat = ({ equipmentType, subtype, analysisData }) => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-violet-600 text-white shadow-lg hover:bg-violet-700 hover:shadow-xl transition-all flex items-center justify-center"
-          title="AI Danismani"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-violet-600 text-white shadow-lg hover:bg-violet-700 hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center"
+          title="AI Danışmanı"
         >
           <MessageCircle className="w-6 h-6" />
         </button>
@@ -25,7 +25,7 @@ const FloatingChat = ({ equipmentType, subtype, analysisData }) => {
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-600 to-blue-600 text-white flex-shrink-0">
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5" />
-              <span className="font-semibold text-sm">AI Danismani</span>
+              <span className="font-semibold text-sm">AI Danışmanı</span>
             </div>
             <button
               onClick={() => setIsOpen(false)}

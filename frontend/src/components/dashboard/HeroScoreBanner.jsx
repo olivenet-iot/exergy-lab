@@ -31,56 +31,56 @@ const HeroScoreBanner = ({
         </div>
 
         {/* Right: 3 KPI blocks */}
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 w-full">
           {/* Destruction */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="px-4 py-4 sm:py-0">
             <div className="flex items-center gap-2 mb-2">
               <Flame className="w-4 h-4 text-red-500" />
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Yikim</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Yıkım</span>
             </div>
-            <p className="text-xl font-bold font-mono text-red-600">
+            <p className="text-xl font-bold font-mono tabular-nums text-red-600">
               {formatNumber(destructionKW)} <span className="text-sm font-normal text-slate-500">kW</span>
             </p>
             {avoidableKW != null && unavoidableKW != null && (
               <div className="mt-2 text-xs text-slate-500 space-y-0.5">
                 <div className="flex justify-between">
-                  <span>Onlenebilir</span>
-                  <span className="font-mono text-red-500">{formatNumber(avoidableKW)} kW</span>
+                  <span>Önlenebilir</span>
+                  <span className="font-mono tabular-nums text-red-500">{formatNumber(avoidableKW)} kW</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Onlenemez</span>
-                  <span className="font-mono text-slate-400">{formatNumber(unavoidableKW)} kW</span>
+                  <span>Önlenemez</span>
+                  <span className="font-mono tabular-nums text-slate-400">{formatNumber(unavoidableKW)} kW</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Annual Loss */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="px-4 py-4 sm:py-0">
             <div className="flex items-center gap-2 mb-2">
               <EuroIcon className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Yillik Kayip</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Yıllık Kayıp</span>
             </div>
-            <p className="text-xl font-bold font-mono text-amber-600">
+            <p className="text-xl font-bold font-mono tabular-nums text-amber-600">
               {formatCurrency(annualLossEUR)}
             </p>
             <p className="mt-2 text-xs text-slate-500">
-              Yillik exergy kaybi maliyeti
+              Yıllık ekserji kaybı maliyeti
             </p>
           </div>
 
           {/* Avoidable Ratio */}
-          <div className="bg-slate-50 rounded-lg p-4">
+          <div className="px-4 py-4 sm:py-0">
             <div className="flex items-center gap-2 mb-2">
               <TrendingDown className="w-4 h-4 text-emerald-500" />
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Kacinilabilir</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Kaçınılabilir</span>
             </div>
-            <p className="text-xl font-bold font-mono text-emerald-600">
+            <p className="text-xl font-bold font-mono tabular-nums text-emerald-600">
               {avoidableRatio != null ? `%${formatNumber(avoidableRatio)}` : '—'}
             </p>
             {avoidableKW != null && (
               <p className="mt-2 text-xs text-slate-500">
-                {formatNumber(avoidableKW)} kW iyilestirme potansiyeli
+                {formatNumber(avoidableKW)} kW iyileştirme potansiyeli
               </p>
             )}
           </div>

@@ -15,7 +15,7 @@ const DestructionBreakdown = ({
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <h3 className="text-base font-semibold text-gray-900 mb-4">Yikim Ayristirmasi (AV/UN)</h3>
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Yıkım Ayrıştırması (AV/UN)</h3>
 
       <div className="space-y-4">
         {/* Avoidable bar */}
@@ -23,9 +23,9 @@ const DestructionBreakdown = ({
           <div className="flex items-center justify-between text-sm mb-1.5">
             <span className="text-gray-600 flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-red-500 inline-block" />
-              Onlenebilir (AV)
+              Önlenebilir (AV)
             </span>
-            <span className="font-mono font-semibold text-red-600">
+            <span className="font-mono font-semibold tabular-nums text-red-600">
               {formatNumber(avoidableKW)} kW
             </span>
           </div>
@@ -35,7 +35,7 @@ const DestructionBreakdown = ({
               style={{ width: `${Math.max(avPct, 2)}%` }}
             />
           </div>
-          <div className="text-right text-xs text-gray-500 mt-0.5 font-mono">%{formatNumber(avPct, 1)}</div>
+          <div className="text-right text-xs text-gray-500 mt-0.5 font-mono tabular-nums">%{formatNumber(avPct, 1)}</div>
         </div>
 
         {/* Unavoidable bar */}
@@ -43,9 +43,9 @@ const DestructionBreakdown = ({
           <div className="flex items-center justify-between text-sm mb-1.5">
             <span className="text-gray-600 flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-full bg-gray-400 inline-block" />
-              Onlenemez (UN)
+              Önlenemez (UN)
             </span>
-            <span className="font-mono font-semibold text-gray-500">
+            <span className="font-mono font-semibold tabular-nums text-gray-500">
               {formatNumber(unavoidableKW)} kW
             </span>
           </div>
@@ -55,22 +55,22 @@ const DestructionBreakdown = ({
               style={{ width: `${Math.max(unPct, 2)}%` }}
             />
           </div>
-          <div className="text-right text-xs text-gray-500 mt-0.5 font-mono">%{formatNumber(unPct, 1)}</div>
+          <div className="text-right text-xs text-gray-500 mt-0.5 font-mono tabular-nums">%{formatNumber(unPct, 1)}</div>
         </div>
 
         {/* Total */}
         {totalDestruction != null && (
           <div className="border-t border-gray-100 pt-3 mt-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700 font-medium">Toplam Yikim</span>
-              <span className="font-mono font-bold text-gray-900">
+              <span className="text-gray-700 font-medium">Toplam Yıkım</span>
+              <span className="font-mono font-bold tabular-nums text-gray-900">
                 {formatNumber(totalDestruction)} kW
               </span>
             </div>
             {destructionRatio != null && (
               <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
-                <span>Girise oranla</span>
-                <span className="font-mono">%{formatNumber(destructionRatio, 1)}</span>
+                <span>Girişe oranla</span>
+                <span className="font-mono tabular-nums">%{formatNumber(destructionRatio, 1)}</span>
               </div>
             )}
           </div>

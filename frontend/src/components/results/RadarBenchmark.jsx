@@ -17,11 +17,11 @@ const GRADE_BG = {
 };
 
 const AXIS_LABELS = {
-  exergy_efficiency: 'Exergy Verimi',
-  improvement_status: 'Iyilestirme',
-  sector_ranking: 'Sektor Sirasi',
-  heat_recovery: 'Isi Geri Kaz.',
-  destruction_ratio: 'Yikim Orani',
+  exergy_efficiency: 'Ekserji Verimi',
+  improvement_status: 'İyileştirme',
+  sector_ranking: 'Sektör Sırası',
+  heat_recovery: 'Isı Geri Kaz.',
+  destruction_ratio: 'Yıkım Oranı',
   cost_efficiency: 'Maliyet Verimi',
 };
 
@@ -65,7 +65,7 @@ const RadarBenchmark = ({ radarData }) => {
       bgcolor: 'transparent',
     },
     font: { family: 'Inter, system-ui, sans-serif' },
-    margin: { l: 70, r: 70, t: 30, b: 30 },
+    margin: { l: 80, r: 80, t: 40, b: 40 },
     paper_bgcolor: 'transparent',
     plot_bgcolor: 'transparent',
     showlegend: false,
@@ -82,7 +82,7 @@ const RadarBenchmark = ({ radarData }) => {
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${badgeClass}`}>
             {grade_letter}
           </span>
-          <span className="text-sm text-gray-500 font-mono">{overall_score}/100</span>
+          <span className="text-sm text-gray-500 font-mono tabular-nums">{overall_score}/100</span>
         </div>
       </div>
 
@@ -109,8 +109,8 @@ const RadarBenchmark = ({ radarData }) => {
           return (
             <div key={key} className="flex items-center gap-2 text-sm">
               <span className={`w-2.5 h-2.5 rounded-full ${dotColor} flex-shrink-0`} />
-              <span className="text-gray-600 truncate">{AXIS_LABELS[key]}</span>
-              <span className="ml-auto font-mono font-semibold text-gray-900">{val}</span>
+              <span className="text-gray-600">{AXIS_LABELS[key]}</span>
+              <span className="ml-auto font-mono font-semibold tabular-nums text-gray-900">{val}</span>
             </div>
           );
         })}

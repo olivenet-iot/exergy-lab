@@ -22,7 +22,25 @@ const ComparisonPanel = ({ compareResult }) => {
   const { baseline, scenario, comparison } = compareResult;
   const { savings, improved_metrics, degraded_metrics, summary_tr, delta } = comparison;
 
-  const isImproved = savings.efficiency_improvement_pct > 0 || savings.exergy_saved_kW > 0;
+  const improved = improved_metrics?.length || 0;
+  const degraded = degraded_metrics?.length || 0;
+  const resultType = improved > degraded ? 'improved' : degraded > improved ? 'degraded' : 'mixed';
+
+  const cardStyles = {
+    improved: 'bg-emerald-50 border-emerald-200',
+    degraded: 'bg-red-50 border-red-200',
+    mixed: 'bg-amber-50 border-amber-200',
+  };
+  const textStyles = {
+    improved: 'text-emerald-800',
+    degraded: 'text-red-800',
+    mixed: 'text-amber-800',
+  };
+  const valueStyles = {
+    improved: 'text-emerald-700',
+    degraded: 'text-red-700',
+    mixed: 'text-amber-700',
+  };
 
   // Flatten baseline/scenario for table
   const bFlat = { ...baseline.metrics, ...baseline.heat_recovery };
@@ -31,25 +49,25 @@ const ComparisonPanel = ({ compareResult }) => {
   return (
     <div className="space-y-6">
       {/* Summary card */}
-      <div className={`rounded-xl border p-6 ${isImproved ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-        <h3 className={`text-lg font-semibold mb-4 ${isImproved ? 'text-green-800' : 'text-red-800'}`}>
+      <div className={`rounded-xl border p-6 ${cardStyles[resultType]}`}>
+        <h3 className={`text-lg font-semibold mb-4 ${textStyles[resultType]}`}>
           Senaryo Karşılaştırması
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
-            <div className={`text-2xl font-bold ${isImproved ? 'text-green-700' : 'text-red-700'}`}>
+            <div className={`text-2xl font-bold font-mono tabular-nums ${valueStyles[resultType]}`}>
               {fmt(savings.exergy_saved_kW)} kW
             </div>
             <div className="text-sm text-gray-600 mt-1">Exergy Tasarrufu</div>
           </div>
           <div className="text-center">
-            <div className={`text-2xl font-bold ${isImproved ? 'text-green-700' : 'text-red-700'}`}>
+            <div className={`text-2xl font-bold font-mono tabular-nums ${valueStyles[resultType]}`}>
               {fmt(savings.annual_savings_kWh)} kWh/yıl
             </div>
             <div className="text-sm text-gray-600 mt-1">Yıllık Tasarruf</div>
           </div>
           <div className="text-center">
-            <div className={`text-2xl font-bold ${isImproved ? 'text-green-700' : 'text-red-700'}`}>
+            <div className={`text-2xl font-bold font-mono tabular-nums ${valueStyles[resultType]}`}>
               {fmt(savings.annual_savings_EUR)} EUR/yıl
             </div>
             <div className="text-sm text-gray-600 mt-1">Maliyet Tasarrufu</div>
@@ -84,9 +102,9 @@ const ComparisonPanel = ({ compareResult }) => {
                 return (
                   <tr key={metric} className="border-b border-gray-100">
                     <td className="py-2 pr-4 text-gray-800">{METRIC_LABELS[metric]}</td>
-                    <td className="py-2 px-4 text-right font-mono text-gray-600">{fmt(bVal)}</td>
-                    <td className="py-2 px-4 text-right font-mono text-gray-900">{fmt(sVal)}</td>
-                    <td className={`py-2 pl-4 text-right font-mono font-semibold ${
+                    <td className="py-2 px-4 text-right font-mono tabular-nums text-gray-600">{fmt(bVal)}</td>
+                    <td className="py-2 px-4 text-right font-mono tabular-nums text-gray-900">{fmt(sVal)}</td>
+                    <td className={`py-2 pl-4 text-right font-mono tabular-nums font-semibold ${
                       isGood ? 'text-green-600' : isBad ? 'text-red-600' : 'text-gray-500'
                     }`}>
                       {d != null ? (d > 0 ? '+' : '') + fmt(d) : '-'}

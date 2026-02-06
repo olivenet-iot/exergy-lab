@@ -27,7 +27,7 @@ const OverviewTab = ({ result, interpretation, aiLoading, onSwitchToAI }) => {
           ) : (
             <Card>
               <div className="h-64 flex items-center justify-center text-slate-400">
-                Radar benchmark verisi mevcut degil.
+                Radar benchmark verisi mevcut değil.
               </div>
             </Card>
           )}

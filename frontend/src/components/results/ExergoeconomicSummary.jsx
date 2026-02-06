@@ -8,20 +8,20 @@ const ExergoeconomicSummary = ({ fFactor, rFactor, zDot, cDotDestruction }) => {
   const fPct = fFactor != null ? (fFactor * 100) : null;
   const interpretation = fFactor != null
     ? fFactor > 0.5
-      ? 'Yatirim maliyeti baskin — ekipman maliyeti yikim maliyetinden yuksek.'
-      : 'Yikim maliyeti baskin — exergy yikim maliyeti yatirimdan yuksek, verim iyilestirmesi oncelikli.'
+      ? 'Yatırım maliyeti baskın — ekipman maliyeti yıkım maliyetinden yüksek.'
+      : 'Yıkım maliyeti baskın — ekserji yıkım maliyeti yatırımdan yüksek, verim iyileştirmesi öncelikli.'
     : null;
 
   const metrics = [
     {
-      label: 'f Faktoru',
+      label: 'f Faktörü',
       value: fFactor != null ? formatNumber(fFactor, 3) : '—',
       sub: fPct != null ? `%${formatNumber(fPct, 1)}` : null,
       barPct: fPct,
       barColor: 'bg-blue-500',
     },
     {
-      label: 'r Faktoru',
+      label: 'r Faktörü',
       value: rFactor != null ? formatNumber(rFactor, 3) : '—',
       sub: null,
       barPct: rFactor != null ? Math.min(rFactor * 100, 100) : null,
@@ -30,14 +30,14 @@ const ExergoeconomicSummary = ({ fFactor, rFactor, zDot, cDotDestruction }) => {
     {
       label: 'Z (EUR/h)',
       value: zDot != null ? formatNumber(zDot, 2) : '—',
-      sub: 'Yatirim akisi',
+      sub: 'Yatırım akışı',
       barPct: null,
       barColor: null,
     },
     {
       label: 'C_D (EUR/h)',
       value: cDotDestruction != null ? formatNumber(cDotDestruction, 2) : '—',
-      sub: 'Yikim akisi',
+      sub: 'Yıkım akışı',
       barPct: null,
       barColor: null,
     },
@@ -45,13 +45,13 @@ const ExergoeconomicSummary = ({ fFactor, rFactor, zDot, cDotDestruction }) => {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <h3 className="text-base font-semibold text-gray-900 mb-4">Exergoekonomik Ozet</h3>
+      <h3 className="text-base font-semibold text-gray-900 mb-4">Exergoekonomik Özet</h3>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {metrics.map((m) => (
           <div key={m.label} className="space-y-1">
             <span className="text-xs text-gray-500">{m.label}</span>
-            <p className="text-lg font-bold font-mono text-gray-900">{m.value}</p>
+            <p className="text-lg font-bold font-mono tabular-nums text-gray-900">{m.value}</p>
             {m.barPct != null && (
               <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div

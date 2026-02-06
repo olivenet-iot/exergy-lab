@@ -41,13 +41,22 @@ const AITab = ({ interpretation, aiLoading, equipmentType, subtype, result }) =>
       <Card>
         <div className="flex items-center gap-3 py-8 justify-center">
           <Sparkles className="w-5 h-5 text-purple-500 animate-pulse" />
-          <span className="text-gray-600">AI yorumu hazirlaniyor...</span>
+          <span className="text-gray-600">AI yorumu hazırlanıyor...</span>
         </div>
       </Card>
     );
   }
 
-  if (!interpretation) return null;
+  if (!interpretation) {
+    return (
+      <Card>
+        <div className="flex items-center gap-3 py-8 justify-center text-slate-400">
+          <Sparkles className="w-5 h-5" />
+          <span>AI yorumu henüz mevcut değil.</span>
+        </div>
+      </Card>
+    );
+  }
 
   const {
     summary,
@@ -86,7 +95,7 @@ const AITab = ({ interpretation, aiLoading, equipmentType, subtype, result }) =>
                   onClick={() => setSummaryExpanded(!summaryExpanded)}
                   className="mt-2 text-sm text-violet-600 hover:text-violet-700 font-medium flex items-center gap-1"
                 >
-                  {summaryExpanded ? 'Daha az goster' : 'Detayli analizi goster'}
+                  {summaryExpanded ? 'Daha az göster' : 'Detaylı analizi göster'}
                   <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${summaryExpanded ? 'rotate-180' : ''}`} />
                 </button>
                 <div
@@ -104,7 +113,7 @@ const AITab = ({ interpretation, aiLoading, equipmentType, subtype, result }) =>
 
         {/* Key Insights */}
         {key_insights.length > 0 && (
-          <Card title="Onemli Bulgular">
+          <Card title="Önemli Bulgular">
             <ul className="space-y-2">
               {key_insights.map((insight, i) => (
                 <li key={i} className="flex items-start gap-2">
@@ -121,7 +130,7 @@ const AITab = ({ interpretation, aiLoading, equipmentType, subtype, result }) =>
           <div className="space-y-3">
             <h4 className="text-base font-semibold text-gray-900 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
-              Iyilestirme Onerileri
+              İyileştirme Önerileri
             </h4>
             {recommendations.map((rec, i) => (
               <RecommendationCard
@@ -137,7 +146,7 @@ const AITab = ({ interpretation, aiLoading, equipmentType, subtype, result }) =>
         {/* Not Recommended — collapsible */}
         {not_recommended.length > 0 && (
           <CollapsibleSection
-            title="Onerilmeyen Cozumler"
+            title="Önerilmeyen Çözümler"
             icon={XCircle}
             iconColor="text-gray-400"
             defaultOpen={false}
@@ -159,7 +168,7 @@ const AITab = ({ interpretation, aiLoading, equipmentType, subtype, result }) =>
         {/* Action Plan — collapsible */}
         {hasActionPlan && (
           <CollapsibleSection
-            title="Aksiyon Plani"
+            title="Aksiyon Planı"
             icon={null}
             defaultOpen={false}
           >
@@ -169,10 +178,10 @@ const AITab = ({ interpretation, aiLoading, equipmentType, subtype, result }) =>
 
         {/* Warnings */}
         {warnings.length > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="bg-amber-50 border border-amber-200 border-l-4 border-l-amber-400 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <span className="text-sm font-medium text-amber-800">Uyarilar</span>
+              <span className="text-sm font-medium text-amber-800">Uyarılar</span>
             </div>
             <ul className="space-y-1">
               {warnings.map((warning, i) => (
