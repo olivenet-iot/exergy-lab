@@ -63,17 +63,25 @@ class BenchmarkDetailResponse(BaseModel):
 
 
 class SankeyNodeResponse(BaseModel):
-    id: int
+    id: Any  # v1: int, v2: str
     name: str
-    name_en: str
+    name_en: str = ""
+    label: str = ""
     color: Optional[str] = None
+    layer: Optional[int] = None
+    node_type: Optional[str] = None
+    value_kw: Optional[float] = None
+    metadata: Optional[dict] = None
 
 
 class SankeyLinkResponse(BaseModel):
-    source: int
-    target: int
+    source: Any  # v1: int, v2: str
+    target: Any  # v1: int, v2: str
     value: float
-    label: str
+    label: str = ""
+    link_type: Optional[str] = None
+    color: Optional[str] = None
+    is_opportunity: Optional[bool] = None
 
 
 class SankeySummaryResponse(BaseModel):

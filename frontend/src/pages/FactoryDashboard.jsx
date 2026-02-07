@@ -20,7 +20,7 @@ import FactoryHeader from '../components/factory/FactoryHeader';
 import FactoryMetricBar from '../components/factory/FactoryMetricBar';
 import PriorityList from '../components/factory/PriorityList';
 import IntegrationPanel from '../components/factory/IntegrationPanel';
-import FactorySankey from '../components/factory/FactorySankey';
+import FactorySankeyV2 from '../components/factory/FactorySankeyV2';
 import FactoryAIPanel from '../components/factory/FactoryAIPanel';
 import PinchTab from '../components/pinch/PinchTab';
 import AdvancedExergyTab from '../components/advanced-exergy/AdvancedExergyTab';
@@ -319,7 +319,14 @@ const FactoryDashboard = () => {
       case 'sankey':
         return analysisResult?.sankey ? (
           <Card title="Fabrika Exergy Akış Diyagramı">
-            <FactorySankey data={analysisResult.sankey} />
+            <FactorySankeyV2
+              sankeyData={analysisResult.sankey}
+              equipmentResults={analysisResult.equipment_results}
+              aggregates={analysisResult.aggregates}
+              hotspots={analysisResult.hotspots}
+              integrationOpportunities={analysisResult.integration_opportunities}
+              advancedExergy={analysisResult.advanced_exergy}
+            />
           </Card>
         ) : (
           <Card><EmptyTabState label="Sankey" /></Card>

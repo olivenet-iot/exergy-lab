@@ -65,4 +65,5 @@ from .energy_management import (
 )
 from .compare import compute_comparison
 from .sankey import generate_sankey_data
+from .factory_sankey_v2 import generate_factory_sankey_v2, to_plotly_format
 from .radar import generate_radar_data, RADAR_AXES

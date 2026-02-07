@@ -300,10 +300,7 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
     # 4. Detect integration opportunities
     integration = _detect_integration_opportunities(valid_results, equipment_list)
 
-    # 5. Generate factory Sankey
-    sankey = _generate_factory_sankey(valid_results, aggregates)
-
-    # 6. Pinch analysis (optional, best-effort)
+    # 5. Pinch analysis (optional, best-effort)
     pinch_analysis = None
     try:
         from .pinch import analyze_pinch, extract_thermal_streams, check_pinch_feasibility
@@ -336,6 +333,11 @@ def analyze_factory(equipment_list: List[EquipmentItem]) -> FactoryAnalysisResul
                 advanced_exergy = adv_result.to_dict()
     except Exception:
         pass
+
+    # 7b. Generate factory Sankey (after hotspots, integration, advanced_exergy are ready)
+    sankey = _generate_factory_sankey(
+        valid_results, aggregates, hotspots, integration, advanced_exergy
+    )
 
     # 8. EGM - Entropy Generation Minimization (optional, best-effort)
     entropy_generation = None
@@ -783,146 +785,25 @@ def _detect_integration_opportunities(
 # Factory Sankey
 # ---------------------------------------------------------------------------
 
-def _generate_factory_sankey(results: List[dict], aggregates: dict) -> dict:
+def _generate_factory_sankey(
+    results: List[dict],
+    aggregates: dict,
+    hotspots: Optional[List[dict]] = None,
+    integration_opportunities: Optional[List[dict]] = None,
+    advanced_exergy: Optional[dict] = None,
+) -> dict:
     """
-    Fabrika seviyesi Sankey diyagrami.
+    Fabrika seviyesi Sankey diyagrami (v2 — Grassmann-style 5-layer).
 
-    Yapisi:
-    - Enerji Girisi (toplam) -> Her ekipman
-    - Her ekipman -> Faydali Cikis | Kayip
-
-    Her ekipman icin ayri node, ortak 'Faydali Exergy' ve 'Exergy Kaybi' node'lari.
+    Delegates to factory_sankey_v2 module.
     """
-    if not results:
-        return {
-            "nodes": [],
-            "links": [],
-            "summary": {
-                "total_input_kW": 0,
-                "useful_output_kW": 0,
-                "recoverable_heat_kW": 0,
-                "irreversibility_kW": 0,
-                "efficiency_pct": 0,
-            },
-        }
+    from .factory_sankey_v2 import generate_factory_sankey_v2
 
-    nodes = []
-    links = []
-
-    # Node 0: Toplam Enerji Girisi
-    nodes.append({"id": 0, "name": "Enerji Girisi", "name_en": "Energy Input"})
-
-    # Equipment nodes start at id=1
-    # Useful output node and Loss node will be at the end
-    useful_node_id = len(results) + 1
-    loss_node_id = len(results) + 2
-
-    # Create equipment nodes
-    type_labels = {
-        "compressor": "Kompresor",
-        "boiler": "Kazan",
-        "chiller": "Chiller",
-        "pump": "Pompa",
-        "heat_exchanger": "Isi Esanjoru",
-        "steam_turbine": "Buhar Turbini",
-        "dryer": "Kurutma Firini",
-    }
-
-    for i, r in enumerate(results):
-        eq_node_id = i + 1
-        label = f"{r['name']}"
-        label_en = f"{r['name']}"
-        nodes.append({"id": eq_node_id, "name": label, "name_en": label_en})
-
-        a = r["analysis"]
-        ex_in = a.get("exergy_in_kW", 0)
-        ex_out = a.get("exergy_out_kW", 0)
-        ex_loss = ex_in - ex_out
-
-        # Link: Input -> Equipment
-        if ex_in > 0:
-            links.append({
-                "source": 0,
-                "target": eq_node_id,
-                "value": round(ex_in, 2),
-                "label": f"{r['name']} Girisi",
-            })
-
-        # Link: Equipment -> Useful Output
-        if ex_out > 0:
-            links.append({
-                "source": eq_node_id,
-                "target": useful_node_id,
-                "value": round(ex_out, 2),
-                "label": f"{r['name']} Faydali",
-            })
-
-        # Link: Equipment -> Loss
-        if ex_loss > 0:
-            links.append({
-                "source": eq_node_id,
-                "target": loss_node_id,
-                "value": round(ex_loss, 2),
-                "label": f"{r['name']} Kayip",
-            })
-
-    # Add output/loss summary nodes
-    nodes.append({"id": useful_node_id, "name": "Faydali Exergy", "name_en": "Useful Exergy"})
-
-    # Check if AV/UN data is available at factory level
-    total_av = aggregates.get("total_exergy_destroyed_avoidable_kW", 0)
-    total_un = aggregates.get("total_exergy_destroyed_unavoidable_kW", 0)
-    has_av_un = (total_av > 0 or total_un > 0)
-
-    if has_av_un:
-        av_node_id = loss_node_id
-        un_node_id = loss_node_id + 1
-        nodes.append({"id": av_node_id, "name": "Exergy Kaybi (Onlenebilir)", "name_en": "Exergy Loss (Avoidable)", "color": "#e74c3c"})
-        nodes.append({"id": un_node_id, "name": "Exergy Kaybi (Onlenemez)", "name_en": "Exergy Loss (Unavoidable)", "color": "#95a5a6"})
-
-        # Redistribute existing loss links into AV and UN
-        total_loss_sum = total_av + total_un
-        new_links = []
-        for link in links:
-            if link["target"] == loss_node_id:
-                loss_val = link["value"]
-                if total_loss_sum > 0:
-                    av_share = loss_val * (total_av / total_loss_sum)
-                    un_share = loss_val * (total_un / total_loss_sum)
-                else:
-                    av_share = loss_val
-                    un_share = 0
-                if av_share > 0.01:
-                    new_links.append({
-                        "source": link["source"],
-                        "target": av_node_id,
-                        "value": round(av_share, 2),
-                        "label": link["label"].replace("Kayip", "Onlenebilir"),
-                    })
-                if un_share > 0.01:
-                    new_links.append({
-                        "source": link["source"],
-                        "target": un_node_id,
-                        "value": round(un_share, 2),
-                        "label": link["label"].replace("Kayip", "Onlenemez"),
-                    })
-            else:
-                new_links.append(link)
-        links = new_links
-    else:
-        nodes.append({"id": loss_node_id, "name": "Exergy Kaybi", "name_en": "Exergy Loss"})
-
-    return {
-        "nodes": nodes,
-        "links": links,
-        "summary": {
-            "total_input_kW": aggregates.get("total_exergy_input_kW", 0),
-            "useful_output_kW": aggregates.get("total_exergy_output_kW", 0),
-            "recoverable_heat_kW": 0,
-            "irreversibility_kW": aggregates.get("total_exergy_destroyed_kW", 0),
-            "efficiency_pct": aggregates.get("factory_exergy_efficiency_pct", 0),
-            "exergy_destroyed_avoidable_kW": round(total_av, 2),
-            "exergy_destroyed_unavoidable_kW": round(total_un, 2),
-            "avoidable_ratio_pct": aggregates.get("avoidable_ratio_pct", 0),
-        },
-    }
+    return generate_factory_sankey_v2(
+        equipment_results=results,
+        aggregates=aggregates,
+        hotspots=hotspots or [],
+        integration_opportunities=integration_opportunities or [],
+        advanced_exergy=advanced_exergy,
+        view_mode="exergy_flow",
+    )
