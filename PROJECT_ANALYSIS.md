@@ -1,9 +1,9 @@
 # ExergyLab - Kapsamli Proje Analizi
 
-> **Son Guncelleme:** 2026-02-06
-> **Versiyon:** 3.0
+> **Son Guncelleme:** 2026-02-07
+> **Versiyon:** 3.1
 > **Durum:** Uretim (Production)
-> **HEAD:** a43cab7
+> **HEAD:** 32980c8
 
 ---
 
@@ -64,18 +64,18 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 
 | Metrik | Deger |
 |--------|-------|
-| **Toplam Kod Satiri** | **29,656** |
+| **Toplam Kod Satiri** | **30,080** |
 | Python satiri | 22,227 |
-| JS/JSX satiri | 7,429 |
+| JS/JSX satiri | 7,853 |
 | Engine modulleri | 20 dosya (10,419 satir) |
-| API modulleri | 19 dosya (4,285 satir) |
-| Frontend dosyalari | 57 component + 6 sayfa (7,429 satir) |
+| API modulleri | 28 dosya (4,872 satir) |
+| Frontend dosyalari | 67 component + 6 sayfa (7,853 satir) |
 | Knowledge dosyalari | 305 |
 | Skill dosyalari | 17 |
 | Test dosyalari | 18 (17 test modulu + conftest + __init__) |
 | Test fonksiyonlari | 671 |
 | Test satiri | 6,936 |
-| API endpointleri | 22 |
+| API endpointleri | 25 |
 | Veritabani tablolari | 6 |
 | Ekipman tipleri | 7 (46 alt tip) |
 
@@ -108,7 +108,7 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 ```
 exergy-lab/
 |
-|-- api/                              # FastAPI backend (4,285 satir, 19 dosya)
+|-- api/                              # FastAPI backend (4,872 satir, 28 dosya)
 |   |-- main.py                       # App, CORS, lifespan, router kaydi (66 satir)
 |   |-- auth/                         # Kimlik dogrulama (142 satir, 5 dosya)
 |   |   |-- config.py                 # JWT ayarlari (10 satir)
@@ -186,13 +186,13 @@ exergy-lab/
 |   |-- SKILL_exergy_calculator.md     # Legacy skill
 |   |-- SKILL_exergy_interpreter.md    # Legacy skill
 |
-|-- frontend/                          # React frontend (7,429 satir)
+|-- frontend/                          # React frontend (7,853 satir)
 |   |-- src/
-|       |-- pages/                     # 6 sayfa (1,470 satir)
-|       |-- components/                # 57 component (5,477 satir)
+|       |-- pages/                     # 6 sayfa (1,453 satir)
+|       |-- components/                # 67 component (5,806 satir)
 |       |-- services/                  # API istemcileri (293 satir)
 |       |-- hooks/                     # Custom hooks (100 satir)
-|       |-- utils/                     # Yardimci fonksiyonlar (39 satir)
+|       |-- utils/                     # Yardimci fonksiyonlar (151 satir, 4 dosya)
 |       |-- App.jsx                    # Routing (41 satir)
 |       |-- main.jsx                   # Giris noktasi
 |
@@ -731,7 +731,7 @@ Her fonksiyon donusu: `(score: int, findings: List[str], gaps: List[str])`
 
 ## 4. API Katmani
 
-19 Python dosyasi, toplam **4,285 satir**. 7 route dosyasi uzerinden **22 endpoint**.
+28 Python dosyasi, toplam **4,872 satir**. 7 route dosyasi uzerinden **25 endpoint**.
 
 ### 4.1 Endpoint Listesi
 
@@ -867,7 +867,7 @@ AI yorumlama ve sohbet entegrasyonu. Claude Code CLI'yi subprocess ile cagirarak
 
 ## 5. Frontend Katmani
 
-57 component + 6 sayfa, toplam **7,429 satir** JavaScript/JSX.
+67 component + 6 sayfa, toplam **7,853 satir** JavaScript/JSX.
 
 ### 5.1 Rotalar (App.jsx -- 41 satir)
 
@@ -879,26 +879,27 @@ AI yorumlama ve sohbet entegrasyonu. Claude Code CLI'yi subprocess ile cagirarak
 | `/factory` | `FactoryList` | Proje listesi |
 | `/factory/new` | `FactoryWizard` | Proje olusturma sihirbazi |
 | `/factory/:projectId` | `FactoryDashboard` | Fabrika analiz dashboard'u |
+| `/reports` | `ReportsPlaceholder` | Raporlar (yakin zamanda) |
 | `*` | Redirect → `/` | Tanimli olmayan rotalar |
 
-### 5.2 Sayfalar (6 dosya, 1,470 satir)
+### 5.2 Sayfalar (6 dosya, 1,453 satir)
 
 | Sayfa | Satir | Aciklama |
 |-------|-------|----------|
 | Dashboard.jsx | 133 | 7 ekipman karti, fabrika tanitim karti, sayfa secimi |
-| EquipmentAnalysis.jsx | 229 | Iki modlu layout (form / dashboard), 4 sekme (Genel Bakis, Akis, AI, Senaryo) |
+| EquipmentAnalysis.jsx | 247 | Progressive disclosure, HeroScoreBanner, 4 sekme, FloatingChat FAB |
 | FactoryList.jsx | 126 | Proje listesi, sektor rozeti, ekipman sayisi |
 | FactoryWizard.jsx | 274 | 2 adimli sihirbaz (proje bilgileri → ekipman ekleme) |
-| FactoryDashboard.jsx | 574 | Fabrika analiz merkezi, 17 useState, 3 gorunum modu |
+| FactoryDashboard.jsx | 539 | Fabrika analiz merkezi, 9-tab sistemi, 15 useState |
 | Login.jsx | 134 | Giris/kayit gecisi, JWT token localStorage kaydi |
 
-### 5.3 Component Agaci (57 dosya, 5,477 satir)
+### 5.3 Component Agaci (67 dosya, 5,806 satir)
 
 ```
-components/ (57 dosya, 5,477 satir)
+components/ (67 dosya, 5,806 satir)
 |
-|-- common/               (5 dosya, 143 satir)
-|   |-- AIActionBar.jsx   # AI butonu + yorumlama tetikleyici
+|-- common/               (5 dosya, 183 satir)
+|   |-- AIActionBar.jsx   # AI butonu + yorumlama tetikleyici (95 satir)
 |   |-- Button.jsx         # Genel buton (kullanilmiyor)
 |   |-- Card.jsx           # Kart wrapper
 |   |-- Loading.jsx        # Yukleme gostergesi
@@ -906,86 +907,91 @@ components/ (57 dosya, 5,477 satir)
 |
 |-- layout/               (4 dosya, 211 satir)
 |   |-- Layout.jsx         # Ana sarmalayici (sidebar + icerik)
-|   |-- Header.jsx         # Kullanici bilgisi, cikis butonu (86 satir)
-|   |-- Sidebar.jsx        # Katlanabilir gruplar, NavLink (115 satir)
+|   |-- Header.jsx         # Kullanici bilgisi, cikis butonu (70 satir)
+|   |-- Sidebar.jsx        # Katlanabilir gruplar, NavLink (114 satir)
 |   |-- Footer.jsx         # Alt bilgi
 |
 |-- forms/                (3 dosya, 181 satir)
-|   |-- ParameterForm.jsx  # 2 sutunlu alan gridi (58 satir)
-|   |-- FormField.jsx      # Dinamik alan render: input/select/checkbox (76 satir)
+|   |-- ParameterForm.jsx  # 2 sutunlu alan gridi (43 satir)
+|   |-- FormField.jsx      # Dinamik alan render: input/select/checkbox (99 satir)
 |   |-- CompressorTypeSelector.jsx  # Legacy kompresor tipi butonlari
 |
 |-- equipment/            (1 dosya, 30 satir)
 |   |-- SubtypeSelector.jsx  # Genel alt tip secici
 |
-|-- dashboard/            (9 dosya, 728 satir)
-|   |-- DashboardLayout.jsx     # Analiz oncesi/sonrasi layout degistirici
-|   |-- TabContainer.jsx        # Sekme navigasyonu (hidden class, state koruma)
-|   |-- OverviewTab.jsx         # RadarBenchmark + AV/UN stacked bar + metrikler (141 satir)
-|   |-- FlowTab.jsx             # Sankey diyagrami (152 satir)
-|   |-- AITab.jsx               # AI yorumlama + sohbet paneli
-|   |-- ScenarioTab.jsx         # What-if senaryo editoru + karsilastirma
-|   |-- ParameterSidebar.jsx    # Sol kenar cubugu
-|   |-- MetricBar.jsx           # Ust yatay metrik cubugu
-|   |-- AIActionBar.jsx         # AI tetikleme cubugu
+|-- dashboard/            (9 dosya, 668 satir)
+|   |-- DashboardLayout.jsx     # Analiz oncesi/sonrasi layout degistirici (23 satir)
+|   |-- TabContainer.jsx        # Sekme navigasyonu (hidden class, state koruma) (40 satir)
+|   |-- OverviewTab.jsx         # AIInsightCard + DestructionBreakdown + ExergoeconomicSummary + DetailedMetrics + RadarBenchmark (62 satir)
+|   |-- FlowTab.jsx             # Sankey diyagrami (36 satir)
+|   |-- AITab.jsx               # Accordion: ozet → bulgular → oneriler → aksiyon plani (198 satir)
+|   |-- ScenarioTab.jsx         # What-if senaryo editoru + karsilastirma (75 satir)
+|   |-- ParameterSidebar.jsx    # Sol kenar cubugu (80 satir)
+|   |-- HeroScoreBanner.jsx     # GaugeChart SVG + grade letter + 3 KPI (93 satir)
+|   |-- GaugeChart.jsx          # SVG yarim daire gosterge (61 satir)
 |
-|-- results/              (7 dosya, 805 satir)
+|-- results/              (11 dosya, 973 satir)
 |   |-- ResultsPanel.jsx       # Sonuc konteyner (187 satir)
-|   |-- AIInterpretation.jsx   # Ozet, analiz, oneriler, aksiyon plani (211 satir)
+|   |-- AIInsightCard.jsx      # AI ozet karti, performans rozeti (54 satir)
+|   |-- ActionTimeline.jsx     # Zaman cizgili aksiyon plani (59 satir)
+|   |-- DestructionBreakdown.jsx  # Exergy yikim dagilimi cubuk grafigi (83 satir)
+|   |-- DetailedMetrics.jsx    # Genisletilmis metrik gridi (113 satir)
+|   |-- ExergoeconomicSummary.jsx  # f-faktor, r-faktor, Z_dot, C_dot ozeti (77 satir)
+|   |-- RecommendationCard.jsx # Oneri karti (oncelik rozeti, maliyet) (91 satir)
 |   |-- RadarBenchmark.jsx     # 6 eksenli Plotly polar/radar grafigi (122 satir)
-|   |-- SankeyDiagram.jsx      # Plotly sankey (52 satir)
-|   |-- BenchmarkChart.jsx     # Benchmark cubuk grafigi
-|   |-- MetricsCard.jsx        # Metrik ozet karti
-|   |-- SolutionsList.jsx      # Oneri listesi
+|   |-- SankeyDiagram.jsx      # Plotly sankey (70 satir)
+|   |-- BenchmarkChart.jsx     # Benchmark cubuk grafigi (52 satir)
+|   |-- SolutionsList.jsx      # Oneri listesi (65 satir)
 |
-|-- factory/              (11 dosya, 891 satir)
-|   |-- FactoryHeader.jsx          # Proje adi, sektor rozeti
-|   |-- FactoryMetricBar.jsx       # Fabrika seviyesi metrikler
-|   |-- EquipmentInventory.jsx     # Ekipman tablosu (tip, durum, silme)
+|-- factory/              (11 dosya, 1,210 satir)
+|   |-- FactoryHeader.jsx          # Proje adi, sektor rozeti (67 satir)
+|   |-- FactoryMetricBar.jsx       # Koyu hero stil metrik cubugu (69 satir)
+|   |-- EquipmentInventory.jsx     # Ekipman tablosu (tip, durum, silme) (81 satir)
 |   |-- AddEquipmentModal.jsx      # 3 adimli modal (tip → alt tip → param) (252 satir)
 |   |-- PriorityList.jsx           # Oncelik sirali hotspot listesi (138 satir)
-|   |-- HotspotList.jsx            # Basitlesmis hotspot gorunumu
-|   |-- IntegrationPanel.jsx       # Capraz ekipman firsatlari
-|   |-- IntegrationOpportunities.jsx  # Entegrasyon detaylari
+|   |-- HotspotList.jsx            # Basitlesmis hotspot gorunumu (76 satir)
+|   |-- IntegrationPanel.jsx       # Capraz ekipman firsatlari (83 satir)
+|   |-- IntegrationOpportunities.jsx  # Entegrasyon detaylari (79 satir)
 |   |-- FactoryAIPanel.jsx         # Fabrika AI yorumlama butonu (140 satir)
 |   |-- FactoryAIInterpretation.jsx   # Fabrika AI gorunumu (172 satir)
-|   |-- FactorySankey.jsx          # Fabrika seviyesi Sankey
+|   |-- FactorySankey.jsx          # Fabrika seviyesi Sankey (53 satir)
 |
-|-- pinch/                (6 dosya, 341 satir)
-|   |-- PinchTab.jsx              # Pinch analiz sonuclari (159 satir)
-|   |-- CompositeCurveChart.jsx   # Hot/cold composite curves (Plotly)
-|   |-- GrandCompositeCurveChart.jsx  # GCC gorsellestirme (Plotly)
-|   |-- StreamTable.jsx           # Sicak/soguk akis tablosu
-|   |-- HENMatches.jsx            # Isi esanjor agi eslestirmeleri
-|   |-- PinchMetricBar.jsx        # Pinch metrik cubugu
+|-- pinch/                (6 dosya, 399 satir)
+|   |-- PinchTab.jsx              # Pinch analiz sonuclari (101 satir)
+|   |-- CompositeCurveChart.jsx   # Hot/cold composite curves (Plotly) (53 satir)
+|   |-- GrandCompositeCurveChart.jsx  # GCC gorsellestirme (Plotly) (62 satir)
+|   |-- StreamTable.jsx           # Sicak/soguk akis tablosu (71 satir)
+|   |-- HENMatches.jsx            # Isi esanjor agi eslestirmeleri (58 satir)
+|   |-- PinchMetricBar.jsx        # Pinch metrik cubugu (54 satir)
 |
 |-- advanced-exergy/      (5 dosya, 338 satir)
-|   |-- AdvancedExergyTab.jsx      # AV/UN sonuclari + etkilesim agi
-|   |-- QuadrantChart.jsx          # AV vs UN scatter (Plotly)
-|   |-- InteractionNetwork.jsx     # Ekipman etkilesim grafigi
-|   |-- AdvancedExergyMetricBar.jsx  # Ileri exergy metrik cubugu
-|   |-- AdvancedExergyPriorityList.jsx  # Oncelik listesi
+|   |-- AdvancedExergyTab.jsx      # AV/UN sonuclari + etkilesim agi (85 satir)
+|   |-- QuadrantChart.jsx          # AV vs UN scatter (Plotly) (68 satir)
+|   |-- InteractionNetwork.jsx     # Ekipman etkilesim grafigi (44 satir)
+|   |-- AdvancedExergyMetricBar.jsx  # Ileri exergy metrik cubugu (63 satir)
+|   |-- AdvancedExergyPriorityList.jsx  # Oncelik listesi (78 satir)
 |
-|-- entropy-generation/   (5 dosya, 373 satir)
-|   |-- EntropyGenerationTab.jsx   # EGM sonuc gorunumu
-|   |-- BejanNumberChart.jsx       # Bejan N_s scatter (Plotly)
-|   |-- EntropyDecompositionChart.jsx  # Irreversibility dagilimi (Plotly)
-|   |-- EGMMetricBar.jsx           # EGM metrik cubugu
-|   |-- IrreversibilityRanking.jsx  # Tersinmezlik siralaması
+|-- entropy-generation/   (5 dosya, 371 satir)
+|   |-- EntropyGenerationTab.jsx   # EGM sonuc gorunumu (85 satir)
+|   |-- BejanNumberChart.jsx       # Bejan N_s scatter (Plotly) (60 satir)
+|   |-- EntropyDecompositionChart.jsx  # Irreversibility dagilimi (Plotly) (75 satir)
+|   |-- EGMMetricBar.jsx           # EGM metrik cubugu (66 satir)
+|   |-- IrreversibilityRanking.jsx  # Tersinmezlik siralamasi (85 satir)
 |
-|-- thermoeconomic/       (1 dosya, 284 satir)
+|-- thermoeconomic/       (1 dosya, 285 satir)
 |   |-- ThermoeconomicTab.jsx      # SPECO degerlendirme + Tsatsaronis matrisi
 |
-|-- energy-management/    (1 dosya, 300 satir)
+|-- energy-management/    (1 dosya, 301 satir)
 |   |-- EnergyManagementTab.jsx    # ISO 50001 olgunluk + aksiyon planlari
 |
-|-- whatif/               (3 dosya, 302 satir)
-|   |-- ScenarioEditor.jsx         # Baseline/senaryo parametre editoru
-|   |-- ComparisonPanel.jsx        # Delta karsilastirma (yesil/kirmizi) (173 satir)
-|   |-- RadarComparison.jsx        # Iki katmanli radar grafigi
+|-- whatif/               (3 dosya, 320 satir)
+|   |-- ScenarioEditor.jsx         # Baseline/senaryo parametre editoru (102 satir)
+|   |-- ComparisonPanel.jsx        # Delta karsilastirma (yesil/kirmizi) (134 satir)
+|   |-- RadarComparison.jsx        # Iki katmanli radar grafigi (84 satir)
 |
-|-- chat/                 (1 dosya, 281 satir)
-    |-- ChatPanel.jsx              # Tam sohbet: markdown render, oneri butonlari
+|-- chat/                 (2 dosya, 336 satir)
+    |-- ChatPanel.jsx              # Tam sohbet: markdown render, oneri butonlari (281 satir)
+    |-- FloatingChat.jsx           # FAB buton (sag alt, violet, z-50) + ChatPanel acilir panel (55 satir)
 ```
 
 ### 5.4 Servisler, Hooks, Utils
@@ -1013,56 +1019,64 @@ components/ (57 dosya, 5,477 satir)
 **useCompressorTypes.js (25 satir):**
 - Equipment types fetch hook
 
-#### utils/ (39 satir, 2 dosya)
+#### utils/ (151 satir, 4 dosya)
 
 - `formatters.js` (22 satir) -- Sayi/para birimi formatlama
 - `priorityStyles.js` (17 satir) -- CSS sinif esleme (high/medium/low → Tailwind renkleri)
+- `performanceColors.js` (24 satir) -- getPerformanceColor(), getPerformanceHex(), getGradeInfo()
+- `turkishLabels.js` (88 satir) -- EQUIPMENT_TYPE_LABELS, SUBTYPE_LABELS, STRATEGY_LABELS, Turkce ceviri
 
 ### 5.5 Dashboard UX Mimarisi
 
 #### 5.5.1 Ekipman Dashboard (EquipmentAnalysis.jsx)
 
-Iki modlu layout:
-- **Analiz oncesi:** Ekipman secimi + parametre formu (sol taraf tamamini kaplar)
-- **Analiz sonrasi:** ParameterSidebar (sol) + MetricBar (ust) + 4 sekme (sag)
+Progressive disclosure pattern:
+- **Analiz oncesi:** SubtypeSelector → ParameterForm (tam genislik)
+- **Analiz sonrasi:** HeroScoreBanner (GaugeChart SVG + grade letter + 3 KPI) + ParameterSidebar (sol) + 4 sekme (sag) + FloatingChat FAB
+
+HeroScoreBanner: Yari daire SVG gosterge (`GaugeChart.jsx`), harf notu (A-F), performans rengi, 3 KPI karti (exergy giris, exergy yikim, isi geri kazanim).
+
+FloatingChat: Sag alt sabit FAB buton (violet, z-50). Tiklandiginda ChatPanel acilir (slide-up animasyon). Tum sekmelerde erisebilir.
 
 4 sekme yapisi:
-1. **Genel Bakis (OverviewTab):** RadarBenchmark + AV/UN stacked bar + temel metrikler
-2. **Akis (FlowTab):** Sankey diyagrami (Plotly)
-3. **AI (AITab):** AI yorumlama + ChatPanel (sohbet)
-4. **Senaryo (ScenarioTab):** What-if parametre editoru + delta karsilastirma + cift radar
+1. **Genel Bakis (OverviewTab):** AIInsightCard + DestructionBreakdown + ExergoeconomicSummary + DetailedMetrics + RadarBenchmark
+2. **Akis (FlowTab):** SankeyDiagram (Plotly)
+3. **AI (AITab):** Accordion yapisi (ozet → bulgular → oneriler → onerilmeyenler → aksiyon plani) + RecommendationCard + ActionTimeline
+4. **Senaryo (ScenarioTab):** ScenarioEditor + ComparisonPanel + RadarComparison
 
 TabContainer: `hidden` class ile state koruma (sekme gecisinde veri kaybi yok)
 
 #### 5.5.2 Fabrika Dashboard (FactoryDashboard.jsx)
 
-3 gorunum modu:
+9-tab sistemi (scroll-to-section mimarisinden gecis):
+- **TABS dizisi:** ai, priorities, sankey, pinch, advanced, egm, thermo, energy, inventory
+- **Tab cubugu:** lucide ikonlari + durum noktasi (yesil = veri var, nokta yok = henuz calistirilmamis)
+- **Her tab conditional render** (hidden class degil, dogrudan render)
+
+FactoryMetricBar: Koyu hero stil (dark gradient + beyaz metin + KPI kartlari)
+
+3 render modu (hala gecerli):
 - **Bos:** Ekipman yok → "Ekipman Ekle" yonlendirmesi
 - **Ekipmanli:** Analiz yok → "Analiz Calistir" butonu
-- **Tam Dashboard:** Asagidaki bolum sirasi
+- **Tam Dashboard:** Tab sistemi ile icerik gosterimi
 
-Bolum sirasi (UX overhaul sonrasi):
-1. **AI Paneli** (en ustte, gorunur) -- FactoryAIPanel
-2. **Fabrika Metrikleri** -- FactoryMetricBar
-3. **Oncelik Listesi** -- PriorityList (hotspot sirali, katlanabilir)
-4. **Entegrasyon Firsatlari** -- IntegrationPanel (katlanabilir)
-5. **Fabrika Sankey** -- FactorySankey (katlanabilir)
-6. **Pinch Analizi** -- PinchTab (katlanabilir)
-7. **Ileri Exergy** -- AdvancedExergyTab (katlanabilir)
-8. **EGM** -- EntropyGenerationTab (katlanabilir)
-9. **Termoekonomik** -- ThermoeconomicTab (katlanabilir)
-10. **Enerji Yonetimi** -- EnergyManagementTab (katlanabilir)
-11. **Ekipman Envanteri** -- EquipmentInventory (en altta)
-
-Section navigasyon: Sabit baslik cubugu ile hizli bolum gecisi (scroll-into-view)
-Katlanabilir animasyon: CSS `max-height` + `overflow-hidden` gecisi
+Tab icerikleri:
+1. **AI Yorum** -- FactoryAIPanel + FactoryAIInterpretation
+2. **Oncelikler** -- PriorityList (hotspot sirali) + IntegrationPanel
+3. **Sankey** -- FactorySankey (fabrika seviyesi)
+4. **Pinch** -- PinchTab (Linnhoff analizi)
+5. **Ileri Exergy** -- AdvancedExergyTab (EN/EX 4-quadrant)
+6. **EGM** -- EntropyGenerationTab (Bejan sayisi)
+7. **Termoekonomik** -- ThermoeconomicTab (f/r matrisi)
+8. **Enerji Yonetimi** -- EnergyManagementTab (ISO 50001)
+9. **Envanter** -- EquipmentInventory + AddEquipmentModal
 
 #### 5.5.3 AI Paneli Detaylari
 
 3 katmanli AI sistemi:
-1. **Ekipman AI (AIInterpretation.jsx):** Tek ekipman yorumu -- ozet, detayli analiz, oneriler, aksiyon plani (immediate/short/medium term), uyarilar
+1. **Ekipman AI (AIInsightCard + AITab):** Tek ekipman yorumu -- AIInsightCard (ozet + performans rozeti), AITab accordion (bulgular → oneriler → onerilmeyenler → aksiyon plani), RecommendationCard, ActionTimeline
 2. **Fabrika AI (FactoryAIPanel + FactoryAIInterpretation):** Fabrika seviyesi yorum -- hotspot analizi, entegrasyon firsatlari, onceliklendirme
-3. **Sohbet (ChatPanel.jsx):** Gercek zamanli Q&A -- markdown render, mavi/beyaz mesaj balonlari, bilgi kaynagi rozetleri, oneri butonlari, DOMPurify ile XSS koruma
+3. **Sohbet (FloatingChat + ChatPanel):** FAB butonu ile erisilen Q&A -- markdown render, mavi/beyaz mesaj balonlari, bilgi kaynagi rozetleri, oneri butonlari, DOMPurify ile XSS koruma
 
 ### 5.6 Stil Sistemi
 
@@ -1073,6 +1087,14 @@ Renk paleti:
 - success: `#10b981` (green)
 - warning: `#f59e0b` (amber)
 - danger: `#ef4444` (red)
+
+**Dinamik performans renklendirmesi (performanceColors.js):**
+- emerald (>=80%), blue (>=60%), amber (>=40%), red (<40%)
+- Grade harf sistemi: A (Mukemmel), B (Iyi), C (Orta), D (Zayif), F (Kritik)
+
+**Kart ve tipografi stilleri:**
+- Kart: rounded-xl, p-5/p-6, hover:shadow-md transition-shadow
+- Tipografi: tabular-nums metriklerde, font-mono sayilarda
 
 Font: sistem varsayilani (sans-serif)
 
@@ -1286,9 +1308,9 @@ changeOrigin: true
 
 | Sorun | Dosya | Detay |
 |-------|-------|-------|
-| MetricBar tekrari | dashboard/MetricBar, factory/FactoryMetricBar, pinch/PinchMetricBar, advanced-exergy/AdvancedExergyMetricBar, entropy-generation/EGMMetricBar | 5 ayri MetricBar bileseninin ortaklastirilmasi |
+| MetricBar tekrari | factory/FactoryMetricBar, pinch/PinchMetricBar, advanced-exergy/AdvancedExergyMetricBar, entropy-generation/EGMMetricBar | dashboard/MetricBar → HeroScoreBanner'a donusturuldu; 4 MetricBar varyanti kaldi |
 | Button.jsx kullanilmiyor | common/Button.jsx (38 satir) | Hicbir dosyada import edilmiyor |
-| FactoryDashboard useState yiginmasi | pages/FactoryDashboard.jsx | 17 useState hook'u; state yonetim kutuphanesi (Zustand/Redux) gerekebilir |
+| FactoryDashboard useState yiginmasi | pages/FactoryDashboard.jsx | 15 useState hook'u (17'den dusuruldu); tab sistemi karmasikligi azaltti ama Zustand hala faydali olabilir |
 | Lazy loading yok | frontend/vite.config.js | Tum componentler eagerly yukleniyor; code splitting uygulanmamis |
 | Plotly font tutarsizligi | Plotly grafikleri | Plotly kendi font'unu kullaniyor, Tailwind sistem font'u ile uyumsuz |
 | Erisebilirlik (a11y) | Genel | ARIA etiketleri, klavye navigasyonu, renk kontrasti kontrolu eksik |
@@ -1302,6 +1324,10 @@ Son 20 commit (en yeniden en eskiye):
 
 | Commit | Aciklama |
 |--------|----------|
+| 32980c8 | Factory dashboard redesign: scroll-to-section → gercek tab sistemi, Turkce diacritic, koyu hero metrik cubugu |
+| c32fde2 | Equipment analysis UI polish: Turkce diacritic, Sankey/radar fix, FloatingChat gorunurluk, senaryo temizlik |
+| e566b8c | Equipment analysis page redesign: progressive disclosure, floating chat, accordion UI |
+| 2201c28 | PROJECT_ANALYSIS.md guncelleme: 6 ileri motor, 671 test, UX overhaul yansitmasi |
 | a43cab7 | Post-UX/UI polish: yumusak katlanabilir animasyon, fabrika chat backend fix, Turkce diacritic |
 | 0193b8b | Frontend UX/UI overhaul: AI panel one cikma, bolum nav, katlanabilir analizler, XSS fix |
 | 12ca183 | ISO 50001 enerji yonetimi: EnPI metrikleri, olgunluk puanlama, aksiyon plani motoru |
@@ -1320,8 +1346,6 @@ Son 20 commit (en yeniden en eskiye):
 | 3cecff3 | Ekipman analizi UI overhaul: iki modlu dashboard layout |
 | 329bda6 | Sohbet takip fix: prompt gecmisi ve knowledge kirpma |
 | cffa443 | Knowledge-destekli AI sohbet paneli (305 dosya knowledge yonlendirme) |
-| 1eb234f | What-If senaryo karsilastirma modu (7 ekipman tipi) |
-| f2253a6 | 6 eksenli benchmark radar grafigi (tum ekipman analiz sonuclari) |
 
 ---
 
@@ -1332,7 +1356,7 @@ Son 20 commit (en yeniden en eskiye):
 | Oneri | Oncelik | Etki |
 |-------|---------|------|
 | Tum ekipmanlara sektorel radar detayi | Yuksek | Benchmark kalitesi |
-| MetricBar bilesenlerini ortaklastirma | Orta | Teknik borc azaltma |
+| MetricBar bilesenlerini ortaklastirma (dashboard/MetricBar → HeroScoreBanner tamamlandi; 4 varyant kaldi) | Orta | Teknik borc azaltma |
 | Button.jsx kaldir veya kullan | Dusuk | Temizlik |
 | Rate limiting (AI endpointleri) | Orta | Guvenlik |
 | Analiz sonuclarini PDF/DOCX export | Orta | Kullanilabilirlik |
@@ -1343,7 +1367,7 @@ Son 20 commit (en yeniden en eskiye):
 |-------|---------|------|
 | PostgreSQL gecisi | Orta | Olceklenebilirlik (coklu yazici) |
 | Frontend lazy loading + code splitting | Yuksek | Performans (Plotly 3.3 MB) |
-| State yonetimi (Zustand) | Orta | FactoryDashboard karmasiklik azaltma |
+| State yonetimi (Zustand) | Orta | FactoryDashboard 17→15 useState, tab sistemi iyilestirdi ama hala faydali |
 | Toplu ekipman ekleme (batch) | Orta | Kullanici deneyimi |
 | Erisebilirlik (a11y) iyilestirmeleri | Orta | Uyumluluk |
 
@@ -1359,5 +1383,5 @@ Son 20 commit (en yeniden en eskiye):
 
 ---
 
-*Bu dokuman, ExergyLab kod tabaninin 2026-02-06 tarihli kapsamli analizidir (v3).*
-*29,656 satir kod, 671 test, 305 knowledge dosyasi, 6 ileri analiz motoru.*
+*Bu dokuman, ExergyLab kod tabaninin 2026-02-07 tarihli kapsamli analizidir (v3.1).*
+*30,080 satir kod, 671 test, 305 knowledge dosyasi, 6 ileri analiz motoru.*
