@@ -63,6 +63,15 @@ from .energy_management import (
     EnPIMetrics, MaturityDimension, ActionItem, EnergyManagementResult,
     analyze_energy_management, check_energy_management_feasibility,
 )
+from .process_exergy import (
+    ProcessDefinition, SUPPORTED_PROCESS_TYPES,
+    get_process_types, calculate_minimum_exergy,
+)
+from .bat_references import (
+    BAT_REFERENCES, get_bat_reference, get_available_subcategories,
+    calculate_bat_exergy,
+)
+from .gap_analysis import GapAnalysisResult, analyze_gap
 from .compare import compute_comparison
 from .sankey import generate_sankey_data
 from .factory_sankey_v2 import generate_factory_sankey_v2, to_plotly_format

@@ -107,6 +107,30 @@ async def get_all_projects(
     return list(result.scalars().all())
 
 
+async def update_project_process(
+    db: AsyncSession,
+    project_id: str,
+    process_type: str,
+    process_label: str | None = None,
+    process_parameters: dict | None = None,
+    process_subcategory: str | None = "general",
+    operating_hours: float | None = 6000,
+    energy_price_eur_kwh: float | None = 0.08,
+) -> FactoryProject | None:
+    """Update process definition fields on a FactoryProject."""
+    project = await get_project(db, project_id)
+    if not project:
+        return None
+    project.process_type = process_type
+    project.process_label = process_label
+    project.process_parameters = process_parameters
+    project.process_subcategory = process_subcategory
+    project.operating_hours = operating_hours
+    project.energy_price_eur_kwh = energy_price_eur_kwh
+    await db.flush()
+    return await get_project(db, project.id)
+
+
 async def delete_project(db: AsyncSession, project_id: str) -> bool:
     """Delete a project by ID. Returns True if deleted."""
     project = await get_project(db, project_id)

@@ -15,6 +15,7 @@ from api.schemas.factory import (
     AddEquipmentRequest,
     CreateFactoryProjectRequest,
     PinchAnalysisRequest,
+    UpdateProcessRequest,
 )
 from engine.factory import EquipmentItem, analyze_factory
 
@@ -59,6 +60,12 @@ def _format_project(project: FactoryProject) -> dict:
         "equipment": [_format_equipment(eq) for eq in project.equipment],
         "created_at": project.created_at.isoformat(),
         "equipment_count": len(project.equipment),
+        "process_type": project.process_type,
+        "process_label": project.process_label,
+        "process_parameters": project.process_parameters,
+        "process_subcategory": project.process_subcategory,
+        "operating_hours": project.operating_hours,
+        "energy_price_eur_kwh": project.energy_price_eur_kwh,
     }
 
 
@@ -93,6 +100,19 @@ async def create_project(
         description=request.description,
         owner_id=current_user.id if current_user else None,
     )
+    # Set process fields if provided
+    if request.process_type:
+        await crud.update_project_process(
+            db,
+            project.id,
+            process_type=request.process_type,
+            process_label=request.process_label,
+            process_parameters=request.process_parameters,
+            process_subcategory=request.process_subcategory,
+            operating_hours=request.operating_hours,
+            energy_price_eur_kwh=request.energy_price_eur_kwh,
+        )
+        project = await crud.get_project(db, project.id)
     return {"success": True, "project": _format_project(project)}
 
 
@@ -212,6 +232,34 @@ async def analyze_factory_project(
                     db, eq.id, eq_result.get("analysis")
                 )
 
+    # Gap analysis (if process definition exists on project)
+    gap_analysis_data = None
+    if project.process_type:
+        try:
+            from engine.process_exergy import ProcessDefinition
+            from engine.gap_analysis import analyze_gap
+
+            process_def = ProcessDefinition(
+                process_type=project.process_type,
+                process_label=project.process_label or "",
+                parameters=project.process_parameters or {},
+                subcategory=project.process_subcategory or "general",
+                operating_hours=project.operating_hours or 6000,
+                energy_price_eur_kwh=project.energy_price_eur_kwh or 0.08,
+            )
+
+            gap_result = analyze_gap(
+                process_def=process_def,
+                equipment_results=result.equipment_results,
+                aggregates=result.aggregates,
+                hotspots=result.hotspots,
+                energy_price_eur_kwh=process_def.energy_price_eur_kwh,
+                operating_hours=process_def.operating_hours,
+            )
+            gap_analysis_data = gap_result.to_dict()
+        except Exception:
+            logger.exception("Gap analysis failed (non-critical)")
+
     response = {
         "success": True,
         "project_id": project_id,
@@ -225,8 +273,57 @@ async def analyze_factory_project(
         "entropy_generation": result.entropy_generation,
         "thermoeconomic_optimization": result.thermoeconomic_optimization,
         "energy_management": result.energy_management,
+        "gap_analysis": gap_analysis_data,
     }
     return response
+
+
+# ---------------------------------------------------------------------------
+# Process types / Gap analysis endpoints
+# ---------------------------------------------------------------------------
+
+@router.get("/factory/process-types")
+async def get_process_types_endpoint():
+    """Tüm desteklenen proses tiplerini döndürür."""
+    from engine.process_exergy import get_process_types
+    return {"success": True, "process_types": get_process_types()}
+
+
+@router.get("/factory/process-types/{process_type}/subcategories")
+async def get_subcategories_endpoint(process_type: str):
+    """Bir proses tipi için BAT alt kategorilerini döndürür."""
+    from engine.bat_references import get_available_subcategories
+    try:
+        subcategories = get_available_subcategories(process_type)
+        return {"success": True, "subcategories": subcategories}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.put("/factory/projects/{project_id}/process")
+async def update_process_definition(
+    project_id: str,
+    request: UpdateProcessRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_current_user),
+):
+    """Mevcut projenin proses tanımını günceller."""
+    project = await crud.get_project(db, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    _check_ownership(project, current_user)
+
+    project = await crud.update_project_process(
+        db,
+        project_id=project_id,
+        process_type=request.process_type,
+        process_label=request.process_label,
+        process_parameters=request.process_parameters,
+        process_subcategory=request.process_subcategory,
+        operating_hours=request.operating_hours,
+        energy_price_eur_kwh=request.energy_price_eur_kwh,
+    )
+    return {"success": True, "project": _format_project(project)}
 
 
 # ---------------------------------------------------------------------------

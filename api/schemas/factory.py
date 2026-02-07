@@ -27,6 +27,22 @@ class CreateFactoryProjectRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=200, description="Proje adi")
     sector: Optional[str] = Field(None, description="Sektor (textile, food, chemical, metal, cement, paper, automotive)")
     description: Optional[str] = Field(None, description="Proje aciklamasi")
+    process_type: Optional[str] = Field(None, description="Proses tipi (drying, heating, cooling, ...)")
+    process_label: Optional[str] = Field(None, description="Proses aciklamasi")
+    process_parameters: Optional[dict] = Field(None, description="Proses parametreleri")
+    process_subcategory: Optional[str] = Field(None, description="BAT alt kategori")
+    operating_hours: Optional[float] = Field(None, description="Yillik calisma saati")
+    energy_price_eur_kwh: Optional[float] = Field(None, description="Enerji fiyati EUR/kWh")
+
+
+class UpdateProcessRequest(BaseModel):
+    """Mevcut projeye proses tanımı ekleme/güncelleme."""
+    process_type: str = Field(..., description="Proses tipi")
+    process_label: str = Field("", description="Proses aciklamasi")
+    process_parameters: dict = Field(..., description="Proses parametreleri")
+    process_subcategory: Optional[str] = Field("general", description="BAT alt kategori")
+    operating_hours: Optional[float] = Field(6000, description="Yillik calisma saati")
+    energy_price_eur_kwh: Optional[float] = Field(0.08, description="Enerji fiyati EUR/kWh")
 
 
 class AddEquipmentRequest(BaseModel):
@@ -53,6 +69,12 @@ class FactoryProjectResponse(BaseModel):
     equipment: List[EquipmentItemResponse] = []
     created_at: str
     equipment_count: int = 0
+    process_type: Optional[str] = None
+    process_label: Optional[str] = None
+    process_parameters: Optional[dict] = None
+    process_subcategory: Optional[str] = None
+    operating_hours: Optional[float] = None
+    energy_price_eur_kwh: Optional[float] = None
 
 
 class PinchAnalysisRequest(BaseModel):
@@ -75,3 +97,4 @@ class FactoryAnalysisResponse(BaseModel):
     entropy_generation: Optional[dict] = None
     thermoeconomic_optimization: Optional[dict] = None
     energy_management: Optional[dict] = None
+    gap_analysis: Optional[dict] = None

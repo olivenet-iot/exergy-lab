@@ -192,6 +192,22 @@ Fabrika seviyesi exergy analizi, çapraz ekipman entegrasyonu ve sektörel karş
 | `worked_examples/chp_optimization.md` | 500 kWe CHP çok amaçlı optimizasyon | Sistem seviyesi örnek |
 | `worked_examples/factory_optimization.md` | Tekstil fabrikası portföy optimizasyonu | Fabrika seviyesi örnek |
 
+### Proses Boşluk Analizi Bilgi Tabanı (`process/`)
+| Dosya | Açıklama | Öncelik | Kullanım |
+|-------|----------|---------|----------|
+| `process/index.md` | Proses bilgi tabanı navigasyon haritası | Yüksek | Proses bilgi tabanı girişi |
+| `process/gap_analysis_methodology.md` | 3 katmanlı boşluk modeli, ESI, BPR formülleri | Yüksek | Proses analizi temel referans |
+| `process/bat_overview.md` | BAT kavramı, EU BREF sistemi, exergy dönüşümü | Yüksek | BAT değerleri yorumlanırken |
+| `process/sustainability_index.md` | ESI tanımı, A-F derecelendirme, sektörel tipik değerler | Yüksek | ESI sonuçları yorumlanırken |
+| `process/heating.md` | Isıtma prosesi — Ex_min, BAT, ESI, iyileştirme | Yüksek | Isıtma/kazan analizi |
+| `process/steam_generation.md` | Buhar üretimi — 10 bar ≈ 819 kJ/kg, BAT η_ex | Yüksek | Buhar sistemi analizi |
+| `process/compressed_air.md` | Basınçlı hava — W_min, sistem ESI, kaçak analizi | Yüksek | Basınçlı hava sistemi analizi |
+| `process/cooling.md` | Soğutma — ters Carnot, COP, free cooling | Yüksek | Chiller/soğutma analizi |
+| `process/cold_storage.md` | Soğuk depolama — 3 sıcaklık katmanı, izolasyon | Orta | Soğuk depo analizi |
+| `process/drying.md` | Kurutma — SEC, SMER, ısı pompalı kurutucu | Yüksek | Kurutucu analizi |
+| `process/chp.md` | CHP — FUF vs η_ex farkı, CCGT, gaz türbini | Yüksek | CHP/kojenerasyon analizi |
+| `process/general_manufacturing.md` | Çimento, cam, kağıt, şeker — sektörel BAT | Orta | Spesifik üretim sektörleri |
+
 ### Sektöre Özel Dosyalar (`sector_*.md`)
 | Dosya | Sektör | Kullanım |
 |-------|--------|----------|
@@ -219,6 +235,8 @@ Fabrika seviyesi exergy analizi, çapraz ekipman entegrasyonu ve sektörel karş
 13. Toplam exergy yıkım maliyeti > 50.000 €/yıl veya çoklu yatırım kararı varsa `thermoeconomic_optimization/practical_guide.md` + `thermoeconomic_optimization/iterative_method.md` oku
 14. Exergoekonomik analiz (Ċ_D, f_k, r_k, maliyet paylaştırma) gerektiğinde önce `exergoeconomic/INDEX.md` oku → navigasyon kurallarına göre ilgili dosyalara yönlen
 15. f_k/r_k tabanlı bileşen değerlendirmesi için `exergoeconomic/evaluation_criteria.md` + `exergoeconomic/optimization.md` oku
+16. Proses seviyesi boşluk analizi (ESI, BAT karşılaştırması) gerektiğinde önce `process/index.md` oku → ilgili proses dosyasına yönlen
+17. ESI derecelendirmesi veya proses bazlı benchmark gerektiğinde `process/sustainability_index.md` + `process/gap_analysis_methodology.md` + ilgili proses dosyasını oku
 
 ## Referanslar
 

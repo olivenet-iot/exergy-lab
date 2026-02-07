@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, JSON, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -51,6 +51,14 @@ class FactoryProject(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
+
+    # Process definition fields (gap analysis)
+    process_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    process_label: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    process_parameters: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    process_subcategory: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    operating_hours: Mapped[float | None] = mapped_column(Float, nullable=True)
+    energy_price_eur_kwh: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     owner: Mapped["User | None"] = relationship(back_populates="projects")
     equipment: Mapped[list["Equipment"]] = relationship(
@@ -118,6 +126,7 @@ class FactoryAnalysis(Base):
     hotspots: Mapped[dict] = mapped_column(JSON)
     integration_opportunities: Mapped[dict] = mapped_column(JSON)
     sankey_data: Mapped[dict] = mapped_column(JSON)
+    gap_analysis: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     analyzed_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
     project: Mapped["FactoryProject"] = relationship(back_populates="factory_analyses")
