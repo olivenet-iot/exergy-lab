@@ -1,6 +1,15 @@
 import { formatNumber, formatCurrency } from '../../utils/formatters';
 
-const FactoryMetricBar = ({ aggregates, integrationPotential }) => {
+const ESI_GRADE_COLORS = {
+  A: 'text-emerald-400',
+  B: 'text-green-400',
+  C: 'text-lime-400',
+  D: 'text-amber-400',
+  E: 'text-orange-400',
+  F: 'text-red-400',
+};
+
+const FactoryMetricBar = ({ aggregates, integrationPotential, gapAnalysis }) => {
   if (!aggregates) return null;
 
   const efficiency = aggregates.factory_exergy_efficiency_pct;
@@ -44,6 +53,23 @@ const FactoryMetricBar = ({ aggregates, integrationPotential }) => {
       highlight: true,
     },
   ];
+
+  // Add ESI grade and BAT gap cards when gap analysis data exists
+  if (gapAnalysis) {
+    const grade = gapAnalysis.grade || 'F';
+    cards.push({
+      label: 'ESI NOTU',
+      value: grade,
+      color: ESI_GRADE_COLORS[grade] || 'text-slate-400',
+    });
+    if (gapAnalysis.annual_bat_gap_cost_eur != null) {
+      cards.push({
+        label: 'BAT GAP',
+        value: formatCurrency(gapAnalysis.annual_bat_gap_cost_eur),
+        color: 'text-amber-400',
+      });
+    }
+  }
 
   return (
     <div className="bg-slate-800 rounded-xl px-4 py-4 flex items-stretch gap-0 overflow-x-auto">

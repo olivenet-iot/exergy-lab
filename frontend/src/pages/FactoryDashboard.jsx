@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Factory, Plus, Play, PackageOpen, Sparkles, Target, GitBranch, Thermometer, Layers, Activity, TrendingUp, Gauge, Package, Info } from 'lucide-react';
+import { Factory, Plus, Play, PackageOpen, Target, GitBranch, BarChart3, Microscope, Lightbulb, ClipboardList } from 'lucide-react';
 import {
   getFactoryProject,
   analyzeFactory,
@@ -14,55 +14,35 @@ import {
   runEnergyManagement,
 } from '../services/factoryApi';
 import Card from '../components/common/Card';
-import EquipmentInventory from '../components/factory/EquipmentInventory';
 import AddEquipmentModal from '../components/factory/AddEquipmentModal';
 import ProcessEditModal from '../components/factory/ProcessEditModal';
 import FactoryHeader from '../components/factory/FactoryHeader';
 import FactoryMetricBar from '../components/factory/FactoryMetricBar';
-import PriorityList from '../components/factory/PriorityList';
-import IntegrationPanel from '../components/factory/IntegrationPanel';
 import FactorySankeyV2 from '../components/factory/FactorySankeyV2';
-import FactoryAIPanel from '../components/factory/FactoryAIPanel';
-import PinchTab from '../components/pinch/PinchTab';
-import AdvancedExergyTab from '../components/advanced-exergy/AdvancedExergyTab';
-import EntropyGenerationTab from '../components/entropy-generation/EntropyGenerationTab';
-import ThermoeconomicTab from '../components/thermoeconomic/ThermoeconomicTab';
-import EnergyManagementTab from '../components/energy-management/EnergyManagementTab';
+import EquipmentInventory from '../components/factory/EquipmentInventory';
+import GapAnalysisTab from '../components/factory/GapAnalysisTab';
+import OverviewTab from '../components/factory/OverviewTab';
+import DeepAnalysisTab from '../components/factory/DeepAnalysisTab';
+import ActionPlanTab from '../components/factory/ActionPlanTab';
+import ManagementTab from '../components/factory/ManagementTab';
 
-/* ---------- Tab definitions ---------- */
+/* ---------- Tab definitions (6 tabs) ---------- */
 const TABS = [
-  { id: 'ai', label: 'AI Yorum', icon: Sparkles },
-  { id: 'priorities', label: 'Öncelikler', icon: Target },
-  { id: 'sankey', label: 'Sankey', icon: GitBranch },
-  { id: 'pinch', label: 'Pinch', icon: Thermometer },
-  { id: 'advanced', label: 'İleri Exergy', icon: Layers },
-  { id: 'egm', label: 'EGM', icon: Activity },
-  { id: 'thermo', label: 'Termoekonomik', icon: TrendingUp },
-  { id: 'energy', label: 'Enerji Yönetimi', icon: Gauge },
-  { id: 'inventory', label: 'Envanter', icon: Package },
+  { id: 'process', label: 'Proses', icon: Target },
+  { id: 'overview', label: 'Genel Bakış', icon: BarChart3 },
+  { id: 'flow', label: 'Sankey', icon: GitBranch },
+  { id: 'deep', label: 'Derin Analiz', icon: Microscope },
+  { id: 'action', label: 'Aksiyon Planı', icon: Lightbulb },
+  { id: 'management', label: 'Yönetim', icon: ClipboardList },
 ];
 
 /* ---------- Empty state placeholder ---------- */
-const EmptyTabState = ({ label, onRun, isLoading }) => (
+const EmptyTabState = ({ label }) => (
   <div className="flex flex-col items-center justify-center py-16 text-center">
     <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-4">
       <Play className="w-5 h-5 text-slate-400" />
     </div>
-    <p className="text-slate-500 mb-4">Bu analiz henüz çalıştırılmadı.</p>
-    {onRun && (
-      <button
-        onClick={onRun}
-        disabled={isLoading}
-        className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50"
-      >
-        {isLoading ? (
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-        ) : (
-          <Play className="w-4 h-4" />
-        )}
-        Çalıştır
-      </button>
-    )}
+    <p className="text-slate-500 mb-4">{label || 'Bu analiz'} henüz çalıştırılmadı.</p>
   </div>
 );
 
@@ -84,7 +64,7 @@ const FactoryDashboard = () => {
   const [egmLoading, setEgmLoading] = useState(false);
   const [thermoOptLoading, setThermoOptLoading] = useState(false);
   const [emLoading, setEmLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('ai');
+  const [activeTab, setActiveTab] = useState('overview');
 
   const fetchProject = async () => {
     try {
@@ -100,6 +80,13 @@ const FactoryDashboard = () => {
   useEffect(() => {
     fetchProject();
   }, [projectId]);
+
+  // Set default tab based on project state
+  useEffect(() => {
+    if (project?.process_type) {
+      setActiveTab('process');
+    }
+  }, [project?.process_type]);
 
   const handleAnalyze = async () => {
     setAnalyzing(true);
@@ -265,60 +252,54 @@ const FactoryDashboard = () => {
     (sum, opp) => sum + (opp.estimated_savings_EUR_year || 0),
     0
   ) || null;
+  const gapAnalysis = analysisResult?.gap_analysis;
 
-  // Tab status: green dot if data exists
+  // Tab status: determines dot color
   const tabHasData = {
-    ai: !!interpretation || interpreting,
-    priorities: !!analysisResult?.hotspots,
-    sankey: !!analysisResult?.sankey,
-    pinch: !!analysisResult?.pinch_analysis,
-    advanced: !!analysisResult?.advanced_exergy,
-    egm: !!analysisResult?.entropy_generation,
-    thermo: !!analysisResult?.thermoeconomic_optimization,
-    energy: !!analysisResult?.energy_management,
-    inventory: true,
+    process: !!gapAnalysis,
+    overview: !!interpretation || interpreting || !!analysisResult?.hotspots,
+    flow: !!analysisResult?.sankey,
+    deep: !!(analysisResult?.pinch_analysis || analysisResult?.advanced_exergy || analysisResult?.entropy_generation),
+    action: !!analysisResult?.thermoeconomic_optimization,
+    management: true,
+  };
+
+  // Process tab special 3-color logic
+  const getProcessDotColor = () => {
+    if (gapAnalysis) return 'bg-emerald-500';
+    if (project.process_type) return 'bg-amber-400';
+    return null; // no dot
   };
 
   // Render tab content
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'ai':
+      case 'process':
         return (
-          <FactoryAIPanel
+          <GapAnalysisTab
+            analysisResult={analysisResult}
+            project={project}
+            onAddProcess={() => setShowProcessModal(true)}
+            onEditProcess={() => setShowProcessModal(true)}
+          />
+        );
+
+      case 'overview':
+        return (
+          <OverviewTab
             interpretation={interpretation}
-            loading={interpreting}
+            interpreting={interpreting}
             onRequestAI={handleInterpret}
             hasAnalysis={hasAnalysis}
             analysisResult={analysisResult}
             projectId={projectId}
             sector={project?.sector}
+            onEquipmentClick={handleEquipmentClick}
+            onSwitchTab={setActiveTab}
           />
         );
 
-      case 'priorities':
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <Card title="İyileştirme Öncelik Listesi">
-                <PriorityList
-                  hotspots={analysisResult?.hotspots}
-                  equipmentResults={analysisResult?.equipment_results}
-                  totalDestroyed={aggregates?.total_exergy_destroyed_kW}
-                  onEquipmentClick={handleEquipmentClick}
-                />
-              </Card>
-            </div>
-            <div>
-              <Card title="Entegrasyon Fırsatları">
-                <IntegrationPanel
-                  opportunities={analysisResult?.integration_opportunities}
-                />
-              </Card>
-            </div>
-          </div>
-        );
-
-      case 'sankey':
+      case 'flow':
         return analysisResult?.sankey ? (
           <Card title="Fabrika Exergy Akış Diyagramı">
             <FactorySankeyV2
@@ -334,69 +315,37 @@ const FactoryDashboard = () => {
           <Card><EmptyTabState label="Sankey" /></Card>
         );
 
-      case 'pinch':
-        return analysisResult?.pinch_analysis ? (
-          <PinchTab
-            pinchData={analysisResult.pinch_analysis}
-            onRerun={handlePinchRerun}
-            isLoading={pinchLoading}
-          />
-        ) : (
-          <Card><EmptyTabState label="Pinch" onRun={() => handlePinchRerun({ delta_T_min_C: 10 })} isLoading={pinchLoading} /></Card>
-        );
-
-      case 'advanced':
-        return analysisResult?.advanced_exergy ? (
-          <AdvancedExergyTab
-            advancedExergyData={analysisResult.advanced_exergy}
-            onRerun={handleAdvancedExergyRerun}
-            isLoading={advExergyLoading}
-          />
-        ) : (
-          <Card><EmptyTabState label="İleri Exergy" onRun={handleAdvancedExergyRerun} isLoading={advExergyLoading} /></Card>
-        );
-
-      case 'egm':
-        return analysisResult?.entropy_generation ? (
-          <EntropyGenerationTab
-            entropyData={analysisResult.entropy_generation}
-            onRerun={handleEGMRerun}
-            isLoading={egmLoading}
-          />
-        ) : (
-          <Card><EmptyTabState label="EGM" onRun={handleEGMRerun} isLoading={egmLoading} /></Card>
-        );
-
-      case 'thermo':
-        return analysisResult?.thermoeconomic_optimization ? (
-          <ThermoeconomicTab
-            thermoData={analysisResult.thermoeconomic_optimization}
-            onRerun={handleThermoOptRerun}
-            isLoading={thermoOptLoading}
-          />
-        ) : (
-          <Card><EmptyTabState label="Termoekonomik" onRun={handleThermoOptRerun} isLoading={thermoOptLoading} /></Card>
-        );
-
-      case 'energy':
-        return analysisResult?.energy_management ? (
-          <EnergyManagementTab
-            emData={analysisResult.energy_management}
-            onRerun={handleEMRerun}
-            isLoading={emLoading}
-          />
-        ) : (
-          <Card><EmptyTabState label="Enerji Yönetimi" onRun={handleEMRerun} isLoading={emLoading} /></Card>
-        );
-
-      case 'inventory':
+      case 'deep':
         return (
-          <Card title="Ekipman Envanteri">
-            <EquipmentInventory
-              equipment={project.equipment || []}
-              onRemove={handleRemoveEquipment}
-            />
-          </Card>
+          <DeepAnalysisTab
+            analysisResult={analysisResult}
+            pinchLoading={pinchLoading}
+            advExergyLoading={advExergyLoading}
+            egmLoading={egmLoading}
+            onPinchRerun={handlePinchRerun}
+            onAdvancedExergyRerun={handleAdvancedExergyRerun}
+            onEGMRerun={handleEGMRerun}
+          />
+        );
+
+      case 'action':
+        return (
+          <ActionPlanTab
+            analysisResult={analysisResult}
+            thermoOptLoading={thermoOptLoading}
+            onThermoOptRerun={handleThermoOptRerun}
+          />
+        );
+
+      case 'management':
+        return (
+          <ManagementTab
+            analysisResult={analysisResult}
+            emLoading={emLoading}
+            onEMRerun={handleEMRerun}
+            equipment={project.equipment}
+            onRemoveEquipment={handleRemoveEquipment}
+          />
         );
 
       default:
@@ -443,33 +392,6 @@ const FactoryDashboard = () => {
         </Card>
       )}
 
-      {/* Process CTA banner */}
-      {!project.process_type && hasEquipment && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-5">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="font-medium text-amber-800 mb-1">Proses tanımı eklenmemiş.</p>
-              <p className="text-sm text-amber-700 mb-3">
-                Proses tanımı ekleyerek şunları öğrenebilirsiniz:
-              </p>
-              <ul className="text-sm text-amber-700 mb-3 list-disc list-inside">
-                <li>Termodinamik ideale ne kadar uzaksınız</li>
-                <li>En iyi teknoloji ile kıyaslama</li>
-                <li>Yıllık tasarruf potansiyeli</li>
-              </ul>
-              <button
-                onClick={() => setShowProcessModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Proses Tanımı Ekle
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Mode 2: Has equipment, no analysis */}
       {hasEquipment && !hasAnalysis && (
         <>
@@ -513,6 +435,7 @@ const FactoryDashboard = () => {
           <FactoryMetricBar
             aggregates={aggregates}
             integrationPotential={integrationPotential}
+            gapAnalysis={gapAnalysis}
           />
 
           {/* Tab Bar */}
@@ -522,7 +445,7 @@ const FactoryDashboard = () => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
                 const hasData = tabHasData[tab.id];
-                const isAILoading = tab.id === 'ai' && interpreting;
+                const isOverviewLoading = tab.id === 'overview' && interpreting;
 
                 return (
                   <button
@@ -537,14 +460,21 @@ const FactoryDashboard = () => {
                     <Icon className="w-4 h-4" />
                     {tab.label}
                     {/* Status dot */}
-                    {tab.id === 'ai' ? (
+                    {tab.id === 'process' ? (
+                      (() => {
+                        const dotColor = getProcessDotColor();
+                        return dotColor ? (
+                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
+                        ) : null;
+                      })()
+                    ) : tab.id === 'overview' ? (
                       (interpretation || interpreting) && (
                         <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                          isAILoading ? 'bg-violet-400 animate-pulse' : 'bg-violet-500'
+                          isOverviewLoading ? 'bg-violet-400 animate-pulse' : 'bg-violet-500'
                         }`} />
                       )
                     ) : (
-                      hasData && tab.id !== 'inventory' && (
+                      hasData && tab.id !== 'management' && (
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
                       )
                     )}

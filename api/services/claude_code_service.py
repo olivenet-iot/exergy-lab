@@ -1031,6 +1031,93 @@ def _format_energy_management_for_prompt(project: dict) -> str:
         return ""
 
 
+def _format_gap_analysis_for_prompt(project: dict) -> str:
+    """Format gap analysis data for AI prompt, if process definition exists.
+
+    Reconstructs ProcessDefinition from project fields, runs analyze_gap(),
+    and formats key metrics. Max ~500 chars.
+    """
+    try:
+        process_type = project.get("process_type")
+        if not process_type:
+            return ""
+
+        from engine.process_exergy import ProcessDefinition
+        from engine.gap_analysis import analyze_gap
+        from engine.factory import EquipmentItem
+
+        # Build ProcessDefinition from project fields
+        import json
+        raw_params = project.get("process_parameters") or "{}"
+        if isinstance(raw_params, str):
+            params = json.loads(raw_params)
+        else:
+            params = raw_params
+
+        process_def = ProcessDefinition(
+            process_type=process_type,
+            process_label=project.get("process_label", ""),
+            parameters=params,
+            subcategory=project.get("process_subcategory") or "general",
+            operating_hours=project.get("operating_hours") or 6000,
+            energy_price_eur_kwh=project.get("energy_price_eur_kwh") or 0.08,
+        )
+
+        # Build equipment items and results for gap analysis
+        equipment_list = project.get("equipment", [])
+        items = []
+        results_dict = {}
+        for eq in equipment_list:
+            result = eq.get("analysis_result")
+            if not result:
+                continue
+            eq_id = eq.get("id", "")
+            items.append(EquipmentItem(
+                id=eq_id,
+                name=eq.get("name", "N/A"),
+                equipment_type=eq.get("type", ""),
+                subtype=eq.get("subtype", ""),
+                parameters=eq.get("parameters", {}),
+            ))
+            results_dict[eq_id] = result
+
+        if not items:
+            return ""
+
+        # Calculate aggregates for actual_kW
+        total_input = sum(
+            r.get("exergy_input_kW", 0) for r in results_dict.values()
+        )
+        aggregates = {"total_exergy_input_kW": total_input}
+
+        gap = analyze_gap(process_def, items, results_dict, aggregates)
+        if not gap:
+            return ""
+
+        lines = [
+            "## Gap Analizi",
+            f"- Proses: {process_type} ({gap.subcategory}), ESI: {gap.exergetic_sustainability_index:.3f} ({gap.grade})",
+            f"- 3 katman: min={gap.minimum_exergy_kW:.1f} kW, BAT={gap.bat_exergy_kW:.1f} kW, mevcut={gap.actual_exergy_kW:.1f} kW",
+            f"- BAT gap: {gap.bat_gap_kW:.1f} kW (%{gap.bat_gap_pct:.1f}), maliyet: {gap.annual_bat_gap_cost_eur:.0f} EUR/yil",
+            f"- BAT teknoloji: {gap.bat_technology}",
+        ]
+
+        # Top gap contributors
+        top_gaps = gap.gap_distribution[:3] if gap.gap_distribution else []
+        if top_gaps:
+            contribs = ", ".join(
+                f"{g['equipment_name']}(%{g['gap_share_pct']:.0f})" for g in top_gaps
+            )
+            lines.append(f"- En buyuk katkilar: {contribs}")
+
+        result = "\n".join(lines)
+        if len(result) > 500:
+            result = result[:480] + "\n[...truncated...]"
+        return result
+    except Exception:
+        return ""
+
+
 def _format_factory_for_prompt(project: dict, max_equipment: int = 10) -> str:
     """Format factory data for AI prompt with size limits.
 
@@ -1168,6 +1255,11 @@ async def interpret_factory_analysis(
     em_summary = _format_energy_management_for_prompt(project)
     if em_summary:
         analysis_summary += "\n\n" + em_summary
+
+    # Append gap analysis summary if process definition exists
+    gap_summary = _format_gap_analysis_for_prompt(project)
+    if gap_summary:
+        analysis_summary += "\n\n" + gap_summary
 
     sector_label = sector or project.get("sector") or "genel"
 
