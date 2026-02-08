@@ -1,9 +1,9 @@
 # ExergyLab - Kapsamli Proje Analizi
 
-> **Son Guncelleme:** 2026-02-07
-> **Versiyon:** 3.1
+> **Son Guncelleme:** 2026-02-08
+> **Versiyon:** 4.0
 > **Durum:** Uretim (Production)
-> **HEAD:** 32980c8
+> **HEAD:** 3745538
 
 ---
 
@@ -26,9 +26,9 @@
 
 ## 1. Proje Ozeti
 
-ExergyLab, 7 endustriyel ekipman tipinin ve fabrikalarin exergy analizini yapan, 6 ileri analiz motoru ve AI destekli yorumlar sunan bir enerji verimliligi platformudur. Termodinamigin ikinci yasasina dayali exergy analizi, klasik enerji verimliliginden farkli olarak termodinamik kalitenin gercek olcumunu saglar: dusuk sicakliktaki isi dusuk exergy tasir, yuksek sicakliktaki isi yuksek exergy tasir.
+ExergyLab, 7 endustriyel ekipman tipinin ve fabrikalarin exergy analizini yapan, 7 analiz motoru (6 ileri analiz + gap analizi) ve AI destekli yorumlar sunan bir enerji verimliligi platformudur. Termodinamigin ikinci yasasina dayali exergy analizi, klasik enerji verimliliginden farkli olarak termodinamik kalitenin gercek olcumunu saglar: dusuk sicakliktaki isi dusuk exergy tasir, yuksek sicakliktaki isi yuksek exergy tasir.
 
-Platform; kompresor, kazan, chiller, pompa, isi esanjoru, buhar turbini ve kurutma firini icin tek ekipman analizinden, coklu ekipman fabrika agregasyonuna, Linnhoff pinch analizinden Tsatsaronis ileri exergy dekompozisyonuna, Bejan entropi uretim minimizasyonundan ISO 50001 enerji yonetim denetimlerine kadar genis bir analiz yelpazesi sunar.
+Platform; kompresor, kazan, chiller, pompa, isi esanjoru, buhar turbini ve kurutma firini icin tek ekipman analizinden, coklu ekipman fabrika agregasyonuna, Linnhoff pinch analizinden Tsatsaronis ileri exergy dekompozisyonuna, Bejan entropi uretim minimizasyonundan ISO 50001 enerji yonetim denetimlerine, 3 katmanli exerjetik gap analizinden (minimum/BAT/gercek) Grassmann 5-katman Sankey diyagramlarina kadar genis bir analiz yelpazesi sunar.
 
 Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark grafikleri, composite curve ve GCC gorsellestirmeleri saglarken, backend katmani FastAPI + CoolProp + SQLAlchemy ile termodinamik hesaplamalari, veritabani kaliciligini ve Claude API uzerinden Turkce AI yorumlamayi yonetir.
 
@@ -38,13 +38,15 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 |---------|----------|
 | 7 Ekipman Tipi | Kompresor, kazan, chiller, pompa, isi esanjoru, buhar turbini, kurutma firini |
 | 46 Alt Tip | Her ekipman icin detayli alt tip destegi |
-| 6 Ileri Analiz Motoru | Pinch, ileri exergy, exergoekonomik, termoekonomik opt., EGM, enerji yonetimi |
-| AI Yorumlama | Claude API ile Turkce teknik yorumlar (305 knowledge dosyasi) |
+| 7 Analiz Motoru | Pinch, ileri exergy, exergoekonomik, termoekonomik opt., EGM, enerji yonetimi + gap analizi |
+| Gap Analizi | 3 katmanli exerjetik gap analizi (minimum/BAT/gercek), ESI A-F not, 8 proses tipi |
+| AI Yorumlama | Claude API ile Turkce teknik yorumlar (317 knowledge dosyasi) |
 | What-If Senaryolar | Baseline vs senaryo karsilastirmasi (7 ekipman) |
 | Radar Benchmark | 6 eksenli performans degerlendirme (A-F not) |
 | AV/UN Ayrisim | Kacinilinabilir/kacinilmaz exergy yikim analizi (Tsatsaronis) |
 | Exergoekonomik | SPECO metodolojisi, f-faktor, r-faktor, 7 tip maliyet korelasyonu |
 | Fabrika Analizi | Coklu ekipman agregasyonu, hotspot tespiti, entegrasyon firsatlari |
+| Grassmann Sankey | 5 katmanli Sankey diyagrami, 3 gorunum modu (exergy_flow, destruction_focus, cost_flow) |
 | SQLite Kalicilik | Proje ve analiz sonuclarinin veritabaninda saklanmasi |
 | JWT Kimlik Dogrulama | Opsiyonel kullanici yetkilendirmesi |
 
@@ -64,20 +66,21 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 
 | Metrik | Deger |
 |--------|-------|
-| **Toplam Kod Satiri** | **30,080** |
-| Python satiri | 22,227 |
-| JS/JSX satiri | 7,853 |
-| Engine modulleri | 20 dosya (10,419 satir) |
-| API modulleri | 28 dosya (4,872 satir) |
-| Frontend dosyalari | 67 component + 6 sayfa (7,853 satir) |
-| Knowledge dosyalari | 305 |
-| Skill dosyalari | 17 |
-| Test dosyalari | 18 (17 test modulu + conftest + __init__) |
-| Test fonksiyonlari | 671 |
-| Test satiri | 6,936 |
-| API endpointleri | 25 |
+| **Toplam Kod Satiri** | **35,831** |
+| Python satiri | 25,976 |
+| JS/JSX satiri | 9,855 |
+| Engine modulleri | 24 dosya (12,596 satir) |
+| API modulleri | 22 dosya (5,018 satir) |
+| Frontend dosyalari | 75 component + 6 sayfa (9,855 satir) |
+| Knowledge dosyalari | 317 |
+| Skill dosyalari | 18 |
+| Test dosyalari | 23 (21 test modulu + conftest + __init__) |
+| Test fonksiyonlari | 787 |
+| Test satiri | 8,362 |
+| API endpointleri | 30 |
 | Veritabani tablolari | 6 |
 | Ekipman tipleri | 7 (46 alt tip) |
+| Proses tipleri | 8 (gap analizi) |
 
 ---
 
@@ -89,7 +92,7 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 +-------------------+         +-------------------+         +------------------+
 |                   |  HTTP   |                   |         |                  |
 |   React Frontend  | ------> |   FastAPI Backend  | ------> |  Engine Modules  |
-|   (Vite + Tailwind)|  /api  |   (REST API)      |         |  (20 dosya)      |
+|   (Vite + Tailwind)|  /api  |   (REST API)      |         |  (24 dosya)      |
 |                   |         |                   |         |                  |
 +-------------------+         +--------+----------+         +------------------+
                                        |
@@ -108,36 +111,36 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 ```
 exergy-lab/
 |
-|-- api/                              # FastAPI backend (4,872 satir, 28 dosya)
+|-- api/                              # FastAPI backend (5,018 satir, 22 dosya)
 |   |-- main.py                       # App, CORS, lifespan, router kaydi (66 satir)
 |   |-- auth/                         # Kimlik dogrulama (142 satir, 5 dosya)
 |   |   |-- config.py                 # JWT ayarlari (10 satir)
 |   |   |-- dependencies.py           # Auth dependency injection (66 satir)
 |   |   |-- schemas.py                # User/Token skemalari (26 satir)
 |   |   |-- security.py               # Parola hash, JWT olusturma (40 satir)
-|   |-- database/                     # Veritabani katmani (444 satir, 5 dosya)
+|   |-- database/                     # Veritabani katmani (480 satir, 5 dosya)
 |   |   |-- config.py                 # DB ayarlari (8 satir)
-|   |   |-- crud.py                   # CRUD operasyonlari (230 satir)
-|   |   |-- models.py                 # 6 SQLAlchemy modeli (145 satir)
-|   |   |-- session.py                # Oturum yonetimi (38 satir)
-|   |-- routes/                       # API endpointleri (1,926 satir, 8 dosya)
+|   |   |-- crud.py                   # CRUD operasyonlari (254 satir)
+|   |   |-- models.py                 # 6 SQLAlchemy modeli (154 satir)
+|   |   |-- session.py                # Oturum yonetimi (74 satir)
+|   |-- routes/                       # API endpointleri (2,023 satir, 8 dosya)
 |   |   |-- analysis.py               # Ekipman analizi dispatch (943 satir)
-|   |   |-- factory.py                # Fabrika CRUD + 6 ileri analiz (607 satir)
+|   |   |-- factory.py                # Fabrika CRUD + 6 ileri analiz + 3 proses endpoint (704 satir)
 |   |   |-- interpret.py              # AI yorumlama (62 satir)
 |   |   |-- chat.py                   # AI sohbet (75 satir)
 |   |   |-- benchmarks.py             # Benchmark verileri (93 satir)
 |   |   |-- solutions.py              # Cozum onerileri (85 satir)
 |   |   |-- auth.py                   # Kimlik dogrulama (60 satir)
-|   |-- schemas/                      # Pydantic modelleri (514 satir, 4 dosya)
+|   |-- schemas/                      # Pydantic modelleri (534 satir, 4 dosya)
 |   |   |-- requests.py               # Istek skemalari (211 satir)
-|   |   |-- responses.py              # Yanit skemalari (225 satir)
-|   |   |-- factory.py                # Fabrika skemalari (77 satir)
-|   |-- services/                     # Business logic (1,779 satir, 3 dosya)
-|       |-- claude_code_service.py     # AI entegrasyonu (1,332 satir)
+|   |   |-- responses.py              # Yanit skemalari (233 satir)
+|   |   |-- factory.py                # Fabrika skemalari (100 satir)
+|   |-- services/                     # Business logic (1,871 satir, 3 dosya)
+|       |-- claude_code_service.py     # AI entegrasyonu (1,424 satir)
 |       |-- equipment_registry.py      # Ekipman tip kayit defteri (173 satir)
 |       |-- knowledge_router.py        # Bilgi yonlendirme (274 satir)
 |
-|-- engine/                            # Exergy hesaplama motorlari (10,419 satir, 20 dosya)
+|-- engine/                            # Exergy hesaplama motorlari (12,596 satir, 24 dosya)
 |   |-- core.py                        # DeadState, ExergyResult (171 satir)
 |   |-- exergoeconomic.py             # SPECO analizi (292 satir)
 |   |-- compressor.py                  # Kompresor analizi (660 satir)
@@ -147,7 +150,11 @@ exergy-lab/
 |   |-- heat_exchanger.py             # Isi esanjoru analizi (525 satir)
 |   |-- steam_turbine.py              # Buhar turbini analizi (592 satir)
 |   |-- dryer.py                       # Kurutma firini analizi (567 satir)
-|   |-- factory.py                     # Fabrika agregasyonu (928 satir)
+|   |-- factory.py                     # Fabrika agregasyonu (810 satir)
+|   |-- factory_sankey_v2.py           # Grassmann 5-katman Sankey (1,030 satir) [YENi]
+|   |-- process_exergy.py             # Proses minimum exergy hesaplama (648 satir) [YENi]
+|   |-- bat_references.py             # BAT veritabani (266 satir) [YENi]
+|   |-- gap_analysis.py               # 3 katmanli gap analizi (341 satir) [YENi]
 |   |-- pinch.py                       # Pinch analizi (1,071 satir)
 |   |-- advanced_exergy.py            # Ileri exergy dekompozisyonu (888 satir)
 |   |-- entropy_generation.py         # EGM, Bejan sayisi (617 satir)
@@ -157,9 +164,9 @@ exergy-lab/
 |   |-- radar.py                       # Radar benchmark (159 satir)
 |   |-- compare.py                     # What-if karsilastirma (155 satir)
 |   |-- utils.py                       # Yardimci fonksiyonlar (113 satir)
-|   |-- __init__.py                    # Modul baslangici (68 satir)
+|   |-- __init__.py                    # Modul baslangici (78 satir)
 |
-|-- knowledge/                         # AI Knowledge Base (305 dosya)
+|-- knowledge/                         # AI Knowledge Base (317 dosya)
 |   |-- INDEX.md                       # Navigasyon haritasi
 |   |-- compressor/                    # 19 dosya
 |   |-- boiler/                        # 23 dosya
@@ -168,35 +175,40 @@ exergy-lab/
 |   |-- heat_exchanger/                # 21 dosya
 |   |-- steam_turbine/                 # 23 dosya
 |   |-- dryer/                         # 26 dosya
-|   |-- factory/                       # 144 dosya
+|   |-- factory/                       # 156 dosya
 |       |-- pinch/                     # 18 dosya
 |       |-- advanced_exergy/           # 18 dosya
 |       |-- exergoeconomic/            # 18 dosya
 |       |-- thermoeconomic_optimization/ # 16 dosya
 |       |-- entropy_generation/        # 19 dosya
 |       |-- energy_management/         # 21 dosya
+|       |-- process/                   # 12 dosya [YENi]
 |       |-- (kok dosyalar)             # ~34 dosya
 |
-|-- skills/                            # AI Skill dosyalari (17 dosya)
+|-- skills/                            # AI Skill dosyalari (18 dosya)
 |   |-- core/                          # Temel beceriler (3 dosya)
 |   |-- equipment/                     # Ekipman uzmanlari (7 dosya)
-|   |-- factory/                       # Fabrika analisti (3 dosya)
+|   |-- factory/                       # Fabrika analisti (4 dosya) [+1 yeni]
+|   |   |-- factory_analyst.md
+|   |   |-- integration_expert.md
+|   |   |-- economic_advisor.md
+|   |   |-- process_analyst.md         # Proses analizi becerisi [YENi]
 |   |-- output/                        # Cikti formati (1 dosya)
 |   |-- README.md                      # Skill sistemi aciklamasi
 |   |-- SKILL_exergy_calculator.md     # Legacy skill
 |   |-- SKILL_exergy_interpreter.md    # Legacy skill
 |
-|-- frontend/                          # React frontend (7,853 satir)
+|-- frontend/                          # React frontend (9,855 satir)
 |   |-- src/
-|       |-- pages/                     # 6 sayfa (1,453 satir)
-|       |-- components/                # 67 component (5,806 satir)
-|       |-- services/                  # API istemcileri (293 satir)
+|       |-- pages/                     # 6 sayfa (1,517 satir)
+|       |-- components/                # 75 component (7,729 satir)
+|       |-- services/                  # API istemcileri (308 satir)
 |       |-- hooks/                     # Custom hooks (100 satir)
 |       |-- utils/                     # Yardimci fonksiyonlar (151 satir, 4 dosya)
-|       |-- App.jsx                    # Routing (41 satir)
-|       |-- main.jsx                   # Giris noktasi
+|       |-- App.jsx                    # Routing (40 satir)
+|       |-- main.jsx                   # Giris noktasi (10 satir)
 |
-|-- tests/                             # Pytest testleri (6,936 satir, 18 dosya)
+|-- tests/                             # Pytest testleri (8,362 satir, 23 dosya)
 |
 |-- requirements.txt                   # Python bagimliliklari (17 paket)
 |-- CLAUDE.md                         # Proje talimat dosyasi
@@ -245,6 +257,13 @@ analyze_factory() -- Fabrika Agregasyon Pipeline (10 adim)
 FactoryAnalysisResult --> JSON API Response --> React Dashboard
     |
     v
+POST /api/factory/projects/{id}/gap-analysis (ayri endpoint)
+    |
+    +---> process_exergy.py: ProcessDefinition → minimum exergy hesaplama
+    +---> bat_references.py: BAT referans verileri (8 proses tipi)
+    +---> gap_analysis.py: 3 katmanli gap (minimum/BAT/gercek) + ESI grade
+    |
+    v
 POST /api/interpret | /api/factory/projects/{id}/interpret
     |
     v
@@ -258,7 +277,7 @@ AI Turkce Yorum (JSON: ozet, analiz, oneriler, aksiyon plani)
 
 ## 3. Engine Katmani (Detayli)
 
-20 Python dosyasi, toplam **10,419 satir**.
+24 Python dosyasi, toplam **12,596 satir**.
 
 ### 3.1 Temel Analiz Motorlari
 
@@ -378,7 +397,7 @@ Her ekipman modulu asagidaki standart yapiyi izler:
 | steam_turbine.py | 592 | 5 (back_pressure, condensing, extraction, orc, micro_turbine) | `analyze_steam_turbine()` |
 | dryer.py | 567 | 11 (convective, rotary, fluidized_bed, spray, belt, heat_pump, infrared, drum, conveyor, tray, microwave) | `analyze_dryer()` |
 
-### 3.4 Fabrika Agregasyonu -- factory.py (928 satir)
+### 3.4 Fabrika Agregasyonu -- factory.py (810 satir)
 
 **Siniflar:**
 
@@ -727,11 +746,135 @@ Her fonksiyon donusu: `(score: int, findings: List[str], gaps: List[str])`
 
 **Ana Orkestrator:** `analyze_energy_management(factory_dict)` → `EnergyManagementResult`
 
+### 3.6 Gap Analizi Motoru (3 dosya, 1,255 satir) [YENi]
+
+3 katmanli exerjetik gap analizi: minimum termodinamik sinir, BAT (En Iyi Mevcut Teknoloji) referansi ve mevcut tesis performansi arasindaki farki olcer.
+
+#### 3.6.1 Proses Exergy Hesaplama -- process_exergy.py (648 satir)
+
+**Siniflar:**
+
+`ProcessDefinition` -- Proses tanimi:
+- `process_type: str` -- 8 proses tipinden biri
+- `label: str` -- Kullanici tanimli etiket
+- `parameters: dict` -- Proses spesifik parametreler
+- `subcategory: Optional[str]` -- BAT alt kategorisi
+- `operating_hours: float = 8000`
+- `energy_price_eur_kwh: float = 0.08`
+
+**Desteklenen 8 Proses Tipi:**
+
+| Proses Tipi | Turkce | Tipik Parametreler | Minimum Exergy Hesaplama |
+|-------------|--------|-------------------|--------------------------|
+| drying | Kurutma | urun debisi, nem oranlari, sicakliklar | Buharlasmahız entalpisi + sensible isitma |
+| heating | Isitma | isi kapasitesi, sicaklik farki | Carnot bazli: Q * (1 - T0/T) |
+| cooling | Sogutma | sogutma kapasitesi, sicakliklar | Ters Carnot: Q * (T0/T - 1) |
+| steam_generation | Buhar Uretimi | buhar debisi, basinc, sicaklik | CoolProp veya interpolasyon tablosu |
+| compressed_air | Basincli Hava | debi, basinc, izotermite | Izentropik/izotermik kompresyon |
+| chp | Kojenerasyon | elektrik + isi ciktisi | W_e + Q * (1 - T0/T_h) |
+| cold_storage | Soguk Depolama | sogutma yuku, sicaklik | Carnot bazli COP siniri |
+| general_manufacturing | Genel Uretim | toplam enerji, verimlilik | Basitlestirilmis exergy orani |
+
+**Fonksiyonlar:**
+- `calculate_minimum_exergy(process_def: ProcessDefinition, dead_state: DeadState)` -- Proses tipine gore dispatcher
+- `_minimum_exergy_drying(params, dead_state)` -- Buharlasmahız + sensible
+- `_minimum_exergy_heating(params, dead_state)` -- Carnot isi exergisi
+- `_minimum_exergy_cooling(params, dead_state)` -- Sogutma exergisi
+- `_minimum_exergy_steam(params, dead_state)` -- CoolProp veya fallback tablo
+- `_minimum_exergy_compressed_air(params, dead_state)` -- Izentropik/izotermik
+- `_minimum_exergy_chp(params, dead_state)` -- Elektrik + isi exergisi
+- `_minimum_exergy_cold_storage(params, dead_state)` -- Soguk depolama
+- `_minimum_exergy_general(params, dead_state)` -- Genel uretim
+
+CoolProp opsiyoneldir; bulamadiginda `_steam_exergy_fallback()` interpolasyon tablosunu kullanir.
+
+#### 3.6.2 BAT Referans Veritabani -- bat_references.py (266 satir)
+
+**Ana Veri Yapisi:** `BAT_REFERENCES` -- 8 proses tipi x alt kategoriler
+
+Her BAT kaydinda:
+- `label: str` -- Turkce etiket
+- `specific_exergy_kwh_per_unit: float` -- Birim basina ozgul exergy tuketimi
+- `unit: str` -- Birim (orn: "kWh/kg su", "kWh/ton buhar")
+- `exergy_efficiency_pct: float` -- BAT exergy verimi
+- `technology: str` -- Referans teknoloji aciklamasi
+- `source: str` -- Akademik/endustriyel kaynak (EU BREF, IEA, vs.)
+
+**Fonksiyonlar:**
+- `get_bat_reference(process_type, subcategory=None)` -- BAT verisi al
+- `get_subcategories(process_type)` -- Alt kategori listesi
+- `SUPPORTED_PROCESS_TYPES` -- 8 desteklenen proses tipi listesi
+
+#### 3.6.3 Gap Analizi -- gap_analysis.py (341 satir)
+
+**Siniflar:**
+
+`GapAnalysisResult`:
+- **3 Katman (kW):**
+  - `minimum_exergy_kW` -- Termodinamik ideal (tersinir)
+  - `bat_exergy_kW` -- En Iyi Mevcut Teknoloji referansi
+  - `actual_exergy_kW` -- Mevcut tesis (fabrika agregat'indan)
+- **Gap Hesaplamalari:**
+  - `total_gap_kW = actual - minimum` -- Toplam iyilestirme potansiyeli
+  - `bat_gap_kW = actual - BAT` -- Gercekci iyilestirme hedefi
+  - `technology_gap_kW = BAT - minimum` -- Teknolojik sinir
+- **Endeksler:**
+  - `actual_to_minimum_ratio`, `actual_to_bat_ratio`
+  - `exergetic_sustainability_index` (ESI) -- Sureklilik endeksi
+  - `grade: str` -- A-F not (ESI bazli)
+- **Maliyet:**
+  - `annual_bat_gap_cost_eur` -- BAT gap'in yillik maliyeti
+- **Gorsellestirme Verisi:**
+  - `waterfall_data` -- Waterfall grafik verisi
+  - `bar_data` -- 3 katman karsilastirma cubuk grafigi
+  - `pie_data` -- Pasta grafik dagilimi
+
+**ESI Not Sinifi:**
+- A: ESI >= 0.85 (Mukemmel)
+- B: ESI >= 0.70 (Iyi)
+- C: ESI >= 0.50 (Orta)
+- D: ESI >= 0.30 (Zayif)
+- E: ESI >= 0.15 (Kotu)
+- F: ESI < 0.15 (Kritik)
+
+**Fonksiyonlar:**
+- `analyze_gap(process_def, aggregates, dead_state)` → `GapAnalysisResult`
+- Gap, API route icerisinde calistirilir (`analyze_factory` pipeline'i disinda)
+- `aggregates["total_exergy_input_kW"]` degeri `actual_exergy_kW` olarak kullanilir
+
+### 3.7 Factory Sankey V2 -- factory_sankey_v2.py (1,030 satir) [YENi]
+
+Grassmann-stili 5 katmanli Sankey diyagrami. Enerji kaynagi diferansiyasyonu ve AV/UN ayrisim destegi ile 3 gorunum modu.
+
+**3 Gorunum Modu:**
+
+| Mod | Aciklama | Odak |
+|-----|----------|------|
+| `exergy_flow` | Tam exergy akis diyagrami | Kaynak → ekipman → cikti + yikim |
+| `destruction_focus` | Yikim odakli gorunum | AV/UN ayrisimli yikim detayi |
+| `cost_flow` | Maliyet akis diyagrami | EUR/h bazli exergoekonomik akis |
+
+**5 Katman Yapisi:**
+1. **Kaynaklar:** Elektrik, yakit (dogalgaz, fuel oil, vs.), buhar, su
+2. **Ekipmanlar:** 7 ekipman tipi (her biri bir node)
+3. **Faydali Ciktilar:** Basincli hava, buhar, sicak su, sogutma, guc
+4. **Yikimlar:** Kacinilinabilir yikim (kirmizi) + kacinilmaz yikim (gri)
+5. **Kayiplar:** Baca gazi, radyasyon, blowdown
+
+**Fonksiyonlar:**
+- `generate_factory_sankey_v2(factory_result, mode="exergy_flow")` -- Ana generator
+- `_build_source_nodes(equipment_results)` -- Kaynak diferansiyasyonu
+- `_build_equipment_nodes(equipment_results)` -- Ekipman nodelari
+- `_build_output_nodes(equipment_results)` -- Faydali cikti nodelari
+- `_build_destruction_links(equipment_results, mode)` -- AV/UN ayrisim
+- `_build_cost_flow(equipment_results)` -- Maliyet bazli akis
+- Ozet kartlari: toplam giris, cikti, yikim, verimlilik, AV/UN orani
+
 ---
 
 ## 4. API Katmani
 
-28 Python dosyasi, toplam **4,872 satir**. 7 route dosyasi uzerinden **25 endpoint**.
+22 Python dosyasi, toplam **5,018 satir**. 8 route dosyasi uzerinden **30 endpoint**.
 
 ### 4.1 Endpoint Listesi
 
@@ -775,7 +918,7 @@ Her fonksiyon donusu: `(score: int, findings: List[str], gaps: List[str])`
 | POST | `/api/auth/login` | Hayir | JWT token alma |
 | GET | `/api/auth/me` | Evet | Mevcut kullanici bilgisi |
 
-#### Fabrika Yonetimi ve Ileri Analiz (factory.py -- 607 satir)
+#### Fabrika Yonetimi ve Ileri Analiz (factory.py -- 704 satir)
 
 | Metot | Yol | Auth | Engine Fonksiyonu | Aciklama |
 |-------|-----|------|-------------------|----------|
@@ -785,6 +928,9 @@ Her fonksiyon donusu: `(score: int, findings: List[str], gaps: List[str])`
 | POST | `/api/factory/projects/{id}/equipment` | Opsiyonel | -- | Ekipman ekle |
 | DELETE | `/api/factory/projects/{id}/equipment/{eid}` | Opsiyonel | -- | Ekipman kaldir |
 | POST | `/api/factory/projects/{id}/analyze` | Opsiyonel | `analyze_factory()` | Fabrika analizi (tam pipeline) |
+| GET | `/api/factory/process-types` | -- | -- | Proses tipi listesi [YENi] |
+| GET | `/api/factory/process-types/{type}/subcategories` | -- | `get_subcategories()` | Alt kategori listesi [YENi] |
+| PUT | `/api/factory/projects/{id}/process` | Opsiyonel | -- | Proses tanimi guncelleme [YENi] |
 | POST | `/api/factory/projects/{id}/pinch` | Opsiyonel | `analyze_pinch()` | Pinch analizi |
 | POST | `/api/factory/projects/{id}/advanced-exergy` | Opsiyonel | `analyze_advanced_exergy()` | Ileri exergy |
 | POST | `/api/factory/projects/{id}/entropy-generation` | Opsiyonel | `analyze_entropy_generation()` | EGM |
@@ -794,7 +940,7 @@ Her fonksiyon donusu: `(score: int, findings: List[str], gaps: List[str])`
 
 ### 4.2 Schemalar
 
-#### AnalysisResponse (api/schemas/responses.py -- 225 satir)
+#### AnalysisResponse (api/schemas/responses.py -- 233 satir)
 
 MetricsResponse alanlari:
 - **Exergy:** `exergy_input_kW`, `exergy_output_kW`, `exergy_destroyed_kW`, `exergy_efficiency_pct`
@@ -803,7 +949,7 @@ MetricsResponse alanlari:
 - **Exergoekonomik:** `exergoeconomic_Z_dot_eur_h`, `exergoeconomic_C_dot_destruction_eur_h`, `exergoeconomic_f_factor`, `exergoeconomic_r_factor`, `exergoeconomic_c_product_eur_kWh`, `exergoeconomic_total_cost_rate_eur_h`
 - **Ekipmana Ozel:** Kazan (thermal_efficiency_pct, combustion_loss_kW), Chiller (cop, cop_carnot, kw_per_ton), Pompa (hydraulic_power_kW, wire_to_water_efficiency_pct), HX (heat_duty_kW, lmtd_K, effectiveness, bejan_number), Buhar Turbini (shaft_power_kW, electrical_power_kW, chp_exergy_efficiency_pct), Kurutma Firini (water_removed_kg_h, specific_energy_kJ_kg_water)
 
-#### FactoryAnalysisResponse (api/schemas/factory.py -- 77 satir)
+#### FactoryAnalysisResponse (api/schemas/factory.py -- 100 satir)
 
 ```
 success: bool
@@ -818,6 +964,7 @@ advanced_exergy: Optional[dict]
 entropy_generation: Optional[dict]
 thermoeconomic_optimization: Optional[dict]
 energy_management: Optional[dict]
+gap_analysis: Optional[dict]
 ```
 
 ### 4.3 Veritabani Semasi (6 tablo)
@@ -825,16 +972,18 @@ energy_management: Optional[dict]
 | Tablo | Sutunlar | Aciklama |
 |-------|----------|----------|
 | `users` | id (UUID), email (unique), hashed_password, full_name, is_active, created_at | Kullanici kayitlari |
-| `factory_projects` | id (8-char UUID), name, sector, description, owner_id (FK→users), created_at, updated_at | Fabrika projeleri |
+| `factory_projects` | id (8-char UUID), name, sector, description, owner_id (FK→users), created_at, updated_at, **process_type**, **process_label**, **process_parameters** (JSON), **process_subcategory**, **operating_hours**, **energy_price_eur_kwh** | Fabrika projeleri (+6 yeni sutun) |
 | `equipment` | id (8-char UUID), project_id (FK→projects), name, equipment_type, subtype, parameters (JSON), created_at | Ekipman kayitlari |
 | `analysis_results` | id (8-char UUID), equipment_id (FK→equipment, unique), result_data (JSON), analyzed_at | Analiz sonuclari (1-to-1) |
-| `factory_analyses` | id (8-char UUID), project_id (FK→projects), aggregates (JSON), hotspots (JSON), integration_opportunities (JSON), sankey_data (JSON), analyzed_at | Fabrika analiz sonuclari |
+| `factory_analyses` | id (8-char UUID), project_id (FK→projects), aggregates (JSON), hotspots (JSON), integration_opportunities (JSON), sankey_data (JSON), **gap_analysis** (JSON), analyzed_at | Fabrika analiz sonuclari (+1 yeni sutun) |
 | `ai_interpretations` | id (8-char UUID), project_id (FK→projects), equipment_id (FK→equipment), interpretation_data (JSON), created_at | AI yorum sonuclari |
 
 Iliski: `User 1---* FactoryProject 1---* Equipment 1---1 AnalysisResult`
 Tum cascade: `"all, delete-orphan"`
 
-### 4.4 AI Servisi -- claude_code_service.py (1,332 satir)
+**DB Migrasyon:** `init_db()` icinde SQLite uyumlu `ALTER TABLE ... ADD COLUMN` ifadeleri ile geriye donuk uyumlu migrasyon. Mevcut veritabanlari otomatik guncellenir.
+
+### 4.4 AI Servisi -- claude_code_service.py (1,424 satir)
 
 AI yorumlama ve sohbet entegrasyonu. Claude Code CLI'yi subprocess ile cagirarak calisan moduler prompt sistemi.
 
@@ -852,13 +1001,14 @@ AI yorumlama ve sohbet entegrasyonu. Claude Code CLI'yi subprocess ile cagirarak
 **Skill Yukleme Sirasi:**
 1. Core (her zaman): `exergy_fundamentals.md` → `response_format.md` → `decision_trees.md`
 2. Equipment (tek ekipman): `equipment/{type}_expert.md`
-3. Factory (fabrika): `factory_analyst.md` → `integration_expert.md` → `economic_advisor.md`
+3. Factory (fabrika): `factory_analyst.md` → `integration_expert.md` → `economic_advisor.md` → `process_analyst.md`
 4. Output (her zaman): `output/turkish_style.md`
 
 **Knowledge Yonlendirme (knowledge_router.py -- 274 satir):**
 - Tek ekipman: benchmarks.md, formulas.md, ilgili cozum dosyalari
 - Fabrika: cross_equipment.md, prioritization.md, factory_benchmarks.md, sector_{sector}.md
 - Ileri analiz: overview.md dosyalari (pinch, advanced_exergy, entropy_generation, exergoeconomic)
+- Proses analizi: knowledge/factory/process/ altindaki ilgili proses tipi dosyalari
 
 **Timeout:** 120 saniye (subprocess)
 **Fallback:** Claude kullanilamadiginda guvenli varsayilan JSON donusu
@@ -867,9 +1017,9 @@ AI yorumlama ve sohbet entegrasyonu. Claude Code CLI'yi subprocess ile cagirarak
 
 ## 5. Frontend Katmani
 
-67 component + 6 sayfa, toplam **7,853 satir** JavaScript/JSX.
+75 component + 6 sayfa, toplam **9,855 satir** JavaScript/JSX.
 
-### 5.1 Rotalar (App.jsx -- 41 satir)
+### 5.1 Rotalar (App.jsx -- 40 satir)
 
 | Rota | Component | Aciklama |
 |------|-----------|----------|
@@ -882,21 +1032,21 @@ AI yorumlama ve sohbet entegrasyonu. Claude Code CLI'yi subprocess ile cagirarak
 | `/reports` | `ReportsPlaceholder` | Raporlar (yakin zamanda) |
 | `*` | Redirect → `/` | Tanimli olmayan rotalar |
 
-### 5.2 Sayfalar (6 dosya, 1,453 satir)
+### 5.2 Sayfalar (6 dosya, 1,517 satir)
 
 | Sayfa | Satir | Aciklama |
 |-------|-------|----------|
 | Dashboard.jsx | 133 | 7 ekipman karti, fabrika tanitim karti, sayfa secimi |
 | EquipmentAnalysis.jsx | 247 | Progressive disclosure, HeroScoreBanner, 4 sekme, FloatingChat FAB |
 | FactoryList.jsx | 126 | Proje listesi, sektor rozeti, ekipman sayisi |
-| FactoryWizard.jsx | 274 | 2 adimli sihirbaz (proje bilgileri → ekipman ekleme) |
-| FactoryDashboard.jsx | 539 | Fabrika analiz merkezi, 9-tab sistemi, 15 useState |
+| FactoryWizard.jsx | 363 | 3 adimli sihirbaz (proje bilgileri → proses tanimi → ekipman ekleme) |
+| FactoryDashboard.jsx | 514 | Fabrika analiz merkezi, 6-tab anlati sistemi, 13 useState |
 | Login.jsx | 134 | Giris/kayit gecisi, JWT token localStorage kaydi |
 
-### 5.3 Component Agaci (67 dosya, 5,806 satir)
+### 5.3 Component Agaci (75 dosya, 7,729 satir)
 
 ```
-components/ (67 dosya, 5,806 satir)
+components/ (75 dosya, 7,729 satir)
 |
 |-- common/               (5 dosya, 183 satir)
 |   |-- AIActionBar.jsx   # AI butonu + yorumlama tetikleyici (95 satir)
@@ -943,9 +1093,9 @@ components/ (67 dosya, 5,806 satir)
 |   |-- BenchmarkChart.jsx     # Benchmark cubuk grafigi (52 satir)
 |   |-- SolutionsList.jsx      # Oneri listesi (65 satir)
 |
-|-- factory/              (11 dosya, 1,210 satir)
+|-- factory/              (19 dosya, 3,133 satir)
 |   |-- FactoryHeader.jsx          # Proje adi, sektor rozeti (67 satir)
-|   |-- FactoryMetricBar.jsx       # Koyu hero stil metrik cubugu (69 satir)
+|   |-- FactoryMetricBar.jsx       # Koyu hero stil metrik cubugu + ESI grade + BAT gap (95 satir)
 |   |-- EquipmentInventory.jsx     # Ekipman tablosu (tip, durum, silme) (81 satir)
 |   |-- AddEquipmentModal.jsx      # 3 adimli modal (tip → alt tip → param) (252 satir)
 |   |-- PriorityList.jsx           # Oncelik sirali hotspot listesi (138 satir)
@@ -954,7 +1104,15 @@ components/ (67 dosya, 5,806 satir)
 |   |-- IntegrationOpportunities.jsx  # Entegrasyon detaylari (79 satir)
 |   |-- FactoryAIPanel.jsx         # Fabrika AI yorumlama butonu (140 satir)
 |   |-- FactoryAIInterpretation.jsx   # Fabrika AI gorunumu (172 satir)
-|   |-- FactorySankey.jsx          # Fabrika seviyesi Sankey (53 satir)
+|   |-- FactorySankey.jsx          # Fabrika seviyesi Sankey (eski, 53 satir)
+|   |-- FactorySankeyV2.jsx        # Grassmann 3 modlu Sankey (647 satir) [YENi]
+|   |-- GapAnalysisTab.jsx         # ESI grade kart + BAT gap grafik + proses tanimi (439 satir) [YENi]
+|   |-- ProcessDefinitionStep.jsx  # Wizard 2. adim proses tanimi formu (341 satir) [YENi]
+|   |-- ProcessEditModal.jsx       # Proses duzenleme modal (117 satir) [YENi]
+|   |-- OverviewTab.jsx            # AI + Oncelikler + Entegrasyon (76 satir) [YENi]
+|   |-- DeepAnalysisTab.jsx        # Pinch + Ileri Exergy + EGM (149 satir) [YENi]
+|   |-- ActionPlanTab.jsx          # Termoekonomik optimizasyon (64 satir) [YENi]
+|   |-- ManagementTab.jsx          # Envanter + Enerji yonetimi (64 satir) [YENi]
 |
 |-- pinch/                (6 dosya, 399 satir)
 |   |-- PinchTab.jsx              # Pinch analiz sonuclari (101 satir)
@@ -996,7 +1154,7 @@ components/ (67 dosya, 5,806 satir)
 
 ### 5.4 Servisler, Hooks, Utils
 
-#### services/ (293 satir, 2 dosya)
+#### services/ (308 satir, 2 dosya)
 
 **api.js (232 satir):**
 - Axios instance: `baseURL: '/api'`, otomatik JWT token ekleme
@@ -1005,10 +1163,12 @@ components/ (67 dosya, 5,806 satir)
 - Auth: `register()`, `login()`, `getMe()`, `logout()`
 - Benchmark/Solutions: `getBenchmarks()`, `getSolutions()`
 
-**factoryApi.js (61 satir):**
+**factoryApi.js (76 satir):**
 - `createFactoryProject()`, `getFactoryProjects()`, `getFactoryProject()`
 - `addEquipmentToProject()`, `removeEquipmentFromProject()`
 - `analyzeFactory()`, `interpretFactory()`
+- `getProcessTypes()`, `getProcessSubcategories()`, `updateProcessDefinition()` [YENi]
+- Ileri analiz: `runPinchAnalysis()`, `runAdvancedExergy()`, `runEntropyGeneration()`, `runThermoeconomicOptimization()`, `runEnergyManagement()`
 
 #### hooks/ (100 satir, 2 dosya)
 
@@ -1048,30 +1208,39 @@ TabContainer: `hidden` class ile state koruma (sekme gecisinde veri kaybi yok)
 
 #### 5.5.2 Fabrika Dashboard (FactoryDashboard.jsx)
 
-9-tab sistemi (scroll-to-section mimarisinden gecis):
-- **TABS dizisi:** ai, priorities, sankey, pinch, advanced, egm, thermo, energy, inventory
-- **Tab cubugu:** lucide ikonlari + durum noktasi (yesil = veri var, nokta yok = henuz calistirilmamis)
-- **Her tab conditional render** (hidden class degil, dogrudan render)
+6-tab anlati sistemi (9-tab sisteminden reorganize edildi):
+- **TABS dizisi:** process, overview, flow, deep, action, management
+- **Tab cubugu:** lucide ikonlari + durum noktasi (yesil = veri var, amber = proses tanimli, violet = AI yorum hazir)
+- **Her tab ayri component** render eder
 
-FactoryMetricBar: Koyu hero stil (dark gradient + beyaz metin + KPI kartlari)
+FactoryMetricBar: Koyu hero stil (dark gradient + beyaz metin + KPI kartlari + ESI grade + BAT gap)
 
 3 render modu (hala gecerli):
 - **Bos:** Ekipman yok → "Ekipman Ekle" yonlendirmesi
 - **Ekipmanli:** Analiz yok → "Analiz Calistir" butonu
 - **Tam Dashboard:** Tab sistemi ile icerik gosterimi
 
-Tab icerikleri:
-1. **AI Yorum** -- FactoryAIPanel + FactoryAIInterpretation
-2. **Oncelikler** -- PriorityList (hotspot sirali) + IntegrationPanel
-3. **Sankey** -- FactorySankey (fabrika seviyesi)
-4. **Pinch** -- PinchTab (Linnhoff analizi)
-5. **Ileri Exergy** -- AdvancedExergyTab (EN/EX 4-quadrant)
-6. **EGM** -- EntropyGenerationTab (Bejan sayisi)
-7. **Termoekonomik** -- ThermoeconomicTab (f/r matrisi)
-8. **Enerji Yonetimi** -- EnergyManagementTab (ISO 50001)
-9. **Envanter** -- EquipmentInventory + AddEquipmentModal
+6 Tab icerigi:
+1. **Proses (GapAnalysisTab)** -- ESI grade karti, BAT gap grafigi, proses tanimi [YENi]
+2. **Genel Bakis (OverviewTab)** -- FactoryAIPanel + PriorityList + IntegrationPanel [YENi]
+3. **Akis (FactorySankeyV2)** -- 3 gorunum modlu Grassmann Sankey [YENi]
+4. **Derin Analiz (DeepAnalysisTab)** -- Pinch + Ileri Exergy + EGM [YENi]
+5. **Aksiyon Plani (ActionPlanTab)** -- Termoekonomik optimizasyon [YENi]
+6. **Yonetim (ManagementTab)** -- Envanter + Enerji yonetimi [YENi]
 
-#### 5.5.3 AI Paneli Detaylari
+#### 5.5.3 Fabrika Sihirbazi (FactoryWizard.jsx)
+
+3 adimli proje olusturma sihirbazi (2 adimdan genisletildi):
+1. **Proje Bilgileri:** Proje adi, sektor secimi, aciklama
+2. **Proses Tanimi [YENi]:** Proses tipi secimi (8 tip), alt kategori, parametreler, calisma saatleri, enerji fiyati; atlama secenegi mevcut
+3. **Ekipman Ekleme:** Ekipman tipi → alt tip → parametre → tabloya ekleme
+
+Dogrulama:
+- Adim 1: Proje adi zorunlu
+- Adim 2: `validateProcessStep()` proses parametrelerini kontrol eder (atlanmadiysa)
+- Adim 3: En az 1 ekipman zorunlu
+
+#### 5.5.4 AI Paneli Detaylari
 
 3 katmanli AI sistemi:
 1. **Ekipman AI (AIInsightCard + AITab):** Tek ekipman yorumu -- AIInsightCard (ozet + performans rozeti), AITab accordion (bulgular → oneriler → onerilmeyenler → aksiyon plani), RecommendationCard, ActionTimeline
@@ -1096,7 +1265,7 @@ Renk paleti:
 - Kart: rounded-xl, p-5/p-6, hover:shadow-md transition-shadow
 - Tipografi: tabular-nums metriklerde, font-mono sayilarda
 
-Font: sistem varsayilani (sans-serif)
+Font: Plus Jakarta Sans (govde), JetBrains Mono (metrikler)
 
 **Plotly temalamasi:** Her grafik icin ozel Plotly layout (arka plan: seffaf, yazi: Tailwind renklerine uyumlu)
 
@@ -1104,7 +1273,7 @@ Font: sistem varsayilani (sans-serif)
 
 ## 6. Test Altyapisi
 
-18 dosya (17 test modulu + conftest + __init__), **671 test fonksiyonu**, toplam **6,936 satir**.
+23 dosya (21 test modulu + conftest + __init__), **787 test fonksiyonu**, toplam **8,362 satir**.
 
 ### 6.1 Test Dosyalari
 
@@ -1116,16 +1285,20 @@ Font: sistem varsayilani (sans-serif)
 | test_api.py | 47 | 599 | API endpointleri, fabrika CRUD, analiz dispatch |
 | test_engine.py | 45 | 552 | 7 ekipman motoru, exergy dengesi, verimlilik |
 | test_entropy_generation.py | 38 | 546 | Gouy-Stodola, Bejan sayisi, dekompozisyon |
+| test_factory_sankey_v2.py | 29 | 549 | 3 gorunum modu, node/link uretimi, ozet kartlari [YENi] |
 | test_exergoeconomic.py | 34 | 505 | SPECO, f-faktor, r-faktor, maliyet korelasyonu |
 | test_thermoeconomic_optimization.py | 39 | 491 | Strateji belirleme, yatirim tahmini, geri odeme |
 | test_skills.py | 50 | 453 | AI beceri dosyalari, knowledge dogrulama |
 | test_avoidable_unavoidable.py | 22 | 376 | AV/UN ayrisimi, invariantler |
+| test_process_exergy.py | 30 | 359 | 8 proses tipi, minimum exergy hesaplama [YENi] |
+| test_gap_analysis.py | 28 | 358 | 3 katman, ESI grade, gorsellestirme verisi [YENi] |
 | test_compare.py | 12 | 232 | What-if delta hesaplama |
 | test_radar.py | 27 | 200 | 6 eksenli benchmark puanlama |
 | test_heat_exchanger.py | 21 | 200 | Bejan sayisi, LMTD, fouling, etkinlik |
 | test_dryer.py | 24 | 196 | SMER, isi kaynaklari, termal verim |
 | test_steam_turbine.py | 19 | 178 | CHP modu, izentropik verim, PRV ikamesi |
 | test_equipment_registry.py | 18 | 170 | 7 tip, 46 alt tip dogrulama |
+| test_bat_references.py | 16 | 160 | BAT veritabani, alt kategoriler [YENi] |
 | test_knowledge_router.py | 18 | 159 | Bilgi yonlendirme, sohbet |
 | conftest.py | - | 72 | DB fixture + TestClient |
 | __init__.py | - | 0 | Paket tanimlama |
@@ -1134,9 +1307,9 @@ Font: sistem varsayilani (sans-serif)
 
 | Metrik | Deger |
 |--------|-------|
-| Test dosyasi | 17 (+ conftest + __init__) |
-| Test fonksiyonu | 671 |
-| Toplam satir | 6,936 |
+| Test dosyasi | 21 (+ conftest + __init__) |
+| Test fonksiyonu | 787 |
+| Toplam satir | 8,362 |
 | Veritabani | Her test icin bellekte SQLite (izole) |
 | API test | FastAPI TestClient + dependency override |
 | Parametrik | pytest.parametrize (ekipman tipleri x invariantler) |
@@ -1145,7 +1318,7 @@ Font: sistem varsayilani (sans-serif)
 
 ## 7. Knowledge Base
 
-### 7.1 Dizin Yapisi (305 dosya)
+### 7.1 Dizin Yapisi (317 dosya)
 
 | Dizin | Dosya Sayisi | Icerik |
 |-------|-------------|--------|
@@ -1156,7 +1329,7 @@ Font: sistem varsayilani (sans-serif)
 | heat_exchanger/ | 21 | U-deger, LMTD, NTU, fouling, etkinlik |
 | steam_turbine/ | 23 | Izentropik verim, CHP, PRV ikamesi, ORC |
 | dryer/ | 26 | SMER, SEC, psikrometri, tip secimi |
-| **factory/** | **144** | 6 ileri analiz yontemi + kok dosyalar |
+| **factory/** | **156** | 7 alt dizin + kok dosyalar |
 
 **Fabrika alt dizinleri:**
 
@@ -1168,7 +1341,15 @@ Font: sistem varsayilani (sans-serif)
 | thermoeconomic_optimization/ | 16 | Parametrik/yapisal opt. | C_D > 50,000 EUR/yil |
 | entropy_generation/ | 19 | Bejan sayisi, Gouy-Stodola | N_s > 0.5 |
 | energy_management/ | 21 | ISO 50001, enerji denetimi | Sistematik yonetim ihtiyaci |
+| **process/** | **12** | Proses gap analizi, BAT referanslar | Gap analizi etkin [YENi] |
 | (kok dosyalar) | ~34 | cross_equipment, sector_*, prioritization, benchmarks | -- |
+
+**process/ alt dizini (12 dosya) [YENi]:**
+- `index.md` -- Navigasyon
+- `gap_analysis_methodology.md` -- Gap analizi metodolojisi
+- `bat_overview.md` -- BAT genel bakis
+- `sustainability_index.md` -- ESI hesaplama
+- `drying.md`, `heating.md`, `cooling.md`, `steam_generation.md`, `compressed_air.md`, `chp.md`, `cold_storage.md`, `general_manufacturing.md` -- 8 proses tipi detay dosyalari
 
 Her knowledge dosyasinda:
 - YAML frontmatter (skill_id, versiyon, ekipman)
@@ -1176,7 +1357,7 @@ Her knowledge dosyasinda:
 - Tablolar, formuller, pratik ornekler
 - "Ilgili Dosyalar" ve "Referanslar" bolumleri
 
-### 7.2 Skill Dosyalari (17 dosya)
+### 7.2 Skill Dosyalari (18 dosya)
 
 ```
 skills/
@@ -1194,10 +1375,11 @@ skills/
 |   |-- steam_turbine_expert.md
 |   |-- dryer_expert.md
 |
-|-- factory/                       # Fabrika analisti (3 dosya)
+|-- factory/                       # Fabrika analisti (4 dosya)
 |   |-- factory_analyst.md         # Hotspot, capraz ekipman onerileri
 |   |-- integration_expert.md      # HEN optimizasyonu, pinch eslestirme
 |   |-- economic_advisor.md        # Exergoekonomik degerlendirme
+|   |-- process_analyst.md         # Proses analizi, gap degerlendirme [YENi]
 |
 |-- output/                        # Cikti formati (1 dosya)
 |   |-- turkish_style.md           # Turkce cikti stili
@@ -1289,6 +1471,7 @@ changeOrigin: true
 - Dosya: `./exergylab.db` (proje kokunde)
 - ORM: SQLAlchemy 2.0 (async session)
 - Lifespan: Uygulama baslangicinda `init_db()`, kapanista `close_db()`
+- Migrasyon: `init_db()` icinde `ALTER TABLE ... ADD COLUMN` (SQLite uyumlu, geriye donuk)
 
 ---
 
@@ -1299,7 +1482,7 @@ changeOrigin: true
 | Kisitlama | Detay |
 |-----------|-------|
 | SQLite tek yazici | Eszamanli yazma islemi desteklemez; uretimde PostgreSQL gecisi gerekebilir |
-| CoolProp bagimliligi | Buhar/su ozellikleri icin gerekli; kurulumu zor olabilir; fallback yaklasimsiz hesaplama mevcut |
+| CoolProp bagimliligi | Buhar/su ozellikleri icin gerekli; kurulumu zor olabilir; fallback interpolasyon tablosu mevcut |
 | AI yanit suresi | Claude subprocess 10-30 saniye; frontend'de non-blocking ama kullanici beklemeli |
 | Radar benchmark | Sadece kompresor sektoru icin detayli benchmark; diger 6 ekipmanda genel |
 | Plotly bundle boyutu | plotly.js ~3.3 MB minified; lazy loading uygulanmamis |
@@ -1308,9 +1491,10 @@ changeOrigin: true
 
 | Sorun | Dosya | Detay |
 |-------|-------|-------|
-| MetricBar tekrari | factory/FactoryMetricBar, pinch/PinchMetricBar, advanced-exergy/AdvancedExergyMetricBar, entropy-generation/EGMMetricBar | dashboard/MetricBar → HeroScoreBanner'a donusturuldu; 4 MetricBar varyanti kaldi |
+| FactorySankey.jsx (eski) | factory/FactorySankey.jsx (53 satir) | V2 kullanilmasina ragmen eski bilesen hala mevcut; kaldirilabilir |
+| MetricBar tekrari | factory/FactoryMetricBar, pinch/PinchMetricBar, advanced-exergy/AdvancedExergyMetricBar, entropy-generation/EGMMetricBar | 4 MetricBar varyanti kaldi; ortaklastirma firsati |
 | Button.jsx kullanilmiyor | common/Button.jsx (38 satir) | Hicbir dosyada import edilmiyor |
-| FactoryDashboard useState yiginmasi | pages/FactoryDashboard.jsx | 15 useState hook'u (17'den dusuruldu); tab sistemi karmasikligi azaltti ama Zustand hala faydali olabilir |
+| FactoryDashboard useState | pages/FactoryDashboard.jsx | 13 useState hook'u; 6-tab sistemi karmasikligi azaltti ama Zustand hala faydali olabilir |
 | Lazy loading yok | frontend/vite.config.js | Tum componentler eagerly yukleniyor; code splitting uygulanmamis |
 | Plotly font tutarsizligi | Plotly grafikleri | Plotly kendi font'unu kullaniyor, Tailwind sistem font'u ile uyumsuz |
 | Erisebilirlik (a11y) | Genel | ARIA etiketleri, klavye navigasyonu, renk kontrasti kontrolu eksik |
@@ -1320,10 +1504,17 @@ changeOrigin: true
 
 ## 11. Gelistirme Gecmisi
 
-Son 20 commit (en yeniden en eskiye):
+Son 25 commit (en yeniden en eskiye):
 
 | Commit | Aciklama |
 |--------|----------|
+| 3745538 | Knowledge base deep expansion: 12 dosya, 3,083 → 7,122 satir (+131%) |
+| 3d5f29f | Dashboard reorganization: 9 tab → 6 anlati tabi + Gap Analysis gorsellestirme |
+| feef0af | FactoryWizard: Process Definition adimi (Brief 2) |
+| e3444be | Gap Analysis Engine: 3 katmanli exerjetik gap analizi, 8 proses tipi, BAT referanslar, DB migrasyon, API endpointler, 84 test |
+| 6429947 | Factory Sankey V2: mod-duyarli filtreleme, ozet kartlari, lejand, layout iyilestirmeleri |
+| 4695984 | Factory Sankey V2: Grassmann-stili 5 katman diyagram, kaynak diferansiyasyonu, AV/UN ayrisim |
+| 23f7fef | PROJECT_ANALYSIS.md guncelleme: redesign sonrasi kapsamli yenileme (v3.1) |
 | 32980c8 | Factory dashboard redesign: scroll-to-section → gercek tab sistemi, Turkce diacritic, koyu hero metrik cubugu |
 | c32fde2 | Equipment analysis UI polish: Turkce diacritic, Sankey/radar fix, FloatingChat gorunurluk, senaryo temizlik |
 | e566b8c | Equipment analysis page redesign: progressive disclosure, floating chat, accordion UI |
@@ -1342,10 +1533,6 @@ Son 20 commit (en yeniden en eskiye):
 | 72a905f | 4 ekipman motoruna exergoekonomik analiz ekleme (f-faktor, r-faktor, maliyet oranlari) |
 | 6a6d5a8 | Opsiyonel JWT kimlik dogrulama + fabrika proje sahipligi |
 | cc5bd2c | SQLite kalicilik katmani: bellek ici depolamayi degistirme |
-| 3dfbbfc | Fabrika dashboard overhaul: uc modlu layout + 5 yeni bilesen |
-| 3cecff3 | Ekipman analizi UI overhaul: iki modlu dashboard layout |
-| 329bda6 | Sohbet takip fix: prompt gecmisi ve knowledge kirpma |
-| cffa443 | Knowledge-destekli AI sohbet paneli (305 dosya knowledge yonlendirme) |
 
 ---
 
@@ -1356,10 +1543,12 @@ Son 20 commit (en yeniden en eskiye):
 | Oneri | Oncelik | Etki |
 |-------|---------|------|
 | Tum ekipmanlara sektorel radar detayi | Yuksek | Benchmark kalitesi |
-| MetricBar bilesenlerini ortaklastirma (dashboard/MetricBar → HeroScoreBanner tamamlandi; 4 varyant kaldi) | Orta | Teknik borc azaltma |
+| FactorySankey.jsx (eski) kaldir | Dusuk | Temizlik (V2 aktif) |
+| MetricBar bilesenlerini ortaklastirma | Orta | Teknik borc azaltma |
 | Button.jsx kaldir veya kullan | Dusuk | Temizlik |
 | Rate limiting (AI endpointleri) | Orta | Guvenlik |
 | Analiz sonuclarini PDF/DOCX export | Orta | Kullanilabilirlik |
+| Gap analizi AI yorumu entegrasyonu | Orta | AI kalitesi |
 
 ### Orta Vadeli (3-6 ay)
 
@@ -1367,9 +1556,10 @@ Son 20 commit (en yeniden en eskiye):
 |-------|---------|------|
 | PostgreSQL gecisi | Orta | Olceklenebilirlik (coklu yazici) |
 | Frontend lazy loading + code splitting | Yuksek | Performans (Plotly 3.3 MB) |
-| State yonetimi (Zustand) | Orta | FactoryDashboard 17→15 useState, tab sistemi iyilestirdi ama hala faydali |
+| State yonetimi (Zustand) | Orta | FactoryDashboard 13 useState iyilestirmesi |
 | Toplu ekipman ekleme (batch) | Orta | Kullanici deneyimi |
 | Erisebilirlik (a11y) iyilestirmeleri | Orta | Uyumluluk |
+| Gap analizi → proses optimizasyon onerileri | Orta | Analiz derinligi |
 
 ### Uzun Vadeli (6-12 ay)
 
@@ -1383,5 +1573,5 @@ Son 20 commit (en yeniden en eskiye):
 
 ---
 
-*Bu dokuman, ExergyLab kod tabaninin 2026-02-07 tarihli kapsamli analizidir (v3.1).*
-*30,080 satir kod, 671 test, 305 knowledge dosyasi, 6 ileri analiz motoru.*
+*Bu dokuman, ExergyLab kod tabaninin 2026-02-08 tarihli kapsamli analizidir (v4.0).*
+*35,831 satir kod, 787 test, 317 knowledge dosyasi, 7 analiz motoru (6 ileri + gap analizi).*
