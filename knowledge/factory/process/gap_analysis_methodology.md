@@ -88,6 +88,57 @@ $$\eta_{ex,process} = \frac{Ex_{min}}{Ex_{actual}} = ESI$$
 
 Proses seviyesinde exergy verimi, ESI ile eşdeğerdir.
 
+### 2.4 ESI'nin 2. Yasa Türetimi (Derivation from Second Law)
+
+Termodinamiğin 2. yasası uyarınca, herhangi bir gerçek proses entropi üretir:
+
+$$\dot{S}_{gen} = \dot{S}_{out} - \dot{S}_{in} \geq 0$$
+
+Gouy-Stodola teoremi, entropi üretimini exergy yıkımına bağlar:
+
+$$\dot{Ex}_{yıkım} = T_0 \cdot \dot{S}_{gen}$$
+
+Bir prosesin exergy dengesi:
+
+$$Ex_{in} = Ex_{ürün} + Ex_{yıkım} + Ex_{atık}$$
+
+Tersinir (ideal) durumda Ex_yıkım = 0 ve Ex_atık = 0:
+
+$$Ex_{in,min} = Ex_{ürün} = Ex_{min}$$
+
+ESI, gerçek girişin ideal girişe oranıdır:
+
+$$ESI = \frac{Ex_{min}}{Ex_{actual}} = \frac{Ex_{min}}{Ex_{min} + Ex_{yıkım} + Ex_{atık}}$$
+
+**Fiziksel anlam:** ESI = 1 − (yıkım + atık oranı). ESI ne kadar yüksekse, proses termodinamik ideale o kadar yakındır.
+
+> **Kaynak:** Dincer & Rosen (2013), Bölüm 2.7, s. 38-42; Kotas (1985), Bölüm 2, s. 15-28.
+
+### 2.5 Ekonomik Etki Formülü (Economic Impact)
+
+İyileştirilebilir boşluğun yıllık ekonomik etkisi:
+
+$$C_{tasarruf} = \Delta Ex_{imp} \times c_{yakıt} \times t_{yıl} \times \varphi$$
+
+| Sembol | Tanım | Birim | Tipik Değer |
+|--------|-------|-------|-------------|
+| ΔEx_imp | İyileştirilebilir exergy boşluğu | kW | Ex_actual − Ex_BAT |
+| c_yakıt | Yakıt birim maliyeti | €/kWh | 0.03-0.06 (doğal gaz) |
+| t_yıl | Yıllık çalışma süresi | h/yıl | 4.000-8.760 |
+| φ | Exergy/enerji oranı düzeltmesi | — | 1.04 (doğal gaz) |
+
+**Örnek:**
+```
+ΔEx_imp = 500 kW
+c_yakıt = 0.04 €/kWh
+t_yıl = 7.200 h/yıl
+φ = 1.04
+
+C_tasarruf = 500 × 0.04 × 7200 × 1.04 = 149.760 €/yıl ≈ 150.000 €/yıl
+```
+
+> **Not:** Bu basitleştirilmiş bir hesaptır. Gerçek ekonomik analiz yatırım maliyetini, bakım giderlerini ve fırsat maliyetini de içermelidir. Detaylı exergoekonomik analiz için bkz. `factory/exergoeconomic/evaluation_criteria.md`.
+
 ---
 
 ## 3. Hesaplama Adımları
@@ -175,6 +226,127 @@ BPR = Ex_BAT / Ex_actual = 2156 / 3328 = 0.648
 
 ---
 
+## 4b. Çözümlü Örnek: Basınçlı Hava Sistemi
+
+### Veriler
+- Proses: 7 bar_g basınçlı hava üretimi
+- Kompresör: 75 kW vidalı, yağlı
+- Üretim kapasitesi: 10 m³/min (FAD)
+- Kaçak oranı: %25 (ultrasonik testle belirlenmiş)
+- T₀ = 25 °C (298.15 K)
+
+### Adım 1: Minimum Exergy (İzotermik Sıkıştırma)
+```
+ṁ = 10 m³/min × 1.205 kg/m³ / 60 = 0.2008 kg/s
+P₂/P₁ = (7 + 1.013) / 1.013 = 7.912
+
+W_min = ṁ × R × T₀ × ln(P₂/P₁)
+      = 0.2008 × 0.287 × 298.15 × ln(7.912)
+      = 0.2008 × 0.287 × 298.15 × 2.068
+      = 35.5 kW
+
+Ex_min = W_min = 35.5 kW (sadece yararlı basınçlı hava)
+```
+
+### Adım 2: BAT Değeri
+DOE Air Master+ ve ENE BREF 2009 → BAT spesifik güç: 5.0 kW/(m³/min) (sistem seviyesi)
+Engine değeri: bat_references.py → compressed_air/general = 0.005 kWh/m³ (birim farklı)
+
+```
+W_BAT_sistem = 5.0 × 10 = 50 kW (sistem düzeyinde)
+Ex_BAT = 50 kW
+```
+
+### Adım 3: Gerçek Tüketim
+```
+Kompresör gücü: 75 kW
+Kaçak kayıpları: %25 → yararlı debi = 10 × 0.75 = 7.5 m³/min
+Ancak kompresör hala 75 kW çekiyor (kaçakları da besliyor)
+
+Ex_actual = 75 kW (kompresör elektrik = exergy)
+```
+
+### Adım 4: Boşluk Analizi
+```
+ESI = Ex_min / Ex_actual = 35.5 / 75 = 0.473 → Derece B (kompresör seviyesi)
+
+Ancak GERÇEK sistem ESI (kaçak dahil):
+Yararlı Ex_min = 35.5 × 0.75 = 26.6 kW (yararlı debi oranında)
+ESI_sistem = 26.6 / 75 = 0.355 → Hala iyi görünüyor
+
+BPR = Ex_BAT / Ex_actual = 50 / 75 = 0.667
+
+ΔEx_total = 75 − 26.6 = 48.4 kW
+ΔEx_imp = 75 − 50 = 25 kW
+η_imp = 25 / 48.4 = 51.6%
+```
+
+### Yorumlama
+- **ESI_sistem = 0.355 (Derece C):** Basınçlı hava için iyi — ancak proses bazlı (tipik 0.05-0.15) ile karıştırma! Burada kompresör ESI'si hesaplandı.
+- **BPR = 0.667:** BAT'tan %33 uzakta — kaçak giderme ile büyük iyileştirme mümkün
+- **η_imp = %51.6:** Boşluğun yarısından fazlası BAT ile kapatılabilir
+- **Öncelikli aksiyon:** Kaçak tespiti ve onarımı (%25 → %10 hedef), VFD değerlendirmesi
+
+---
+
+## 4c. Çözümlü Örnek: Kurutma Prosesi
+
+### Veriler
+- Proses: Konveksiyonel sıcak hava kurutma
+- Ürün: Tahıl (mısır)
+- Su uzaklaştırma hızı: 1.000 kg/h
+- Giriş havası: 120 °C, çıkış: 65 °C
+- Yakıt: Doğal gaz, ölçülen SEC: 5.500 kJ/kg su
+- T₀ = 25 °C (298.15 K)
+
+### Adım 1: Minimum Exergy
+Serbest su buharlaştırma minimum exergy (psikrometrik yaklaşım):
+```
+ex_min ≈ 400 kJ/kg su (serbest su, tipik referans)
+
+Not: Bu değer şu şekilde türetilebilir:
+  - Suyun buharlaşma entalpisi: h_fg = 2.257 kJ/kg
+  - Ancak buharlaşma T₀'da olabilir: Carnot faktörü ≈ 0.17 (75 °C ort.)
+  - Psikrometrik minimum daha karmaşık — bkz. drying.md detay
+
+Ex_min = (1000/3600) × 400 = 111.1 kW
+```
+
+### Adım 2: BAT Değeri
+FDM BREF 2019 → Tahıl kurutma BAT SEC: 3.000-3.800 kJ/kg su (ısı geri kazanımlı)
+Engine değeri: bat_references.py → drying/food_grain = 0.18 kWh/kg su = 648 kJ/kg su
+
+```
+BAT SEC = 3.400 kJ/kg su (ortalama)
+Q_BAT = (1000/3600) × 3400 = 944.4 kW (termal)
+Ex_BAT = 944.4 × 1.04 = 982.2 kW (doğal gaz exergy)
+```
+
+### Adım 3: Gerçek Tüketim
+```
+Q_actual = (1000/3600) × 5500 = 1527.8 kW (termal)
+Ex_actual = 1527.8 × 1.04 = 1588.9 kW (doğal gaz exergy)
+```
+
+### Adım 4: Boşluk Analizi
+```
+ESI = Ex_min / Ex_actual = 111.1 / 1588.9 = 0.070 → Derece E
+BPR = Ex_BAT / Ex_actual = 982.2 / 1588.9 = 0.618
+
+ΔEx_total = 1588.9 − 111.1 = 1477.8 kW
+ΔEx_imp = 1588.9 − 982.2 = 606.7 kW
+η_imp = 606.7 / 1477.8 = 41.1%
+```
+
+### Yorumlama
+- **ESI = 0.070 (Derece E):** Kurutma için tipik — proses doğası gereği düşük exergy verimli
+- **BPR = 0.618:** BAT'tan %38 uzakta — ısı geri kazanım potansiyeli yüksek
+- **η_imp = %41.1:** Boşluğun %41'i BAT ile kapatılabilir → ~607 kW exergy tasarrufu
+- **Ekonomik etki:** 606.7 kW × 0.04 €/kWh × 7.200 h/yıl × 1.04 ≈ 182.000 €/yıl
+- **Öncelikli aksiyon:** Egzoz ısı geri kazanımı (hava-hava eşanjör), online nem kontrol
+
+---
+
 ## 5. Yorumlama Kuralları (AI Kullanımı İçin)
 
 ### 5.1 ESI Bazlı Genel Değerlendirme
@@ -210,6 +382,45 @@ Her zaman ESI/BPR sonuçlarını ilgili proses dosyasındaki sektörel tipik de�
 
 ---
 
+## 6b. T₀ Duyarlılık Analizi ve Ölçüm Belirsizliği
+
+### 6b.1 Çevre Sıcaklığı (T₀) Etkisi
+
+ESI hesaplaması T₀'a bağlıdır. Farklı iklim bölgelerinde T₀ değişkenliği ESI'yi etkiler:
+
+| Parametre | T₀ = 15 °C | T₀ = 25 °C (ref) | T₀ = 35 °C | T₀ = 45 °C |
+|-----------|-----------|-------------------|-----------|-----------|
+| Isıtma (180 °C) Carnot | 0.363 | 0.342 | 0.320 | 0.297 |
+| Soğutma (7 °C) ters Carnot | 0.028 | 0.100 | 0.178 | 0.262 |
+| Basınçlı hava ln(P₂/P₁) | Değişmez | Değişmez | Değişmez | Değişmez |
+
+**Gözlemler:**
+- **Isıtma:** T₀ arttıkça Carnot faktörü azalır → ESI düşer (daha az exergy gerekir, ama oran da değişir)
+- **Soğutma:** T₀ arttıkça ters Carnot exergy'si dramatik artar → T₀ = 35 °C'de ESI çok farklı
+- **Basınçlı hava:** İzotermik sıkıştırma formülünde T₀ hem payda hem paydada → net etki düşük
+
+> **AI Kuralı:** Tropik ve çöl iklimlerinde (T₀ > 35 °C) soğutma ESI'si önemli ölçüde farklılaşır. Raporda T₀ değerini mutlaka belirt.
+
+### 6b.2 Ölçüm Belirsizliği (Measurement Uncertainty)
+
+| Ölçüm | Tipik Belirsizlik | ESI Etkisi | Not |
+|--------|-------------------|-----------|-----|
+| Sıcaklık (T) | ±1-2 °C | ±%2-5 | Termoçift doğruluğu |
+| Basınç (P) | ±%1-2 | ±%1-3 | Transmitter kalibrasyonu |
+| Debi (ṁ) | ±%2-5 | ±%2-5 | Orifis/ultrasonik doğruluğu |
+| Elektrik güç (W) | ±%1-2 | ±%1-2 | Güç analizörü |
+| Yakıt tüketimi | ±%2-3 | ±%2-3 | Sayaç kalibrasyonu |
+
+**Toplam ESI belirsizliği (tipik):** ±%5-10 (propagasyon ile)
+
+**Belirsizlik propagasyonu formülü:**
+
+$$\frac{\delta ESI}{ESI} = \sqrt{\left(\frac{\delta Ex_{min}}{Ex_{min}}\right)^2 + \left(\frac{\delta Ex_{actual}}{Ex_{actual}}\right)^2}$$
+
+> **Pratik kural:** ESI farkı %10'dan küçükse "aynı seviyede" olarak yorumla. ESI = 0.20 ile ESI = 0.22 arasında anlamlı fark yoktur.
+
+---
+
 ## İlgili Dosyalar
 
 - `factory/process/bat_overview.md` — BAT kavramı ve EU BREF sistemi
@@ -225,3 +436,7 @@ Her zaman ESI/BPR sonuçlarını ilgili proses dosyasındaki sektörel tipik de�
 3. EU Commission (2009). *Reference Document on Best Available Techniques for Energy Efficiency*. JRC BREF.
 4. Kotas, T.J. (1985). *The Exergy Method of Thermal Plant Analysis*. Butterworths. — Minimum exergy kavramı
 5. Sciubba, E. (2001). "Beyond thermoeconomics? The concept of Extended Exergy Accounting." *Energy*, 26(1), 29-44.
+6. Bejan, A. (1996). *Entropy Generation Minimization*. CRC Press. — Gouy-Stodola teoremi ve exergy yıkım
+7. Moran, M.J. & Shapiro, H.N. (2014). *Fundamentals of Engineering Thermodynamics*. 8th ed., Wiley. — Exergy dengesi ve 2. yasa formülasyonu
+8. Wall, G. (1977). "Exergy — a useful concept within resource accounting." *Report No. 77-42*, Institute of Theoretical Physics, Chalmers University of Technology. — ESI ilk kullanımları
+9. JCGM 100:2008. *Evaluation of measurement data — Guide to the expression of uncertainty in measurement (GUM)*. — Ölçüm belirsizliği metodolojisi

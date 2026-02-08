@@ -99,6 +99,26 @@ Bazı proseslerin ESI'si doğası gereği düşüktür:
 
 > **AI Kuralı:** ESI'yi yorumlarken **mutlaka proses tipini** dikkate al. Her prosesin kendi "iyi/kötü" skalası vardır.
 
+### 3.3 Genişletilmiş Sektörel ESI Referans Tablosu
+
+| Proses | En Kötü Çeyrek ESI | Tipik ESI | BAT ESI | Best-in-Class ESI | Kaynak |
+|--------|---------------------|-----------|---------|---------------------|--------|
+| Basınçlı hava | < 0.05 | 0.05-0.15 | 0.14-0.15 | 0.20-0.25 (ısı geri kazanımlı) | DOE Air Master+ |
+| Isıtma (düşük T) | < 0.08 | 0.08-0.18 | 0.12-0.15 | 0.40-0.60 (ısı pompası) | LCP BREF 2017 |
+| Isıtma (yüksek T) | < 0.20 | 0.20-0.40 | 0.35-0.45 | 0.50+ (rejeneratif) | Kotas (1985) |
+| Buhar üretimi | < 0.18 | 0.20-0.35 | 0.35-0.42 | 0.50-0.60 (HRSG) | LCP BREF 2017 |
+| Soğutma (7°C) | < 0.15 | 0.15-0.40 | 0.33-0.38 | 0.50-0.55 (free cooling) | ASHRAE 90.1 |
+| Soğuk depolama (−20°C) | < 0.15 | 0.15-0.40 | 0.35-0.50 | 0.55+ (NH₃/CO₂ kaskad) | IIR Guide |
+| Kurutma | < 0.04 | 0.03-0.15 | 0.12-0.18 | 0.25-0.35 (ısı pompalı) | Mujumdar (2015) |
+| CHP (gaz türbini) | < 0.30 | 0.35-0.50 | 0.45-0.50 | 0.55-0.60 (CCGT) | LCP BREF 2017 |
+| CHP (gaz motoru) | < 0.35 | 0.40-0.55 | 0.48-0.55 | 0.58+ (yüksek η_el) | EPA CHP |
+| Çimento | < 0.10 | 0.10-0.25 | 0.20-0.25 | 0.28+ (atık ısı ORC) | CLM BREF 2013 |
+| Cam | < 0.08 | 0.08-0.20 | 0.15-0.20 | 0.25+ (oxy-fuel) | GLS BREF 2012 |
+| Kağıt | < 0.10 | 0.12-0.28 | 0.22-0.28 | 0.30+ (entegre CHP) | PP BREF 2015 |
+| Şeker | < 0.10 | 0.10-0.22 | 0.18-0.22 | 0.25+ (MVR) | FDM BREF 2019 |
+
+> **Kullanım:** "En kötü çeyrek" = endüstrideki en düşük %25'lik dilim. "Best-in-class" = dünyada kanıtlanmış en iyi değerler (pilot veya özel koşullar dahil). AI yorumunda mevcut ESI'yi bu skalada konumlandır.
+
 ---
 
 ## 4. ESI Hesaplama Örnekleri
@@ -138,6 +158,40 @@ ESI = 50 / 165 = 0.303 → Derece: C
 ```
 
 **Yorum:** Soğutma prosesi ESI = 0.303 ile C derecesinde. Soğutma için bu iyi bir seviye. Condenser bakımı, kısmi yük optimizasyonu ve serbest soğutma (free cooling) değerlendirmesi ile B derecesine ulaşılabilir.
+
+### 4.3 Örnek: CHP Sistemi — FUF vs ESI Karşılaştırması
+
+CHP'de FUF (Fuel Utilization Factor) yüksek görünürken ESI farklı bir tablo ortaya koyar:
+
+**Veriler:**
+- Gaz motoru CHP: 2 MWe elektrik + 2.5 MW termal (sıcak su 90 °C)
+- Doğal gaz tüketimi: 5.2 MW (LHV)
+- T₀ = 25 °C (298.15 K)
+
+```
+FUF = (W_el + Q_ısı) / Q_yakıt = (2.0 + 2.5) / 5.2 = 86.5%
+
+Exergy hesabı:
+Ex_yakıt = 5.2 × 1.04 = 5.408 MW
+Ex_el = 2.0 MW (elektrik = exergy)
+Ex_ısı = 2.5 × (1 − 298.15/363.15) = 2.5 × 0.179 = 0.448 MW
+  (90 °C sıcak su Carnot faktörü düşük!)
+
+Ex_min = W_el + Ex_ısı = 2.0 + 0.448 = 2.448 MW
+
+ESI = Ex_min / Ex_yakıt = 2.448 / 5.408 = 0.453 → Derece B
+η_ex = Ex_min / Ex_yakıt = %45.3
+```
+
+**Karşılaştırma:**
+
+| Metrik | Değer | Yorum |
+|--------|-------|-------|
+| FUF (1. yasa) | %86.5 | "Çok iyi" — ama ısının kalitesini abartır |
+| η_ex (2. yasa) | %45.3 | Daha gerçekçi — ısının exergy'si düşük |
+| ESI | 0.453 | Derece B — CHP için iyi |
+
+**Kritik ders:** Aynı sistem FUF = %86.5 ve ESI = 0.453. Düşük sıcaklık ısı üreten CHP'lerde FUF ile ESI arasındaki uçurum büyür. **AI kuralı:** CHP yorumlarında HER ZAMAN her iki metriği de raporla.
 
 ---
 
@@ -182,6 +236,54 @@ ESI = 50 / 165 = 0.303 → Derece: C
 
 ---
 
+## 5b. Proses Bazlı İyileştirme Yol Haritası — Beklenen ESI Deltaları
+
+Her iyileştirme müdahalesi için beklenen ESI artışı (delta):
+
+### 5b.1 Isıtma Prosesi
+
+| Müdahale | Beklenen ΔESI | Ön Koşul | Yatırım Seviyesi |
+|----------|---------------|----------|------------------|
+| Ekonomizer ekleme | +0.02 – +0.05 | Baca gazı > 160 °C | Düşük |
+| Hava ön ısıtıcı | +0.01 – +0.03 | Kömür/fuel oil kazan | Orta |
+| Yoğuşmalı kazan dönüşümü | +0.03 – +0.08 | Doğal gaz, T_dönüş < 55 °C | Orta-yüksek |
+| Isı pompası entegrasyonu | +0.10 – +0.30 | T_ısıtma < 80 °C | Yüksek |
+| Modüler kazan | +0.02 – +0.05 | Değişken yük profili | Orta |
+
+### 5b.2 Basınçlı Hava
+
+| Müdahale | Beklenen ΔESI | Ön Koşul | Yatırım Seviyesi |
+|----------|---------------|----------|------------------|
+| Kaçak giderme | +0.01 – +0.04 | Kaçak > %15 | Çok düşük |
+| VFD ekleme | +0.01 – +0.03 | Değişken yük profili | Orta |
+| Basınç optimizasyonu | +0.005 – +0.01 | Basınç > ihtiyaç + 1 bar | Yok (operasyonel) |
+| Isı geri kazanım | +0.03 – +0.08 | Isı talebi mevcut | Orta |
+| Master controller | +0.005 – +0.01 | 2+ kompresör | Orta |
+
+### 5b.3 Soğutma
+
+| Müdahale | Beklenen ΔESI | Ön Koşul | Yatırım Seviyesi |
+|----------|---------------|----------|------------------|
+| Kondenser bakımı | +0.02 – +0.05 | Kondenser ΔT > 5 °C | Düşük |
+| Free cooling | +0.05 – +0.15 | T_cold > 10 °C, ılıman iklim | Orta |
+| VFD (pompa+fan) | +0.02 – +0.05 | Sabit hız mevcut | Orta |
+| Soğuk su T artırma | +0.01 – +0.03 | Kullanıcı toleransı var | Yok (operasyonel) |
+| Absorpsiyon chiller | +0.05 – +0.15 | Atık ısı > 80 °C mevcut | Yüksek |
+
+### 5b.4 Kurutma
+
+| Müdahale | Beklenen ΔESI | Ön Koşul | Yatırım Seviyesi |
+|----------|---------------|----------|------------------|
+| Egzoz ısı geri kazanım | +0.01 – +0.04 | Egzoz T > 80 °C | Orta |
+| Isı pompalı kurutma | +0.05 – +0.15 | T_kurutma < 80 °C | Yüksek |
+| Online nem kontrol | +0.005 – +0.02 | Aşırı kurutma mevcut | Düşük-orta |
+| Mekanik ön nem alma | +0.02 – +0.05 | Yüksek başlangıç nemi | Orta |
+| Çok kademeli kurutma | +0.01 – +0.03 | Tek kademe mevcut | Orta-yüksek |
+
+> **Not:** ΔESI değerleri tahminidir ve mevcut duruma göre değişir. Zayıf durumda (düşük ESI) müdahalelerin etkisi daha büyüktür.
+
+---
+
 ## 6. AI Yorumlama Kuralları
 
 ### 6.1 ESI Raporlama Formatı
@@ -218,6 +320,50 @@ Fabrika seviyesinde birden fazla proses varsa:
 
 ---
 
+## 6b. CO₂ Korelasyonu
+
+### 6b.1 ESI-CO₂ İlişkisi
+
+ESI iyileşmesi doğrudan CO₂ emisyon azalmasına karşılık gelir:
+
+$$\Delta CO_2 = \Delta Ex_{tasarruf} \times EF_{yakıt} \times t_{yıl}$$
+
+| Sembol | Tanım | Birim |
+|--------|-------|-------|
+| ΔEx_tasarruf | Exergy tasarrufu | kW |
+| EF_yakıt | Yakıt emisyon faktörü | kg CO₂/kWh |
+| t_yıl | Yıllık çalışma süresi | h |
+
+**Emisyon faktörleri:**
+
+| Yakıt | EF (kg CO₂/kWh) | Kaynak |
+|-------|------------------|--------|
+| Doğal gaz | 0.202 | IPCC 2006 |
+| Kömür (bitümlü) | 0.341 | IPCC 2006 |
+| Fuel oil | 0.267 | IPCC 2006 |
+| Elektrik (EU avg) | 0.275 | EEA 2023 |
+| Elektrik (Türkiye) | 0.440 | TEİAŞ 2023 |
+
+### 6b.2 Çözümlü Örnek
+
+**Problem:** Isıtma prosesinde ESI 0.18'den 0.28'e yükseltildi. Doğal gaz kazanı, Q = 2.000 kW termal, 7.200 h/yıl.
+
+```
+Mevcut: Ex_actual = Ex_min / ESI_eski = (2000 × 0.342) / 0.18 = 3800 kW_ex
+Hedef:  Ex_hedef  = Ex_min / ESI_yeni = (2000 × 0.342) / 0.28 = 2443 kW_ex
+
+ΔEx = 3800 − 2443 = 1357 kW
+ΔQ_yakıt ≈ 1357 / 1.04 = 1305 kW (enerji)
+
+ΔCO₂ = 1305 × 0.202 × 7200 / 1000 = 1898 ton CO₂/yıl
+
+(Veya: Her 0.01 ESI artışı ≈ ~190 ton CO₂/yıl azalma — bu ölçek için)
+```
+
+> **AI Kuralı:** ESI iyileştirme önerilerinde CO₂ etkisini de belirt. "ESI'yi C derecesinden B derecesine yükseltmek yıllık ~X ton CO₂ azalma sağlar."
+
+---
+
 ## İlgili Dosyalar
 
 - `factory/process/gap_analysis_methodology.md` — 3 katmanlı boşluk modeli
@@ -232,3 +378,7 @@ Fabrika seviyesinde birden fazla proses varsa:
 2. Rosen, M.A., Dincer, I. & Kanoglu, M. (2008). "Role of exergy in increasing efficiency and sustainability and reducing environmental impact." *Energy Policy*, 36(1), 128-137.
 3. Connelly, L. & Koshland, C.P. (2001). "Exergy and industrial ecology." *Exergy, An International Journal*, 1(3), 146-165.
 4. Sciubba, E. & Wall, G. (2007). "A brief commented history of exergy from the beginnings to 2004." *Int. J. of Thermodynamics*, 10(1), 1-26.
+5. IPCC (2006). *Guidelines for National Greenhouse Gas Inventories*. Vol. 2, Ch. 2 — Stationary Combustion Emission Factors.
+6. European Environment Agency (2023). *CO₂ emission intensity of electricity generation in Europe*. EEA Indicator.
+7. Hammond, G.P. & Winnett, A.B. (2006). "Interdisciplinary perspectives on environmental appraisal and valuation techniques." *Proceedings of the ICE — Waste and Resource Management*, 159(3), 117-130.
+8. Wall, G. (2003). "Exergy tools." *Proceedings of the Institution of Mechanical Engineers, Part A*, 217(4), 401-412.
