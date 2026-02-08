@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Factory, Plus, Play, PackageOpen, Sparkles, Target, GitBranch, Thermometer, Layers, Activity, TrendingUp, Gauge, Package } from 'lucide-react';
+import { Factory, Plus, Play, PackageOpen, Sparkles, Target, GitBranch, Thermometer, Layers, Activity, TrendingUp, Gauge, Package, Info } from 'lucide-react';
 import {
   getFactoryProject,
   analyzeFactory,
@@ -16,6 +16,7 @@ import {
 import Card from '../components/common/Card';
 import EquipmentInventory from '../components/factory/EquipmentInventory';
 import AddEquipmentModal from '../components/factory/AddEquipmentModal';
+import ProcessEditModal from '../components/factory/ProcessEditModal';
 import FactoryHeader from '../components/factory/FactoryHeader';
 import FactoryMetricBar from '../components/factory/FactoryMetricBar';
 import PriorityList from '../components/factory/PriorityList';
@@ -77,6 +78,7 @@ const FactoryDashboard = () => {
   const [interpreting, setInterpreting] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showProcessModal, setShowProcessModal] = useState(false);
   const [pinchLoading, setPinchLoading] = useState(false);
   const [advExergyLoading, setAdvExergyLoading] = useState(false);
   const [egmLoading, setEgmLoading] = useState(false);
@@ -441,6 +443,33 @@ const FactoryDashboard = () => {
         </Card>
       )}
 
+      {/* Process CTA banner */}
+      {!project.process_type && hasEquipment && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-5">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-medium text-amber-800 mb-1">Proses tanımı eklenmemiş.</p>
+              <p className="text-sm text-amber-700 mb-3">
+                Proses tanımı ekleyerek şunları öğrenebilirsiniz:
+              </p>
+              <ul className="text-sm text-amber-700 mb-3 list-disc list-inside">
+                <li>Termodinamik ideale ne kadar uzaksınız</li>
+                <li>En iyi teknoloji ile kıyaslama</li>
+                <li>Yıllık tasarruf potansiyeli</li>
+              </ul>
+              <button
+                onClick={() => setShowProcessModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Proses Tanımı Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mode 2: Has equipment, no analysis */}
       {hasEquipment && !hasAnalysis && (
         <>
@@ -537,6 +566,15 @@ const FactoryDashboard = () => {
         <AddEquipmentModal
           onAdd={handleAddEquipment}
           onClose={() => setShowModal(false)}
+        />
+      )}
+
+      {/* Process Edit Modal */}
+      {showProcessModal && (
+        <ProcessEditModal
+          projectId={projectId}
+          onClose={() => setShowProcessModal(false)}
+          onSuccess={() => { setShowProcessModal(false); fetchProject(); }}
         />
       )}
     </div>

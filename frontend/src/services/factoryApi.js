@@ -1,7 +1,7 @@
 import api from './api';
 
-export const createFactoryProject = async (name, sector, description) => {
-  const response = await api.post('/factory/projects', { name, sector, description });
+export const createFactoryProject = async (name, sector, description, processFields = {}) => {
+  const response = await api.post('/factory/projects', { name, sector, description, ...processFields });
   return response.data;
 };
 
@@ -57,5 +57,20 @@ export const runThermoeconomicOptimization = async (projectId) => {
 
 export const runEnergyManagement = async (projectId) => {
   const response = await api.post(`/factory/projects/${projectId}/energy-management`);
+  return response.data;
+};
+
+export const getProcessTypes = async () => {
+  const response = await api.get('/factory/process-types');
+  return response.data;
+};
+
+export const getProcessSubcategories = async (processType) => {
+  const response = await api.get(`/factory/process-types/${processType}/subcategories`);
+  return response.data;
+};
+
+export const updateProjectProcess = async (projectId, processData) => {
+  const response = await api.put(`/factory/projects/${projectId}/process`, processData);
   return response.data;
 };

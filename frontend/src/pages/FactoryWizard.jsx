@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Factory, ArrowLeft, ArrowRight, Plus, Trash2, Check } from 'lucide-react';
-import { createFactoryProject, addEquipmentToProject } from '../services/factoryApi';
+import { createFactoryProject, addEquipmentToProject, getProcessTypes } from '../services/factoryApi';
 import { getEquipmentConfig } from '../services/api';
 import Card from '../components/common/Card';
 import AddEquipmentModal from '../components/factory/AddEquipmentModal';
+import ProcessDefinitionStep, { validateProcessStep } from '../components/factory/ProcessDefinitionStep';
 
 const SECTORS = [
   { value: 'textile', label: 'Tekstil' },
@@ -35,13 +36,30 @@ const FactoryWizard = () => {
   const [sector, setSector] = useState('');
   const [description, setDescription] = useState('');
 
-  // Step 2: Equipment
+  // Step 2: Process definition
+  const [processType, setProcessType] = useState(null);
+  const [processLabel, setProcessLabel] = useState('');
+  const [processParams, setProcessParams] = useState({});
+  const [processSubcategory, setProcessSubcategory] = useState('general');
+  const [operatingHours, setOperatingHours] = useState(6000);
+  const [energyPrice, setEnergyPrice] = useState(0.08);
+  const [skipProcess, setSkipProcess] = useState(false);
+  const [processTypesData, setProcessTypesData] = useState(null);
+
+  // Step 3: Equipment
   const [equipment, setEquipment] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   // State
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
+
+  // Fetch process types for validation
+  useEffect(() => {
+    getProcessTypes()
+      .then((data) => setProcessTypesData(data.process_types))
+      .catch(() => {});
+  }, []);
 
   const handleAddEquipment = (eq) => {
     setEquipment((prev) => [...prev, { ...eq, _tempId: Date.now().toString() }]);
@@ -50,6 +68,15 @@ const FactoryWizard = () => {
 
   const handleRemoveEquipment = (tempId) => {
     setEquipment((prev) => prev.filter((eq) => eq._tempId !== tempId));
+  };
+
+  const handleStep2Continue = () => {
+    if (!skipProcess && !validateProcessStep(processType, processParams, skipProcess, processTypesData)) {
+      setError('Lütfen tüm zorunlu proses parametrelerini doldurun');
+      return;
+    }
+    setError(null);
+    setStep(3);
   };
 
   const handleCreate = async () => {
@@ -66,8 +93,24 @@ const FactoryWizard = () => {
     setError(null);
 
     try {
-      // Create project
-      const projectResp = await createFactoryProject(name, sector || null, description || null);
+      // Build process params — convert numeric strings to numbers
+      const cleanedParams = {};
+      for (const [k, v] of Object.entries(processParams)) {
+        if (v != null && v !== '') {
+          const num = Number(v);
+          cleanedParams[k] = isNaN(num) ? v : num;
+        }
+      }
+
+      // Create project with process fields
+      const projectResp = await createFactoryProject(name, sector || null, description || null, {
+        process_type: skipProcess ? null : processType,
+        process_label: skipProcess ? null : (processLabel || null),
+        process_parameters: skipProcess ? null : cleanedParams,
+        process_subcategory: skipProcess ? null : processSubcategory,
+        operating_hours: operatingHours,
+        energy_price_eur_kwh: energyPrice,
+      });
       const projectId = projectResp.project.id;
 
       // Add equipment
@@ -101,7 +144,7 @@ const FactoryWizard = () => {
         <Factory className="w-8 h-8 text-indigo-600" />
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Yeni Fabrika Projesi</h2>
-          <p className="text-gray-600 mt-1">Adım {step} / 2</p>
+          <p className="text-gray-600 mt-1">Adım {step} / 3</p>
         </div>
       </div>
 
@@ -114,6 +157,11 @@ const FactoryWizard = () => {
         <div className="w-8 h-0.5 bg-gray-300" />
         <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${step >= 2 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'}`}>
           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${step >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-300 text-gray-600'}`}>2</span>
+          Proses Tanımı
+        </div>
+        <div className="w-8 h-0.5 bg-gray-300" />
+        <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${step >= 3 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'}`}>
+          <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${step >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-300 text-gray-600'}`}>3</span>
           Ekipman Envanteri
         </div>
       </div>
@@ -178,8 +226,49 @@ const FactoryWizard = () => {
         </Card>
       )}
 
-      {/* Step 2: Equipment inventory */}
+      {/* Step 2: Process definition */}
       {step === 2 && (
+        <>
+          <Card title="Proses Tanımı">
+            <ProcessDefinitionStep
+              processType={processType}
+              setProcessType={setProcessType}
+              processLabel={processLabel}
+              setProcessLabel={setProcessLabel}
+              processParams={processParams}
+              setProcessParams={setProcessParams}
+              processSubcategory={processSubcategory}
+              setProcessSubcategory={setProcessSubcategory}
+              operatingHours={operatingHours}
+              setOperatingHours={setOperatingHours}
+              energyPrice={energyPrice}
+              setEnergyPrice={setEnergyPrice}
+              skipProcess={skipProcess}
+              setSkipProcess={setSkipProcess}
+            />
+          </Card>
+
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setStep(1)}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Geri
+            </button>
+            <button
+              onClick={handleStep2Continue}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Devam
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Step 3: Equipment inventory */}
+      {step === 3 && (
         <>
           <Card title="Ekipman Envanteri">
             {equipment.length === 0 ? (
@@ -231,7 +320,7 @@ const FactoryWizard = () => {
 
           <div className="flex items-center justify-between">
             <button
-              onClick={() => setStep(1)}
+              onClick={() => setStep(2)}
               className="flex items-center gap-2 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
