@@ -1,9 +1,9 @@
 # ExergyLab - Kapsamli Proje Analizi
 
-> **Son Guncelleme:** 2026-02-08
-> **Versiyon:** 4.0
+> **Son Guncelleme:** 2026-02-14
+> **Versiyon:** 4.1
 > **Durum:** Uretim (Production)
-> **HEAD:** 3745538
+> **HEAD:** c58e4ae
 
 ---
 
@@ -66,16 +66,16 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 
 | Metrik | Deger |
 |--------|-------|
-| **Toplam Kod Satiri** | **35,831** |
-| Python satiri | 25,976 |
+| **Toplam Kod Satiri** | **35,974** |
+| Python satiri | 26,119 |
 | JS/JSX satiri | 9,855 |
 | Engine modulleri | 24 dosya (12,596 satir) |
-| API modulleri | 22 dosya (5,018 satir) |
+| API modulleri | 28 dosya (5,161 satir) |
 | Frontend dosyalari | 75 component + 6 sayfa (9,855 satir) |
 | Knowledge dosyalari | 317 |
 | Skill dosyalari | 18 |
 | Test dosyalari | 23 (21 test modulu + conftest + __init__) |
-| Test fonksiyonlari | 787 |
+| Test fonksiyonlari | 784 |
 | Test satiri | 8,362 |
 | API endpointleri | 30 |
 | Veritabani tablolari | 6 |
@@ -111,14 +111,14 @@ Frontend katmani React 19 + Plotly.js ile Sankey diyagramlari, radar benchmark g
 ```
 exergy-lab/
 |
-|-- api/                              # FastAPI backend (5,018 satir, 22 dosya)
+|-- api/                              # FastAPI backend (5,161 satir, 28 dosya)
 |   |-- main.py                       # App, CORS, lifespan, router kaydi (66 satir)
 |   |-- auth/                         # Kimlik dogrulama (142 satir, 5 dosya)
 |   |   |-- config.py                 # JWT ayarlari (10 satir)
 |   |   |-- dependencies.py           # Auth dependency injection (66 satir)
 |   |   |-- schemas.py                # User/Token skemalari (26 satir)
 |   |   |-- security.py               # Parola hash, JWT olusturma (40 satir)
-|   |-- database/                     # Veritabani katmani (480 satir, 5 dosya)
+|   |-- database/                     # Veritabani katmani (513 satir, 5 dosya)
 |   |   |-- config.py                 # DB ayarlari (8 satir)
 |   |   |-- crud.py                   # CRUD operasyonlari (254 satir)
 |   |   |-- models.py                 # 6 SQLAlchemy modeli (154 satir)
@@ -131,11 +131,11 @@ exergy-lab/
 |   |   |-- benchmarks.py             # Benchmark verileri (93 satir)
 |   |   |-- solutions.py              # Cozum onerileri (85 satir)
 |   |   |-- auth.py                   # Kimlik dogrulama (60 satir)
-|   |-- schemas/                      # Pydantic modelleri (534 satir, 4 dosya)
+|   |-- schemas/                      # Pydantic modelleri (545 satir, 4 dosya)
 |   |   |-- requests.py               # Istek skemalari (211 satir)
 |   |   |-- responses.py              # Yanit skemalari (233 satir)
 |   |   |-- factory.py                # Fabrika skemalari (100 satir)
-|   |-- services/                     # Business logic (1,871 satir, 3 dosya)
+|   |-- services/                     # Business logic (1,871 satir, 4 dosya)
 |       |-- claude_code_service.py     # AI entegrasyonu (1,424 satir)
 |       |-- equipment_registry.py      # Ekipman tip kayit defteri (173 satir)
 |       |-- knowledge_router.py        # Bilgi yonlendirme (274 satir)
@@ -874,7 +874,7 @@ Grassmann-stili 5 katmanli Sankey diyagrami. Enerji kaynagi diferansiyasyonu ve 
 
 ## 4. API Katmani
 
-22 Python dosyasi, toplam **5,018 satir**. 8 route dosyasi uzerinden **30 endpoint**.
+28 Python dosyasi, toplam **5,161 satir**. 8 route dosyasi uzerinden **30 endpoint**.
 
 ### 4.1 Endpoint Listesi
 
@@ -1040,7 +1040,7 @@ AI yorumlama ve sohbet entegrasyonu. Claude Code CLI'yi subprocess ile cagirarak
 | EquipmentAnalysis.jsx | 247 | Progressive disclosure, HeroScoreBanner, 4 sekme, FloatingChat FAB |
 | FactoryList.jsx | 126 | Proje listesi, sektor rozeti, ekipman sayisi |
 | FactoryWizard.jsx | 363 | 3 adimli sihirbaz (proje bilgileri → proses tanimi → ekipman ekleme) |
-| FactoryDashboard.jsx | 514 | Fabrika analiz merkezi, 6-tab anlati sistemi, 13 useState |
+| FactoryDashboard.jsx | 514 | Fabrika analiz merkezi, 6-tab anlati sistemi, 15 useState |
 | Login.jsx | 134 | Giris/kayit gecisi, JWT token localStorage kaydi |
 
 ### 5.3 Component Agaci (75 dosya, 7,729 satir)
@@ -1273,7 +1273,7 @@ Font: Plus Jakarta Sans (govde), JetBrains Mono (metrikler)
 
 ## 6. Test Altyapisi
 
-23 dosya (21 test modulu + conftest + __init__), **787 test fonksiyonu**, toplam **8,362 satir**.
+23 dosya (21 test modulu + conftest + __init__), **784 test fonksiyonu**, toplam **8,362 satir**.
 
 ### 6.1 Test Dosyalari
 
@@ -1286,12 +1286,12 @@ Font: Plus Jakarta Sans (govde), JetBrains Mono (metrikler)
 | test_engine.py | 45 | 552 | 7 ekipman motoru, exergy dengesi, verimlilik |
 | test_entropy_generation.py | 38 | 546 | Gouy-Stodola, Bejan sayisi, dekompozisyon |
 | test_factory_sankey_v2.py | 29 | 549 | 3 gorunum modu, node/link uretimi, ozet kartlari [YENi] |
-| test_exergoeconomic.py | 34 | 505 | SPECO, f-faktor, r-faktor, maliyet korelasyonu |
+| test_exergoeconomic.py | 42 | 505 | SPECO, f-faktor, r-faktor, maliyet korelasyonu |
 | test_thermoeconomic_optimization.py | 39 | 491 | Strateji belirleme, yatirim tahmini, geri odeme |
-| test_skills.py | 50 | 453 | AI beceri dosyalari, knowledge dogrulama |
-| test_avoidable_unavoidable.py | 22 | 376 | AV/UN ayrisimi, invariantler |
+| test_skills.py | 133 | 453 | AI beceri dosyalari, knowledge dogrulama |
+| test_avoidable_unavoidable.py | 67 | 376 | AV/UN ayrisimi, invariantler |
 | test_process_exergy.py | 30 | 359 | 8 proses tipi, minimum exergy hesaplama [YENi] |
-| test_gap_analysis.py | 28 | 358 | 3 katman, ESI grade, gorsellestirme verisi [YENi] |
+| test_gap_analysis.py | 38 | 358 | 3 katman, ESI grade, gorsellestirme verisi [YENi] |
 | test_compare.py | 12 | 232 | What-if delta hesaplama |
 | test_radar.py | 27 | 200 | 6 eksenli benchmark puanlama |
 | test_heat_exchanger.py | 21 | 200 | Bejan sayisi, LMTD, fouling, etkinlik |
@@ -1308,7 +1308,7 @@ Font: Plus Jakarta Sans (govde), JetBrains Mono (metrikler)
 | Metrik | Deger |
 |--------|-------|
 | Test dosyasi | 21 (+ conftest + __init__) |
-| Test fonksiyonu | 787 |
+| Test fonksiyonu | 784 |
 | Toplam satir | 8,362 |
 | Veritabani | Her test icin bellekte SQLite (izole) |
 | API test | FastAPI TestClient + dependency override |
@@ -1494,7 +1494,7 @@ changeOrigin: true
 | FactorySankey.jsx (eski) | factory/FactorySankey.jsx (53 satir) | V2 kullanilmasina ragmen eski bilesen hala mevcut; kaldirilabilir |
 | MetricBar tekrari | factory/FactoryMetricBar, pinch/PinchMetricBar, advanced-exergy/AdvancedExergyMetricBar, entropy-generation/EGMMetricBar | 4 MetricBar varyanti kaldi; ortaklastirma firsati |
 | Button.jsx kullanilmiyor | common/Button.jsx (38 satir) | Hicbir dosyada import edilmiyor |
-| FactoryDashboard useState | pages/FactoryDashboard.jsx | 13 useState hook'u; 6-tab sistemi karmasikligi azaltti ama Zustand hala faydali olabilir |
+| FactoryDashboard useState | pages/FactoryDashboard.jsx | 15 useState hook'u; 6-tab sistemi karmasikligi azaltti ama Zustand hala faydali olabilir |
 | Lazy loading yok | frontend/vite.config.js | Tum componentler eagerly yukleniyor; code splitting uygulanmamis |
 | Plotly font tutarsizligi | Plotly grafikleri | Plotly kendi font'unu kullaniyor, Tailwind sistem font'u ile uyumsuz |
 | Erisebilirlik (a11y) | Genel | ARIA etiketleri, klavye navigasyonu, renk kontrasti kontrolu eksik |
@@ -1508,6 +1508,7 @@ Son 25 commit (en yeniden en eskiye):
 
 | Commit | Aciklama |
 |--------|----------|
+| c58e4ae | PROJECT_ANALYSIS.md guncelleme: kapsamli v4.0 yenilemesi (30K → 36K satir, +5 yeni bolum) |
 | 3745538 | Knowledge base deep expansion: 12 dosya, 3,083 → 7,122 satir (+131%) |
 | 3d5f29f | Dashboard reorganization: 9 tab → 6 anlati tabi + Gap Analysis gorsellestirme |
 | feef0af | FactoryWizard: Process Definition adimi (Brief 2) |
@@ -1556,7 +1557,7 @@ Son 25 commit (en yeniden en eskiye):
 |-------|---------|------|
 | PostgreSQL gecisi | Orta | Olceklenebilirlik (coklu yazici) |
 | Frontend lazy loading + code splitting | Yuksek | Performans (Plotly 3.3 MB) |
-| State yonetimi (Zustand) | Orta | FactoryDashboard 13 useState iyilestirmesi |
+| State yonetimi (Zustand) | Orta | FactoryDashboard 15 useState iyilestirmesi |
 | Toplu ekipman ekleme (batch) | Orta | Kullanici deneyimi |
 | Erisebilirlik (a11y) iyilestirmeleri | Orta | Uyumluluk |
 | Gap analizi → proses optimizasyon onerileri | Orta | Analiz derinligi |
@@ -1573,5 +1574,5 @@ Son 25 commit (en yeniden en eskiye):
 
 ---
 
-*Bu dokuman, ExergyLab kod tabaninin 2026-02-08 tarihli kapsamli analizidir (v4.0).*
-*35,831 satir kod, 787 test, 317 knowledge dosyasi, 7 analiz motoru (6 ileri + gap analizi).*
+*Bu dokuman, ExergyLab kod tabaninin 2026-02-14 tarihli kapsamli analizidir (v4.1).*
+*35,974 satir kod, 784 test, 317 knowledge dosyasi, 7 analiz motoru (6 ileri + gap analizi).*
